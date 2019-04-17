@@ -1,0 +1,5 @@
+dependencies:
+  - name: redis
+    version: 5.0.0
+    repository: "@stable"
+    alias: redis
