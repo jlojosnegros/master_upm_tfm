@@ -4,10 +4,12 @@ import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.HttpClientBuilder;
+import org.apache.http.util.EntityUtils;
 import org.assertj.core.api.Assertions;
 import org.jlom.master_upm.tfm.springboot.catalog.controller.CatalogService;
 import org.jlom.master_upm.tfm.springboot.catalog.model.CatalogContent;
 import org.jlom.master_upm.tfm.springboot.catalog.model.ContentStatus;
+import org.jlom.master_upm.tfm.springboot.catalog.view.api.dtos.ProblemDetails;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mockito;
@@ -18,7 +20,9 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.boot.web.server.LocalServerPort;
+import org.springframework.http.HttpStatus;
 import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.web.util.UriTemplate;
 
 import java.io.IOException;
 import java.time.Instant;
@@ -27,6 +31,7 @@ import java.util.List;
 import java.util.Set;
 
 import static org.jlom.master_upm.tfm.springboot.catalog.utils.JsonUtils.retrieveListOfResourcesFromResponse;
+import static org.jlom.master_upm.tfm.springboot.catalog.utils.JsonUtils.retrieveResourceFromResponse;
 
 
 @RunWith(SpringRunner.class)
@@ -72,7 +77,49 @@ public class CatalogRestServerTest {
 
     List<CatalogContent> expectedContents = List.of(expectedContentOne, expectedContentTwo);
 
-    Mockito.doReturn(expectedContents).when(service).listAll();
+    Mockito.doReturn(expectedContentOne).when(service).getContent(1);
+
+    //when
+    HttpResponse response = getRestResponseTo("/catalog/content/1");
+
+    //then
+    int statusCode = response.getStatusLine().getStatusCode();
+    Assertions.assertThat(statusCode).isEqualTo(200);
+
+    CatalogContent catalogContent = retrieveResourceFromResponse(response, CatalogContent.class);
+
+    LOG.debug("sent    :" + expectedContentOne);
+    LOG.debug("received: " + catalogContent);
+
+    Assertions.assertThat(catalogContent).isEqualTo(expectedContentOne);
+
+  }
+
+  @Test
+  public void when_AskingForContentWithExpecificTag_then_OnlyThoseWithTheTagAreReturned() throws IOException {
+    //given
+    CatalogContent expectedContentOne = CatalogContent.builder()
+            .contentId(1)
+            .status(ContentStatus.AVAILABLE)
+            .title("uno")
+            .streamId(1)
+            .available(Date.from(Instant.now()))
+            .tags(Set.of("tag1", "tag2"))
+            .build();
+    CatalogContent expectedContentTwo = CatalogContent.builder()
+            .contentId(2)
+            .status(ContentStatus.SOON)
+            .title("dos")
+            .streamId(2)
+            .available(Date.from(Instant.now()))
+            .tags(Set.of("tag1", "tag2"))
+            .build();
+
+    List<CatalogContent> expectedContents = List.of(expectedContentOne, expectedContentTwo);
+
+    Mockito.doReturn(expectedContents).when(service)
+            .getContentsWithTags(Set.of("tag1","tag2"));
+
 
     //when
     HttpResponse response = getRestResponseTo("/catalog/content");
@@ -90,4 +137,5 @@ public class CatalogRestServerTest {
     Assertions.assertThat(catalogContents).containsOnly(expectedContentOne,expectedContentTwo);
 
   }
+
 }

@@ -19,6 +19,7 @@ import java.util.Collection;
 import java.util.List;
 
 import static org.jlom.master_upm.tfm.springboot.catalog.utils.JsonUtils.ListToJson;
+import static org.jlom.master_upm.tfm.springboot.catalog.utils.JsonUtils.ObjectToJson;
 
 @RestController
 @RequestMapping("/catalog")
@@ -43,6 +44,18 @@ public class CatalogRestServer implements CatalogQueryInterface {
       return new ResponseEntity<>(ListToJson(catalogContents), new HttpHeaders(), HttpStatus.OK);
     } catch (JsonProcessingException e) {
       throw new WrapperException("error: Unable to convertToJson", e);
+    }
+  }
+
+  @Override
+  public ResponseEntity<?> getContentById(long contentId) {
+    LOG.error("jlom getContentById: id="+contentId);
+    CatalogContent content = service.getContent(contentId);
+    LOG.error("jlom getContentById: content="+content);
+    try {
+      return new ResponseEntity<>(ObjectToJson(content), new HttpHeaders(), HttpStatus.OK);
+    } catch (JsonProcessingException e) {
+      throw new WrapperException("error: Unable to convertToJson obj: " + content, e);
     }
   }
 

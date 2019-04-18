@@ -23,7 +23,7 @@ public class RestServerExceptionHandler extends ResponseEntityExceptionHandler {
     if (null == body) {
       errorResponse = new ProblemDetails()
               .status(status.value())
-              .cause(ex.getCause().getMessage())
+              .cause((null != ex.getCause())? ex.getCause().getMessage():"NA")
               .detail(ex.getLocalizedMessage())
               .instance(request.getContextPath());
 
