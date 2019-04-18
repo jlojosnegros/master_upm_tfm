@@ -12,7 +12,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
 import org.springframework.context.annotation.Profile;
 import org.springframework.data.redis.connection.RedisStandaloneConfiguration;
@@ -75,9 +74,37 @@ public class CommandContentRepositoryTest {
     repository.save(content_01);
 
 
-    Collection<CatalogContent> all = repository.findAll();
+    CatalogContent byId = repository.findById(1);
 
-    Assertions.assertThat(all).contains(content_01);
+    Assertions.assertThat(byId).isEqualTo(content_01);
 
+  }
+
+  @Test
+  public void given_ASavedContent_when_WeDeleteIt_thenShouldNotBeFound() {
+    //given
+    CatalogContent content_01 = CatalogContent.builder()
+            .contentId(1)
+            .status(ContentStatus.SOON)
+            .build();
+
+    repository.save(content_01);
+    Assertions.assertThat(repository.findAll()).contains(content_01);
+
+    Long deleted = repository.delete(content_01.getContentId());
+    Assertions.assertThat(repository.findAll()).doesNotContain(content_01);
+
+    Assertions.assertThat(deleted).isNotNull();
+    Assertions.assertThat(deleted).isEqualTo(1);
+
+    deleted = repository.delete(content_01.getContentId());
+    Assertions.assertThat(deleted).isNotNull();
+    Assertions.assertThat(deleted).isEqualTo(0);
+  }
+
+  @Test
+  public void when_LookingForANonExistantContent_then() {
+    CatalogContent byId = repository.findById(2);
+    Assertions.assertThat(byId).isNull();
   }
 }

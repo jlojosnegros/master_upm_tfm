@@ -47,23 +47,10 @@ public class CatalogContentRepository implements ContentCommandsRepository, Cont
   }
 
   @Override
-  public void delete(long contentId) {
-    hashOperations.delete(KEY, contentId);
+  public Long delete(long contentId) {
+    return hashOperations.delete(KEY, contentId);
   }
 
-  @Override
-  public void changeStatus(long contentId, ContentStatus status) {
-    CatalogContent content = findById(contentId);
-    content.setStatus(status);
-    update(content);
-  }
-
-  @Override
-  public void addTags(long contentId, Set<String> tags) {
-    CatalogContent content = findById(contentId);
-    content.getTags().addAll(tags);
-    update(content);
-  }
 
   @Override
   public CatalogContent findById(long contentId) {
