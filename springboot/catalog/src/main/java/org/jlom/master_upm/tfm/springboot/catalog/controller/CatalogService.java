@@ -1,8 +1,8 @@
 package org.jlom.master_upm.tfm.springboot.catalog.controller;
 
 
-import org.jlom.master_upm.tfm.springboot.catalog.controller.api.CatalogServiceQueries;
 import org.jlom.master_upm.tfm.springboot.catalog.controller.api.CatalogServiceCommands;
+import org.jlom.master_upm.tfm.springboot.catalog.controller.api.CatalogServiceQueries;
 import org.jlom.master_upm.tfm.springboot.catalog.controller.api.dtos.ContentServiceCreateResponse;
 import org.jlom.master_upm.tfm.springboot.catalog.controller.api.dtos.ContentServiceCreateResponseFailure;
 import org.jlom.master_upm.tfm.springboot.catalog.controller.api.dtos.ContentServiceCreateResponseOk;
@@ -15,9 +15,10 @@ import org.jlom.master_upm.tfm.springboot.catalog.model.ContentStatus;
 import org.springframework.stereotype.Service;
 
 import java.time.ZonedDateTime;
-import java.util.Collection;
+import java.util.Date;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 public class CatalogService implements CatalogServiceCommands, CatalogServiceQueries {
@@ -124,12 +125,12 @@ public class CatalogService implements CatalogServiceCommands, CatalogServiceQue
   }
 
   @Override
-  public List<CatalogContent> getAvailableAfter(ZonedDateTime datetime) {
-    return repository.findAvailableAfter(datetime);
+  public List<CatalogContent> getAvailableAfter(Date date) {
+    return repository.findAvailableAfter(date);
   }
 
   @Override
-  public Collection<CatalogContent> listAll() {
-    return repository.findAll();
+  public List<CatalogContent> listAll() {
+    return repository.findAll().stream().sorted().collect(Collectors.toList());
   }
 }

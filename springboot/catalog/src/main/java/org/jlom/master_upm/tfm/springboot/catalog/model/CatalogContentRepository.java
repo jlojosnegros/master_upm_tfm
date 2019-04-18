@@ -8,8 +8,8 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Repository;
 
 import javax.annotation.PostConstruct;
-import java.time.ZonedDateTime;
 import java.util.Collection;
+import java.util.Date;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -73,15 +73,14 @@ public class CatalogContentRepository implements ContentCommandsRepository, Cont
   }
 
   @Override
-  public List<CatalogContent> findAvailableAfter(ZonedDateTime datetime) {
+  public List<CatalogContent> findAvailableAfter(Date date) {
     return findAll().stream()
-            .filter( content -> content.getAvailable().isAfter(datetime))
+            .filter( content -> content.getAvailable().after(date))
             .collect(Collectors.toList());
   }
 
   @Override
   public Collection<CatalogContent> findAll() {
-    return hashOperations.entries(KEY).values();
-
+     return hashOperations.entries(KEY).values();
   }
 }

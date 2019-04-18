@@ -5,9 +5,8 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-
 import java.io.Serializable;
-import java.time.ZonedDateTime;
+import java.util.Date;
 import java.util.Set;
 
 @NoArgsConstructor
@@ -23,6 +22,6 @@ public class CatalogContent implements Serializable {
   private String title;
   private long streamId;
   private Set<String> tags;
-  private ZonedDateTime available;
+  private Date available;
   private ContentStatus status;
 }
