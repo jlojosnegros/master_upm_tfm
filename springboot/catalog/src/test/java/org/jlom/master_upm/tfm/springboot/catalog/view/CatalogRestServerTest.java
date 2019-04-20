@@ -54,7 +54,7 @@ public class CatalogRestServerTest {
   }
 
   @Test
-  public void given_TwoElementsInDB_when_RequestToListAllContents_then_OnlyThoseTwoElementsAreListed() throws IOException {
+  public void given_TwoElementsInDB_when_AskingForContentWithId_then_OnlyOneIsReturned() throws IOException {
     //given
     CatalogContent expectedContentOne = CatalogContent.builder()
             .contentId(1)
@@ -137,7 +137,7 @@ public class CatalogRestServerTest {
   }
 
   @Test
-  public void when_AskingForContentWithSpecificDate_then_OnlyThoseWithTheTagAreReturned() throws IOException {
+  public void when_AskingForContentWithSpecificDate_then_OnlyThoseAvailableAfterThatDateAreReturned() throws IOException {
     //given
 
     Date now = Date.from(Instant.now());
@@ -188,6 +188,55 @@ public class CatalogRestServerTest {
     LOG.debug("received: " + catalogContents);
 
     Assertions.assertThat(catalogContents).containsOnly(expectedContentOne);
+
+  }
+
+  @Test
+  public void when_AskingForContentWithSpecificStreamId_then_OnlyOneIsReturned() throws IOException {
+    //given
+
+    final Date now = Date.from(Instant.now());
+
+
+    CatalogContent expectedContentOne = CatalogContent.builder()
+            .contentId(1)
+            .status(ContentStatus.AVAILABLE)
+            .title("uno")
+            .streamId(1)
+            .available(now)
+            .tags(Set.of("tag1", "tag2"))
+            .build();
+
+    CatalogContent expectedContentTwo = CatalogContent.builder()
+            .contentId(2)
+            .status(ContentStatus.SOON)
+            .title("dos")
+            .streamId(2)
+            .available(now)
+            .tags(Set.of("tag1", "tag2"))
+            .build();
+
+    List<CatalogContent> expectedContents = List.of(expectedContentOne, expectedContentTwo);
+
+    Mockito.doReturn(expectedContentOne).when(service)
+            .getContentWithStream(1);
+    Mockito.doReturn(expectedContentTwo).when(service)
+            .getContentWithStream(2);
+
+    //when
+    HttpResponse response = getRestResponseTo("/catalog/content/stream/1");
+
+
+    //then
+    int statusCode = response.getStatusLine().getStatusCode();
+    Assertions.assertThat(statusCode).isEqualTo(200);
+
+    CatalogContent catalogContents = retrieveResourceFromResponse(response, CatalogContent.class);
+
+    LOG.debug("sent    :" + expectedContents);
+    LOG.debug("received: " + catalogContents);
+
+    Assertions.assertThat(catalogContents).isEqualTo(expectedContentOne);
 
   }
 

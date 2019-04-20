@@ -90,4 +90,18 @@ public class CatalogRestServer implements CatalogQueryInterface {
 
   }
 
+  @Override
+  public ResponseEntity<?> getContentByStreamId(long streamId) {
+
+    LOG.error("jlom: getContentByStreamId streamId="+ streamId);
+    CatalogContent content = service.getContentWithStream(streamId);
+    LOG.error("jlom: getContentByStreamId  found="+ content);
+
+    try {
+      return new ResponseEntity<>(ObjectToJson(content), new HttpHeaders(), HttpStatus.OK);
+    } catch (JsonProcessingException e) {
+      throw new WrapperException("error: Unable to convertToJson obj: " + content, e);
+    }
+  }
+
 }

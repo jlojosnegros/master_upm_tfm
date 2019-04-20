@@ -39,4 +39,11 @@ public interface CatalogQueryInterface {
           produces = {MediaType.APPLICATION_JSON_VALUE, APPLICATION_JSON_PROBLEM_VALUE}
   )
   ResponseEntity<?> getContentAvailableAfter(@RequestParam(value = "date") long date);
+
+  @RequestMapping(
+          value = "/content/stream/{streamId}",
+          method = RequestMethod.GET,
+          produces = {MediaType.APPLICATION_JSON_VALUE, APPLICATION_JSON_PROBLEM_VALUE}
+  )
+  ResponseEntity<?> getContentByStreamId(@PathVariable("streamId") long streamId);
 }
