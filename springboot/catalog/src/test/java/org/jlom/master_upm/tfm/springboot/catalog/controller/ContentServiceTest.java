@@ -14,7 +14,6 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.junit4.SpringRunner;
 
-import java.util.HashSet;
 import java.util.Set;
 
 @RunWith(SpringRunner.class)
@@ -52,7 +51,7 @@ public class ContentServiceTest {
   @Test
   public void given_ANewContent_when_TrytoCreateANewContent_then_somethinFails() {
 
-    Mockito.doThrow(new RuntimeException("error: Not Found"))
+    Mockito.doThrow(new RuntimeException("error: Id already exist"))
             .when(repository)
             .save(Mockito.any(CatalogContent.class));
 

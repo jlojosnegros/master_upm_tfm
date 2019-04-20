@@ -137,6 +137,48 @@ public class CatalogRestServerTest {
   }
 
   @Test
+  public void when_AskingForAllContents_then_AllExistingContentsAreReturned() throws IOException {
+    //given
+    CatalogContent expectedContentOne = CatalogContent.builder()
+            .contentId(1)
+            .status(ContentStatus.AVAILABLE)
+            .title("uno")
+            .streamId(1)
+            .available(Date.from(Instant.now()))
+            .tags(Set.of("tag1", "tag2"))
+            .build();
+    CatalogContent expectedContentTwo = CatalogContent.builder()
+            .contentId(2)
+            .status(ContentStatus.SOON)
+            .title("dos")
+            .streamId(2)
+            .available(Date.from(Instant.now()))
+            .tags(Set.of("tag1", "tag2"))
+            .build();
+
+    List<CatalogContent> expectedContents = List.of(expectedContentOne, expectedContentTwo);
+
+    Mockito.doReturn(expectedContents).when(service).listAll();
+
+
+    //when
+    HttpResponse response = getRestResponseTo("/catalog/content");
+
+
+    //then
+    int statusCode = response.getStatusLine().getStatusCode();
+    Assertions.assertThat(statusCode).isEqualTo(200);
+
+    List<CatalogContent> catalogContents = retrieveListOfResourcesFromResponse(response, CatalogContent.class);
+
+    LOG.debug("sent    :" + expectedContents);
+    LOG.debug("received: " + catalogContents);
+
+    Assertions.assertThat(catalogContents).containsOnly(expectedContentOne,expectedContentTwo);
+
+  }
+
+  @Test
   public void when_AskingForContentWithSpecificDate_then_OnlyThoseAvailableAfterThatDateAreReturned() throws IOException {
     //given
 
