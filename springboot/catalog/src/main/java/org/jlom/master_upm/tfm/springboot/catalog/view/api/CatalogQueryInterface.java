@@ -31,5 +31,12 @@ public interface CatalogQueryInterface {
           method = RequestMethod.GET,
           produces = {MediaType.APPLICATION_JSON_VALUE, APPLICATION_JSON_PROBLEM_VALUE}
   )
-  ResponseEntity<?> getContentExactlyWithTags(@RequestParam(value = "tags", required = false) String[] tags);
+  ResponseEntity<?> getContentExactlyWithTags(@RequestParam(value = "tags") String[] tags);
+
+  @RequestMapping(
+          value = "/content/after",
+          method = RequestMethod.GET,
+          produces = {MediaType.APPLICATION_JSON_VALUE, APPLICATION_JSON_PROBLEM_VALUE}
+  )
+  ResponseEntity<?> getContentAvailableAfter(@RequestParam(value = "date") long date);
 }

@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
 import java.util.Set;
 
@@ -64,13 +65,29 @@ public class CatalogRestServer implements CatalogQueryInterface {
   public ResponseEntity<?> getContentExactlyWithTags(String[] tags) {
     LOG.error("jlom: getContentExactlyWithTags tags="+ Arrays.toString(tags));
     List<CatalogContent> contentsWithTags = service.getContentsWithTags(Set.of(tags));
-
     LOG.error("jlom: getContentExactlyWithTags: found="+contentsWithTags);
+
     try {
       return new ResponseEntity<>(ListToJson(contentsWithTags), new HttpHeaders(), HttpStatus.OK);
     } catch (JsonProcessingException e) {
       throw new WrapperException("error: Unable to convertToJson obj: " + contentsWithTags, e);
     }
+  }
+
+  @Override
+  public ResponseEntity<?> getContentAvailableAfter(long date) {
+    LOG.error("jlom: getContentAvailableAfter date(long)="+ date);
+    Date realDate = new Date(date);
+    LOG.error("jlom: getContentAvailableAfter date="+ realDate);
+    List<CatalogContent> availableAfter = service.getAvailableAfter(realDate);
+    LOG.error("jlom: getContentAvailableAfter found="+ availableAfter);
+
+    try {
+      return new ResponseEntity<>(ListToJson(availableAfter), new HttpHeaders(), HttpStatus.OK);
+    } catch (JsonProcessingException e) {
+      throw new WrapperException("error: Unable to convertToJson obj: " + availableAfter, e);
+    }
+
   }
 
 }
