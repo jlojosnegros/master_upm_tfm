@@ -96,7 +96,7 @@ public class CatalogRestServerTest {
   }
 
   @Test
-  public void when_AskingForContentWithExpecificTag_then_OnlyThoseWithTheTagAreReturned() throws IOException {
+  public void when_AskingForContentWithSpecificTag_then_OnlyThoseWithTheTagAreReturned() throws IOException {
     //given
     CatalogContent expectedContentOne = CatalogContent.builder()
             .contentId(1)
@@ -122,7 +122,7 @@ public class CatalogRestServerTest {
 
 
     //when
-    HttpResponse response = getRestResponseTo("/catalog/content");
+    HttpResponse response = getRestResponseTo("/catalog/content/exactlyWithTags?tags=tag1,tag2");
 
 
     //then

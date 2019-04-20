@@ -15,8 +15,9 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.Collection;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Set;
 
 import static org.jlom.master_upm.tfm.springboot.catalog.utils.JsonUtils.ListToJson;
 import static org.jlom.master_upm.tfm.springboot.catalog.utils.JsonUtils.ObjectToJson;
@@ -49,13 +50,26 @@ public class CatalogRestServer implements CatalogQueryInterface {
 
   @Override
   public ResponseEntity<?> getContentById(long contentId) {
-    LOG.error("jlom getContentById: id="+contentId);
+    LOG.error("jlom: getContentById: id="+contentId);
     CatalogContent content = service.getContent(contentId);
-    LOG.error("jlom getContentById: content="+content);
+    LOG.error("jlom: getContentById: content="+content);
     try {
       return new ResponseEntity<>(ObjectToJson(content), new HttpHeaders(), HttpStatus.OK);
     } catch (JsonProcessingException e) {
       throw new WrapperException("error: Unable to convertToJson obj: " + content, e);
+    }
+  }
+
+  @Override
+  public ResponseEntity<?> getContentExactlyWithTags(String[] tags) {
+    LOG.error("jlom: getContentExactlyWithTags tags="+ Arrays.toString(tags));
+    List<CatalogContent> contentsWithTags = service.getContentsWithTags(Set.of(tags));
+
+    LOG.error("jlom: getContentExactlyWithTags: found="+contentsWithTags);
+    try {
+      return new ResponseEntity<>(ListToJson(contentsWithTags), new HttpHeaders(), HttpStatus.OK);
+    } catch (JsonProcessingException e) {
+      throw new WrapperException("error: Unable to convertToJson obj: " + contentsWithTags, e);
     }
   }
 
