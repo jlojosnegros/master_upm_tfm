@@ -7,6 +7,7 @@ import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.assertj.core.api.Assertions;
+import org.jetbrains.annotations.NotNull;
 import org.jlom.master_upm.tfm.springboot.catalog.controller.CatalogService;
 import org.jlom.master_upm.tfm.springboot.catalog.controller.api.dtos.ContentServiceResponseOk;
 import org.jlom.master_upm.tfm.springboot.catalog.model.CatalogContent;
@@ -34,6 +35,7 @@ import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import static org.jlom.master_upm.tfm.springboot.catalog.utils.DtosTransformations.serviceToViewContent;
 import static org.jlom.master_upm.tfm.springboot.catalog.utils.JsonUtils.ObjectToJson;
@@ -62,14 +64,32 @@ public class CatalogRestServerTest {
     return client.execute(new HttpGet("http://localhost:"+port+resourceUri));
   }
 
+
+  @NotNull
+  private HttpPost createPostRequest(String resourceUri) {
+    HttpPost postRequest = new HttpPost("http://localhost:"+port+resourceUri);
+    postRequest.setHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE);
+    return postRequest;
+  }
+  
+  private HttpResponse postMessageTo(String resourceUri) throws IOException {
+
+    HttpClient httpClient = HttpClientBuilder.create().build();
+    HttpPost postRequest = createPostRequest(resourceUri);
+    return httpClient.execute(postRequest);
+  }
+
+
+
   private HttpResponse postMessageTo(String resourceUri, Object body) throws IOException {
 
     HttpClient httpClient = HttpClientBuilder.create().build();
-    HttpPost postRequest = new HttpPost("http://localhost:"+port+resourceUri);
+    HttpPost postRequest = createPostRequest(resourceUri);
+
     String jsonBody = ObjectToJson(body);
     StringEntity entityBody = new StringEntity(jsonBody);
     postRequest.setEntity(entityBody);
-    postRequest.setHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE);
+
     return httpClient.execute(postRequest);
   }
 
@@ -346,6 +366,165 @@ public class CatalogRestServerTest {
     //then
     int statusCode = response.getStatusLine().getStatusCode();
     Assertions.assertThat(statusCode).isEqualTo(HttpStatus.CREATED.value());
+
+    InputCatalogContent catalogContents = retrieveResourceFromResponse(response, InputCatalogContent.class);
+
+    LOG.debug("sent    :" + inputContent);
+    LOG.debug("received: " + catalogContents);
+
+    Assertions.assertThat(catalogContents).isEqualTo(serviceToViewContent(expectedContentOne));
+
+  }
+
+  @Test
+  public void when_deleteAnExistingContent_allIsOk() throws IOException {
+    //given
+
+
+    final long contentId = 1;
+    final long streamId = 1;
+    final Date available = Date.from(Instant.now());
+    final ContentStatus status = ContentStatus.AVAILABLE;
+    final String title = "uno";
+    final Set<String> tags = Set.of("tag1", "tag2");
+
+
+    var inputContent = InputCatalogContent.builder()
+            .title(title)
+            .contentStatus(status.name())
+            .streamId(String.valueOf(streamId))
+            .available(available)
+            .tags(tags)
+            .build();
+
+    CatalogContent expectedContentOne = CatalogContent.builder()
+            .title(title)
+            .status(status)
+            .streamId(streamId)
+            .available(available)
+            .tags(tags)
+            .contentId(contentId)
+            .build();
+
+    Mockito.doReturn(new ContentServiceResponseOk(expectedContentOne))
+            .when(service)
+            .deleteContent(contentId);
+
+
+    //when
+    HttpResponse response = postMessageTo("/catalog/content/delete/" + contentId);
+
+
+    //then
+    int statusCode = response.getStatusLine().getStatusCode();
+    Assertions.assertThat(statusCode).isEqualTo(HttpStatus.OK.value());
+
+    InputCatalogContent catalogContents = retrieveResourceFromResponse(response, InputCatalogContent.class);
+
+    LOG.debug("sent    :" + inputContent);
+    LOG.debug("received: " + catalogContents);
+
+    Assertions.assertThat(catalogContents).isEqualTo(serviceToViewContent(expectedContentOne));
+
+  }
+
+  @Test
+  public void when_changeStatus_allIsOk() throws IOException {
+    //given
+
+
+    final long contentId = 1;
+    final long streamId = 1;
+    final Date available = Date.from(Instant.now());
+    final ContentStatus status = ContentStatus.SOON;
+    final ContentStatus newStatus = ContentStatus.AVAILABLE;
+    final String title = "uno";
+    final Set<String> tags = Set.of("tag1", "tag2");
+
+
+    var inputContent = InputCatalogContent.builder()
+            .title(title)
+            .contentStatus(status.name())
+            .streamId(String.valueOf(streamId))
+            .available(available)
+            .tags(tags)
+            .build();
+
+    CatalogContent expectedContentOne = CatalogContent.builder()
+            .title(title)
+            .status(newStatus)
+            .streamId(streamId)
+            .available(available)
+            .tags(tags)
+            .contentId(contentId)
+            .build();
+
+    Mockito.doReturn(new ContentServiceResponseOk(expectedContentOne))
+            .when(service)
+            .changeStatus(contentId,newStatus);
+
+
+    //when
+    HttpResponse response = postMessageTo("/catalog/content/changeStatus/" + contentId, newStatus.name());
+
+
+    //then
+    int statusCode = response.getStatusLine().getStatusCode();
+    Assertions.assertThat(statusCode).isEqualTo(HttpStatus.OK.value());
+
+    InputCatalogContent catalogContents = retrieveResourceFromResponse(response, InputCatalogContent.class);
+
+    LOG.debug("sent    :" + inputContent);
+    LOG.debug("received: " + catalogContents);
+
+    Assertions.assertThat(catalogContents).isEqualTo(serviceToViewContent(expectedContentOne));
+
+  }
+
+  @Test
+  public void when_addTags_allIsOk() throws IOException {
+    //given
+    final long contentId = 1;
+    final long streamId = 1;
+    final Date available = Date.from(Instant.now());
+    final ContentStatus status = ContentStatus.AVAILABLE;
+    final String title = "uno";
+    final Set<String> tags = Set.of("tag1", "tag2");
+    final Set<String> newtags = Set.of("tag3", "tag2");
+    final Set<String> expectedTags = Set.of("tag1","tag3", "tag2");
+
+
+    var inputContent = InputCatalogContent.builder()
+            .title(title)
+            .contentStatus(status.name())
+            .streamId(String.valueOf(streamId))
+            .available(available)
+            .tags(tags)
+            .build();
+
+    CatalogContent expectedContentOne = CatalogContent.builder()
+            .title(title)
+            .status(status)
+            .streamId(streamId)
+            .available(available)
+            .tags(expectedTags)
+            .contentId(contentId)
+            .build();
+
+    Mockito.doReturn(new ContentServiceResponseOk(expectedContentOne))
+            .when(service)
+            .addTags(contentId,newtags);
+
+
+
+    //when
+    HttpResponse response = postMessageTo("/catalog/content/addTags/" + contentId
+            +"?newTags="+ String.join(",", newtags));
+
+
+    //then
+    int statusCode = response.getStatusLine().getStatusCode();
+    Assertions.assertThat(statusCode).isEqualTo(HttpStatus.OK.value());
 
     InputCatalogContent catalogContents = retrieveResourceFromResponse(response, InputCatalogContent.class);
 

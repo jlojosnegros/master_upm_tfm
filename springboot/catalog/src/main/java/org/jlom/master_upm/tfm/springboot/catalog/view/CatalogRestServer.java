@@ -12,6 +12,8 @@ import org.jlom.master_upm.tfm.springboot.catalog.view.api.CatalogQueryInterface
 import org.jlom.master_upm.tfm.springboot.catalog.view.api.dtos.InputCatalogContent;
 import org.jlom.master_upm.tfm.springboot.catalog.view.exceptions.WrapperException;
 import org.jlom.master_upm.tfm.springboot.catalog.view.serivceresponsehandlers.CreateServiceResponseHandler;
+import org.jlom.master_upm.tfm.springboot.catalog.view.serivceresponsehandlers.DeleteServiceResponseHandler;
+import org.jlom.master_upm.tfm.springboot.catalog.view.serivceresponsehandlers.UpdateServiceResponseHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpHeaders;
@@ -22,6 +24,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.validation.Valid;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
@@ -141,5 +144,35 @@ public class CatalogRestServer implements CatalogQueryInterface, CatalogCommandI
   }
 
 
+
+  @Override
+  public ResponseEntity<?> deleteContent(HttpServletRequest request, @Valid long contentId) {
+
+    LOG.error("jlom: deleteContent contentId: " + contentId);
+    ContentServiceResponse response = service.deleteContent(contentId);
+    DeleteServiceResponseHandler deleteServiceResponseHandler = new DeleteServiceResponseHandler(request);
+    return response.accept(deleteServiceResponseHandler);
+  }
+
+  @Override
+  public ResponseEntity<?> changeStatus(HttpServletRequest request, @Valid long contentId, @Valid ContentStatus newStatus) {
+
+    LOG.error("jlom: changeStatus contentId: " + contentId + ";newStatus:" + newStatus);
+    ContentStatus status = newStatus;
+    var response = service.changeStatus(contentId, status);
+    var handler = new UpdateServiceResponseHandler(request);
+    return response.accept(handler);
+  }
+
+  @Override
+  public ResponseEntity<?> addTags(HttpServletRequest request, @Valid long contentId, @Valid String[] newTags) {
+
+    LOG.error("jlom: addTags contentId: " + contentId + ";newTags:" + Arrays.toString(newTags));
+    Set<String> tags = Set.of(newTags);
+    var response = service.addTags(contentId, tags);
+    var handler = new UpdateServiceResponseHandler(request);
+    return response.accept(handler);
+
+  }
 
 }
