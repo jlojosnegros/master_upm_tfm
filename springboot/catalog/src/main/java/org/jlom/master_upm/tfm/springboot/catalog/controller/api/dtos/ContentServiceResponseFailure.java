@@ -1,9 +1,9 @@
 package org.jlom.master_upm.tfm.springboot.catalog.controller.api.dtos;
 
-public class ContentServiceCreateResponseFailure implements ContentServiceCreateResponse {
+public class ContentServiceResponseFailure implements ContentServiceResponse {
   private final String message;
 
-  public ContentServiceCreateResponseFailure(String message) {
+  public ContentServiceResponseFailure(String message) {
     this.message = message;
   }
 

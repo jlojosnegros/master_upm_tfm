@@ -3,7 +3,7 @@ package org.jlom.master_upm.tfm.springboot.catalog.view;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import org.jlom.master_upm.tfm.springboot.catalog.controller.CatalogService;
-import org.jlom.master_upm.tfm.springboot.catalog.controller.api.dtos.ContentServiceCreateResponse;
+import org.jlom.master_upm.tfm.springboot.catalog.controller.api.dtos.ContentServiceResponse;
 import org.jlom.master_upm.tfm.springboot.catalog.model.CatalogContent;
 import org.jlom.master_upm.tfm.springboot.catalog.view.api.CatalogCommandInterface;
 import org.jlom.master_upm.tfm.springboot.catalog.view.api.CatalogQueryInterface;
@@ -117,7 +117,7 @@ public class CatalogRestServer implements CatalogQueryInterface, CatalogCommandI
     long contentId = Long.parseLong(content.getContentId());
     long streamId = Long.parseLong(content.getStreamId());
 
-    ContentServiceCreateResponse response = service.createContent(contentId, streamId, content.getTitle(), content.getTags());
+    ContentServiceResponse response = service.createContent(contentId, streamId, content.getTitle(), content.getTags());
 
     return null;
   }

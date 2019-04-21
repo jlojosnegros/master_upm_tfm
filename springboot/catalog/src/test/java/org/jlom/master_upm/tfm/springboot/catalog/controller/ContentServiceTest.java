@@ -1,9 +1,9 @@
 package org.jlom.master_upm.tfm.springboot.catalog.controller;
 
 import org.assertj.core.api.Assertions;
-import org.jlom.master_upm.tfm.springboot.catalog.controller.api.dtos.ContentServiceCreateResponse;
-import org.jlom.master_upm.tfm.springboot.catalog.controller.api.dtos.ContentServiceCreateResponseFailure;
-import org.jlom.master_upm.tfm.springboot.catalog.controller.api.dtos.ContentServiceCreateResponseOk;
+import org.jlom.master_upm.tfm.springboot.catalog.controller.api.dtos.ContentServiceResponse;
+import org.jlom.master_upm.tfm.springboot.catalog.controller.api.dtos.ContentServiceResponseFailure;
+import org.jlom.master_upm.tfm.springboot.catalog.controller.api.dtos.ContentServiceResponseOk;
 import org.jlom.master_upm.tfm.springboot.catalog.model.CatalogContent;
 import org.jlom.master_upm.tfm.springboot.catalog.model.CatalogContentRepository;
 import org.junit.Test;
@@ -39,12 +39,12 @@ public class ContentServiceTest {
     String expectedTitle = "title";
     Set<String> expectedTags = Set.of("tag1", "tag2");
 
-    ContentServiceCreateResponse response = service.createContent(expectedContentId,
+    ContentServiceResponse response = service.createContent(expectedContentId,
             expectedStreamId,
             expectedTitle,
             expectedTags);
 
-    Assertions.assertThat(response).isInstanceOf(ContentServiceCreateResponseOk.class);
+    Assertions.assertThat(response).isInstanceOf(ContentServiceResponseOk.class);
 
   }
 
@@ -60,12 +60,12 @@ public class ContentServiceTest {
     String expectedTitle = "title";
     Set<String> expectedTags = Set.of("tag1", "tag2");
 
-    ContentServiceCreateResponse response = service.createContent(expectedContentId,
+    ContentServiceResponse response = service.createContent(expectedContentId,
             expectedStreamId,
             expectedTitle,
             expectedTags);
 
-    Assertions.assertThat(response).isInstanceOf(ContentServiceCreateResponseFailure.class);
+    Assertions.assertThat(response).isInstanceOf(ContentServiceResponseFailure.class);
 
   }
 
@@ -90,12 +90,12 @@ public class ContentServiceTest {
     ).when(repository).findById(expectedContentId);
 
 
-    ContentServiceCreateResponse response = service.createContent(expectedContentId,
+    ContentServiceResponse response = service.createContent(expectedContentId,
             expectedStreamId,
             expectedTitle,
             Set.of(expectedTags));
 
-    Assertions.assertThat(response).isInstanceOf(ContentServiceCreateResponseFailure.class);
+    Assertions.assertThat(response).isInstanceOf(ContentServiceResponseFailure.class);
 
   }
 }

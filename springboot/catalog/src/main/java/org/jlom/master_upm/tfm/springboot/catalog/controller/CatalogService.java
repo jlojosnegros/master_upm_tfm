@@ -3,12 +3,9 @@ package org.jlom.master_upm.tfm.springboot.catalog.controller;
 
 import org.jlom.master_upm.tfm.springboot.catalog.controller.api.CatalogServiceCommands;
 import org.jlom.master_upm.tfm.springboot.catalog.controller.api.CatalogServiceQueries;
-import org.jlom.master_upm.tfm.springboot.catalog.controller.api.dtos.ContentServiceCreateResponse;
-import org.jlom.master_upm.tfm.springboot.catalog.controller.api.dtos.ContentServiceCreateResponseFailure;
-import org.jlom.master_upm.tfm.springboot.catalog.controller.api.dtos.ContentServiceCreateResponseOk;
-import org.jlom.master_upm.tfm.springboot.catalog.controller.api.dtos.ContentServiceDeleteResponse;
-import org.jlom.master_upm.tfm.springboot.catalog.controller.api.dtos.ContentServiceDeleteResponseFailure;
-import org.jlom.master_upm.tfm.springboot.catalog.controller.api.dtos.ContentServiceDeleteResponseOk;
+import org.jlom.master_upm.tfm.springboot.catalog.controller.api.dtos.ContentServiceResponse;
+import org.jlom.master_upm.tfm.springboot.catalog.controller.api.dtos.ContentServiceResponseFailure;
+import org.jlom.master_upm.tfm.springboot.catalog.controller.api.dtos.ContentServiceResponseOk;
 import org.jlom.master_upm.tfm.springboot.catalog.model.CatalogContent;
 import org.jlom.master_upm.tfm.springboot.catalog.model.CatalogContentRepository;
 import org.jlom.master_upm.tfm.springboot.catalog.model.ContentStatus;
@@ -29,13 +26,13 @@ public class CatalogService implements CatalogServiceCommands, CatalogServiceQue
   }
 
   @Override
-  public ContentServiceCreateResponse createContent(long contentId, long streamId, String title, Set<String> tags) {
+  public ContentServiceResponse createContent(long contentId, long streamId, String title, Set<String> tags) {
 
     try {
       if(null != repository.findById(contentId)) {
-        return new ContentServiceCreateResponseFailure("error: Content with id[" + contentId +"] already exist");
+        return new ContentServiceResponseFailure("error: Content with id[" + contentId +"] already exist");
       } else if (null != repository.findByStreamId(streamId)) {
-        return new ContentServiceCreateResponseFailure("error: Content with streamId[" + streamId +"] already exist");
+        return new ContentServiceResponseFailure("error: Content with streamId[" + streamId +"] already exist");
       }
 
       CatalogContent toInsert = CatalogContent.builder()
@@ -47,25 +44,25 @@ public class CatalogService implements CatalogServiceCommands, CatalogServiceQue
 
       repository.save(toInsert);
 
-      return new ContentServiceCreateResponseOk();
+      return new ContentServiceResponseOk();
     } catch (Exception ex) {
-      return  new ContentServiceCreateResponseFailure(ex.getMessage());
+      return  new ContentServiceResponseFailure(ex.getMessage());
     }
   }
 
   @Override
-  public ContentServiceDeleteResponse deleteContent(long contentId) {
+  public ContentServiceResponse deleteContent(long contentId) {
     try {
       Long deleted = repository.delete(contentId);
       if (deleted == null) {
-        return new ContentServiceDeleteResponseFailure("error: Null ");
+        return new ContentServiceResponseFailure("error: Null ");
       } else if (deleted == 0) {
-        return new ContentServiceDeleteResponseFailure("error: Element with id["+contentId+"] does not exist");
+        return new ContentServiceResponseFailure("error: Element with id["+contentId+"] does not exist");
       } else {
-        return new ContentServiceDeleteResponseOk();
+        return new ContentServiceResponseOk();
       }
     } catch (Exception ex) {
-      return new ContentServiceDeleteResponseFailure(ex.getMessage());
+      return new ContentServiceResponseFailure(ex.getMessage());
     }
 
 
