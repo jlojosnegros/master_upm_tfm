@@ -1,5 +1,6 @@
-package org.jlom.master_upm.tfm.springboot.catalog.model;
+package org.jlom.master_upm.tfm.springboot.catalog.model.api;
 
+import org.jlom.master_upm.tfm.springboot.catalog.model.CatalogContent;
 import org.springframework.stereotype.Repository;
 
 import java.util.Collection;
