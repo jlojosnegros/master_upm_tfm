@@ -3,8 +3,12 @@ package org.jlom.master_upm.tfm.springboot.catalog.controller;
 
 import org.jlom.master_upm.tfm.springboot.catalog.controller.api.CatalogServiceCommands;
 import org.jlom.master_upm.tfm.springboot.catalog.controller.api.CatalogServiceQueries;
+import org.jlom.master_upm.tfm.springboot.catalog.controller.api.dtos.ContentServiceResponseFailureInternalError;
+import org.jlom.master_upm.tfm.springboot.catalog.controller.api.dtos.ContentServiceResponseFailureNotFound;
 import org.jlom.master_upm.tfm.springboot.catalog.controller.api.dtos.ContentServiceResponse;
 import org.jlom.master_upm.tfm.springboot.catalog.controller.api.dtos.ContentServiceResponseFailure;
+import org.jlom.master_upm.tfm.springboot.catalog.controller.api.dtos.ContentServiceResponseFailureException;
+import org.jlom.master_upm.tfm.springboot.catalog.controller.api.dtos.ContentServiceResponseFailureInvalidInputParameter;
 import org.jlom.master_upm.tfm.springboot.catalog.controller.api.dtos.ContentServiceResponseOk;
 import org.jlom.master_upm.tfm.springboot.catalog.model.CatalogContent;
 import org.jlom.master_upm.tfm.springboot.catalog.model.CatalogContentRepository;
@@ -30,9 +34,11 @@ public class CatalogService implements CatalogServiceCommands, CatalogServiceQue
 
     try {
       if(null != repository.findById(contentId)) {
-        return new ContentServiceResponseFailure("error: Content with id[" + contentId +"] already exist");
+        return new ContentServiceResponseFailureInvalidInputParameter("Content with id already exists",
+                "contentId", contentId);
       } else if (null != repository.findByStreamId(streamId)) {
-        return new ContentServiceResponseFailure("error: Content with streamId[" + streamId +"] already exist");
+        return new ContentServiceResponseFailureInvalidInputParameter("Content with streamId already exists",
+                "streamId", streamId);
       }
 
       CatalogContent toInsert = CatalogContent.builder()
@@ -44,66 +50,67 @@ public class CatalogService implements CatalogServiceCommands, CatalogServiceQue
 
       repository.save(toInsert);
 
-      return new ContentServiceResponseOk();
+      return new ContentServiceResponseOk(toInsert);
     } catch (Exception ex) {
-      return  new ContentServiceResponseFailure(ex.getMessage());
+      return  new ContentServiceResponseFailureException(ex);
     }
   }
 
   @Override
   public ContentServiceResponse deleteContent(long contentId) {
     try {
-      Long deleted = repository.delete(contentId);
-      if (deleted == null) {
-        return new ContentServiceResponseFailure("error: Null ");
-      } else if (deleted == 0) {
-        return new ContentServiceResponseFailure("error: Element with id["+contentId+"] does not exist");
-      } else {
-        return new ContentServiceResponseOk();
+      CatalogContent content = repository.findById(contentId);
+      if (null == content) {
+        return new ContentServiceResponseFailureInvalidInputParameter("Element with id already exists",
+                "contentId", contentId);
       }
+
+      Long deleted = repository.delete(contentId);
+      if ( (deleted == null ) || ( deleted == 0) ) {
+        return new ContentServiceResponseFailureInternalError("error: Unknown error. Could not delete " + content );
+      }
+      return new ContentServiceResponseOk(content);
+
     } catch (Exception ex) {
-      return new ContentServiceResponseFailure(ex.getMessage());
+      return new ContentServiceResponseFailureException(ex);
     }
 
 
   }
 
   @Override
-  public CatalogContent changeStatus(long contentId, ContentStatus status) {
+  public ContentServiceResponse changeStatus(long contentId, ContentStatus status) {
 
     try {
       CatalogContent content = repository.findById(contentId);
       if (null == content) {
-        return content;
+        return new ContentServiceResponseFailureNotFound("contentId", contentId);
       }
 
       content.setStatus(status);
       repository.save(content);
-      return content;
+      return new ContentServiceResponseOk(content);
 
     } catch (Exception ex) {
-      return null;
+      return new ContentServiceResponseFailureException(ex);
     }
   }
 
   @Override
-  public CatalogContent addTags(long contentId, Set<String> tags) {
+  public ContentServiceResponse addTags(long contentId, Set<String> tags) {
 
     try {
       CatalogContent content = repository.findById(contentId);
       if (null == content) {
-        return null;
+        return new ContentServiceResponseFailureNotFound("contentId", contentId);
       }
 
-      if (!content.getTags().addAll(tags) ) {
-        return null;
-      }
-
+      content.getTags().addAll(tags);
       repository.save(content);
-      return content;
+      return new ContentServiceResponseOk(content);
 
     } catch (Exception ex) {
-      return null;
+      return new ContentServiceResponseFailureException(ex);
     }
   }
 

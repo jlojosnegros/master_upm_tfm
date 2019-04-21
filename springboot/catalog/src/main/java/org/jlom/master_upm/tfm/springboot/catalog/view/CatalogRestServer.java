@@ -8,6 +8,7 @@ import org.jlom.master_upm.tfm.springboot.catalog.model.CatalogContent;
 import org.jlom.master_upm.tfm.springboot.catalog.view.api.CatalogCommandInterface;
 import org.jlom.master_upm.tfm.springboot.catalog.view.api.CatalogQueryInterface;
 import org.jlom.master_upm.tfm.springboot.catalog.view.exceptions.WrapperException;
+import org.jlom.master_upm.tfm.springboot.catalog.view.serivceresponsehandlers.CreateServiceResponseHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpHeaders;
@@ -119,6 +120,7 @@ public class CatalogRestServer implements CatalogQueryInterface, CatalogCommandI
 
     ContentServiceResponse response = service.createContent(contentId, streamId, content.getTitle(), content.getTags());
 
-    return null;
+    CreateServiceResponseHandler handler = new CreateServiceResponseHandler(request);
+    return response.accept(handler);
   }
 }

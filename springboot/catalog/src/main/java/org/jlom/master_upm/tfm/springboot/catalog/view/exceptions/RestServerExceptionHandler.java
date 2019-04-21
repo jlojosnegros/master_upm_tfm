@@ -53,4 +53,17 @@ public class RestServerExceptionHandler extends ResponseEntityExceptionHandler {
 
     return handleExceptionInternal(ex, errorResponse, new HttpHeaders(), status, request);
   }
+
+  @ExceptionHandler({WrapperException.class})
+  public ResponseEntity<Object> handleNesting(WrapperException ex, WebRequest request) {
+    final HttpStatus status = HttpStatus.INTERNAL_SERVER_ERROR;
+    final ProblemDetails errorResponse =
+            new ProblemDetails()
+                    .status(status.value())
+                    .detail(ex.getMessage())
+                    .instance(request.getContextPath())
+                    .cause((null != ex.getCause())? ex.getCause().getMessage():null);
+
+    return handleExceptionInternal(ex, errorResponse, new HttpHeaders(), status, request);
+  }
 }
