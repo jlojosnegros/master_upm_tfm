@@ -14,7 +14,6 @@ import org.jlom.master_upm.tfm.springboot.catalog.model.CatalogContentRepository
 import org.jlom.master_upm.tfm.springboot.catalog.model.ContentStatus;
 import org.springframework.stereotype.Service;
 
-import java.time.ZonedDateTime;
 import java.util.Date;
 import java.util.List;
 import java.util.Set;
@@ -35,6 +34,8 @@ public class CatalogService implements CatalogServiceCommands, CatalogServiceQue
     try {
       if(null != repository.findById(contentId)) {
         return new ContentServiceCreateResponseFailure("error: Content with id[" + contentId +"] already exist");
+      } else if (null != repository.findByStreamId(streamId)) {
+        return new ContentServiceCreateResponseFailure("error: Content with streamId[" + streamId +"] already exist");
       }
 
       CatalogContent toInsert = CatalogContent.builder()
@@ -71,41 +72,41 @@ public class CatalogService implements CatalogServiceCommands, CatalogServiceQue
   }
 
   @Override
-  public int changeStatus(long contentId, ContentStatus status) {
+  public CatalogContent changeStatus(long contentId, ContentStatus status) {
 
     try {
       CatalogContent content = repository.findById(contentId);
       if (null == content) {
-        return -1;
+        return content;
       }
 
       content.setStatus(status);
       repository.save(content);
-      return 0;
+      return content;
 
     } catch (Exception ex) {
-      return -1;
+      return null;
     }
   }
 
   @Override
-  public int addTags(long contentId, Set<String> tags) {
+  public CatalogContent addTags(long contentId, Set<String> tags) {
 
     try {
       CatalogContent content = repository.findById(contentId);
       if (null == content) {
-        return -1;
+        return null;
       }
 
       if (!content.getTags().addAll(tags) ) {
-        return -2;
+        return null;
       }
 
       repository.save(content);
-      return 0;
+      return content;
 
     } catch (Exception ex) {
-      return -1;
+      return null;
     }
   }
 

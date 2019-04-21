@@ -49,7 +49,7 @@ public class ContentServiceTest {
   }
 
   @Test
-  public void given_ANewContent_when_TrytoCreateANewContent_then_somethinFails() {
+  public void given_ANewContent_when_TrytoCreateANewContent_then_somethingFails() {
 
     Mockito.doThrow(new RuntimeException("error: Id already exist"))
             .when(repository)

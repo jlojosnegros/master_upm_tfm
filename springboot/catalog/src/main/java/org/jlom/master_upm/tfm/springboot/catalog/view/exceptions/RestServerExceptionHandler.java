@@ -41,7 +41,7 @@ public class RestServerExceptionHandler extends ResponseEntityExceptionHandler {
     return handleExceptionInternal(exc, null, new HttpHeaders(), status, request);
   }
 
-  @ExceptionHandler({InvalidParamException.class})
+  @ExceptionHandler({InvalidParamException.class, IllegalArgumentException.class})
   public ResponseEntity<Object> handleQuery(WrapperException ex, WebRequest request) {
     final HttpStatus status = HttpStatus.BAD_REQUEST;
     final ProblemDetails errorResponse = new ProblemDetails()

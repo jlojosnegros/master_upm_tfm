@@ -3,7 +3,9 @@ package org.jlom.master_upm.tfm.springboot.catalog.view;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import org.jlom.master_upm.tfm.springboot.catalog.controller.CatalogService;
+import org.jlom.master_upm.tfm.springboot.catalog.controller.api.dtos.ContentServiceCreateResponse;
 import org.jlom.master_upm.tfm.springboot.catalog.model.CatalogContent;
+import org.jlom.master_upm.tfm.springboot.catalog.view.api.CatalogCommandInterface;
 import org.jlom.master_upm.tfm.springboot.catalog.view.api.CatalogQueryInterface;
 import org.jlom.master_upm.tfm.springboot.catalog.view.exceptions.WrapperException;
 import org.slf4j.Logger;
@@ -15,6 +17,8 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.validation.Valid;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
@@ -26,7 +30,7 @@ import static org.jlom.master_upm.tfm.springboot.catalog.utils.JsonUtils.ObjectT
 @RestController
 @RequestMapping("/catalog")
 @Validated
-public class CatalogRestServer implements CatalogQueryInterface {
+public class CatalogRestServer implements CatalogQueryInterface, CatalogCommandInterface {
 
   private static final Logger LOG = LoggerFactory.getLogger(CatalogRestServer.class);
 
@@ -104,4 +108,17 @@ public class CatalogRestServer implements CatalogQueryInterface {
     }
   }
 
+
+  @Override
+  public ResponseEntity<?> createNewContent(HttpServletRequest request,
+                                            org.jlom.master_upm.tfm.springboot.catalog.view.api.dtos.@Valid CatalogContent content) {
+    LOG.error("jlom: createNewContent content: " + content);
+
+    long contentId = Long.parseLong(content.getContentId());
+    long streamId = Long.parseLong(content.getStreamId());
+
+    ContentServiceCreateResponse response = service.createContent(contentId, streamId, content.getTitle(), content.getTags());
+
+    return null;
+  }
 }
