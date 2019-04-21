@@ -1,6 +1,6 @@
 package org.jlom.master_upm.tfm.springboot.catalog.view.api;
 
-import org.jlom.master_upm.tfm.springboot.catalog.view.api.dtos.CatalogContent;
+import org.jlom.master_upm.tfm.springboot.catalog.view.api.dtos.InputCatalogContent;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -19,5 +19,5 @@ public interface CatalogCommandInterface {
           method = RequestMethod.POST,
           produces = {MediaType.APPLICATION_JSON_VALUE, APPLICATION_JSON_PROBLEM_VALUE}
   )
-  ResponseEntity<?> createNewContent(HttpServletRequest request, @Valid @RequestBody CatalogContent content);
+  ResponseEntity<?> createNewContent(HttpServletRequest request, @Valid @RequestBody InputCatalogContent content);
 }

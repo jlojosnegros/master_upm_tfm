@@ -14,6 +14,7 @@ import org.springframework.http.ResponseEntity;
 
 import javax.servlet.http.HttpServletRequest;
 
+import static org.jlom.master_upm.tfm.springboot.catalog.utils.DtosTransformations.serviceToViewContent;
 import static org.jlom.master_upm.tfm.springboot.catalog.utils.JsonUtils.ObjectToJson;
 
 public abstract class ServiceResponseHandler implements ContentServiceResponseHandler {
@@ -28,7 +29,8 @@ public abstract class ServiceResponseHandler implements ContentServiceResponseHa
 
   protected ResponseEntity<?> handleResponseOk(ContentServiceResponseOk response, HttpStatus status) {
     try {
-      return new ResponseEntity<>(ObjectToJson(response.getContent()),new HttpHeaders(), status);
+      String json = ObjectToJson(serviceToViewContent(response.getContent()));
+      return new ResponseEntity<>(json,new HttpHeaders(), status);
     } catch (JsonProcessingException e) {
       throw new WrapperException("error: Unable to convertToJson obj: " + response.getContent(), e);
     }

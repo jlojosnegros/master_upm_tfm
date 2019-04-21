@@ -3,11 +3,15 @@ package org.jlom.master_upm.tfm.springboot.catalog.view;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.assertj.core.api.Assertions;
 import org.jlom.master_upm.tfm.springboot.catalog.controller.CatalogService;
+import org.jlom.master_upm.tfm.springboot.catalog.controller.api.dtos.ContentServiceResponseOk;
 import org.jlom.master_upm.tfm.springboot.catalog.model.CatalogContent;
 import org.jlom.master_upm.tfm.springboot.catalog.model.ContentStatus;
+import org.jlom.master_upm.tfm.springboot.catalog.view.api.dtos.InputCatalogContent;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mockito;
@@ -18,6 +22,9 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.boot.web.server.LocalServerPort;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import java.io.IOException;
@@ -28,6 +35,8 @@ import java.util.GregorianCalendar;
 import java.util.List;
 import java.util.Set;
 
+import static org.jlom.master_upm.tfm.springboot.catalog.utils.DtosTransformations.serviceToViewContent;
+import static org.jlom.master_upm.tfm.springboot.catalog.utils.JsonUtils.ObjectToJson;
 import static org.jlom.master_upm.tfm.springboot.catalog.utils.JsonUtils.retrieveListOfResourcesFromResponse;
 import static org.jlom.master_upm.tfm.springboot.catalog.utils.JsonUtils.retrieveResourceFromResponse;
 
@@ -51,6 +60,17 @@ public class CatalogRestServerTest {
   private HttpResponse getRestResponseTo(String resourceUri) throws IOException {
     HttpClient client = HttpClientBuilder.create().build();
     return client.execute(new HttpGet("http://localhost:"+port+resourceUri));
+  }
+
+  private HttpResponse postMessageTo(String resourceUri, Object body) throws IOException {
+
+    HttpClient httpClient = HttpClientBuilder.create().build();
+    HttpPost postRequest = new HttpPost("http://localhost:"+port+resourceUri);
+    String jsonBody = ObjectToJson(body);
+    StringEntity entityBody = new StringEntity(jsonBody);
+    postRequest.setEntity(entityBody);
+    postRequest.setHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE);
+    return httpClient.execute(postRequest);
   }
 
   @Test
@@ -84,12 +104,12 @@ public class CatalogRestServerTest {
     int statusCode = response.getStatusLine().getStatusCode();
     Assertions.assertThat(statusCode).isEqualTo(200);
 
-    CatalogContent catalogContent = retrieveResourceFromResponse(response, CatalogContent.class);
+    InputCatalogContent catalogContent = retrieveResourceFromResponse(response, InputCatalogContent.class);
 
     LOG.debug("sent    :" + expectedContentOne);
     LOG.debug("received: " + catalogContent);
 
-    Assertions.assertThat(catalogContent).isEqualTo(expectedContentOne);
+    Assertions.assertThat(catalogContent).isEqualTo(serviceToViewContent(expectedContentOne));
 
   }
 
@@ -127,12 +147,13 @@ public class CatalogRestServerTest {
     int statusCode = response.getStatusLine().getStatusCode();
     Assertions.assertThat(statusCode).isEqualTo(200);
 
-    List<CatalogContent> catalogContents = retrieveListOfResourcesFromResponse(response, CatalogContent.class);
+    List<InputCatalogContent> catalogContents = retrieveListOfResourcesFromResponse(response, InputCatalogContent.class);
 
     LOG.debug("sent    :" + expectedContents);
     LOG.debug("received: " + catalogContents);
 
-    Assertions.assertThat(catalogContents).containsOnly(expectedContentOne,expectedContentTwo);
+    Assertions.assertThat(catalogContents).containsOnly(serviceToViewContent(expectedContentOne),
+            serviceToViewContent(expectedContentTwo));
 
   }
 
@@ -169,12 +190,13 @@ public class CatalogRestServerTest {
     int statusCode = response.getStatusLine().getStatusCode();
     Assertions.assertThat(statusCode).isEqualTo(200);
 
-    List<CatalogContent> catalogContents = retrieveListOfResourcesFromResponse(response, CatalogContent.class);
+    List<InputCatalogContent> catalogContents = retrieveListOfResourcesFromResponse(response,
+            InputCatalogContent.class);
 
     LOG.debug("sent    :" + expectedContents);
     LOG.debug("received: " + catalogContents);
 
-    Assertions.assertThat(catalogContents).containsOnly(expectedContentOne,expectedContentTwo);
+    Assertions.assertThat(catalogContents).containsOnly(serviceToViewContent(expectedContentOne),serviceToViewContent(expectedContentTwo));
 
   }
 
@@ -224,12 +246,12 @@ public class CatalogRestServerTest {
     int statusCode = response.getStatusLine().getStatusCode();
     Assertions.assertThat(statusCode).isEqualTo(200);
 
-    List<CatalogContent> catalogContents = retrieveListOfResourcesFromResponse(response, CatalogContent.class);
+    List<InputCatalogContent> catalogContents = retrieveListOfResourcesFromResponse(response, InputCatalogContent.class);
 
     LOG.debug("sent    :" + expectedContents);
     LOG.debug("received: " + catalogContents);
 
-    Assertions.assertThat(catalogContents).containsOnly(expectedContentOne);
+    Assertions.assertThat(catalogContents).containsOnly(serviceToViewContent(expectedContentOne));
 
   }
 
@@ -273,12 +295,64 @@ public class CatalogRestServerTest {
     int statusCode = response.getStatusLine().getStatusCode();
     Assertions.assertThat(statusCode).isEqualTo(200);
 
-    CatalogContent catalogContents = retrieveResourceFromResponse(response, CatalogContent.class);
+    InputCatalogContent catalogContents = retrieveResourceFromResponse(response, InputCatalogContent.class);
 
     LOG.debug("sent    :" + expectedContents);
     LOG.debug("received: " + catalogContents);
 
-    Assertions.assertThat(catalogContents).isEqualTo(expectedContentOne);
+    Assertions.assertThat(catalogContents).isEqualTo(serviceToViewContent(expectedContentOne));
+
+  }
+
+  @Test
+  public void when_createNewContent_allIsOk() throws IOException {
+    //given
+
+
+    final long contentId = 1;
+    final long streamId = 1;
+    final Date available = Date.from(Instant.now());
+    final ContentStatus status = ContentStatus.AVAILABLE;
+    final String title = "uno";
+    final Set<String> tags = Set.of("tag1", "tag2");
+
+
+    var inputContent = InputCatalogContent.builder()
+            .title(title)
+            .contentStatus(status.name())
+            .streamId(String.valueOf(streamId))
+            .available(available)
+            .tags(tags)
+            .build();
+
+    CatalogContent expectedContentOne = CatalogContent.builder()
+            .title(title)
+            .status(status)
+            .streamId(streamId)
+            .available(available)
+            .tags(tags)
+            .contentId(contentId)
+            .build();
+
+    Mockito.doReturn(new ContentServiceResponseOk(expectedContentOne))
+            .when(service)
+            .createContent(streamId,title, status, tags);
+
+
+    //when
+    HttpResponse response = postMessageTo("/catalog/content/newContent/", inputContent);
+
+
+    //then
+    int statusCode = response.getStatusLine().getStatusCode();
+    Assertions.assertThat(statusCode).isEqualTo(HttpStatus.CREATED.value());
+
+    InputCatalogContent catalogContents = retrieveResourceFromResponse(response, InputCatalogContent.class);
+
+    LOG.debug("sent    :" + inputContent);
+    LOG.debug("received: " + catalogContents);
+
+    Assertions.assertThat(catalogContents).isEqualTo(serviceToViewContent(expectedContentOne));
 
   }
 

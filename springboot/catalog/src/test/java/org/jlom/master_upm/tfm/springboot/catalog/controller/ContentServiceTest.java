@@ -6,6 +6,7 @@ import org.jlom.master_upm.tfm.springboot.catalog.controller.api.dtos.ContentSer
 import org.jlom.master_upm.tfm.springboot.catalog.controller.api.dtos.ContentServiceResponseOk;
 import org.jlom.master_upm.tfm.springboot.catalog.model.CatalogContent;
 import org.jlom.master_upm.tfm.springboot.catalog.model.CatalogContentRepository;
+import org.jlom.master_upm.tfm.springboot.catalog.model.ContentStatus;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mockito;
@@ -14,6 +15,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.junit4.SpringRunner;
 
+import javax.swing.text.AbstractDocument;
 import java.util.Set;
 
 @RunWith(SpringRunner.class)
@@ -28,20 +30,33 @@ public class ContentServiceTest {
 
 
   @Test
-  public void given_ANewContent_when_TrytoCreateANewContent_then_everythingWorks() {
+  public void given_ANewContent_when_TryToCreateANewContent_then_everythingWorks() {
+
+    final long expectedContentId = 1;
+    final long expectedStreamId = 1;
+    final String expectedTitle = "title";
+    final ContentStatus status = ContentStatus.AVAILABLE;
+    Set<String> expectedTags = Set.of("tag1", "tag2");
 
     Mockito.doNothing()
             .when(repository)
             .save(Mockito.any(CatalogContent.class));
 
-    long expectedContentId = 1;
-    long expectedStreamId = 1;
-    String expectedTitle = "title";
-    Set<String> expectedTags = Set.of("tag1", "tag2");
+    CatalogContent expectedContent = CatalogContent.builder()
+            .contentId(expectedContentId)
+            .status(status)
+            .title(expectedTitle)
+            .tags(expectedTags)
+            .build();
 
-    ContentServiceResponse response = service.createContent(expectedContentId,
-            expectedStreamId,
+    Mockito.when(repository.findByStreamId(expectedStreamId))
+            .thenReturn(null)
+            .thenReturn(expectedContent)
+            .thenReturn(null);
+
+    ContentServiceResponse response = service.createContent(expectedStreamId,
             expectedTitle,
+            status,
             expectedTags);
 
     Assertions.assertThat(response).isInstanceOf(ContentServiceResponseOk.class);
@@ -49,20 +64,22 @@ public class ContentServiceTest {
   }
 
   @Test
-  public void given_ANewContent_when_TrytoCreateANewContent_then_somethingFails() {
+  public void given_ANewContent_when_TryToCreateANewContent_then_somethingFails() {
 
     Mockito.doThrow(new RuntimeException("error: Id already exist"))
             .when(repository)
             .save(Mockito.any(CatalogContent.class));
 
-    long expectedContentId = 1;
-    long expectedStreamId = 1;
-    String expectedTitle = "title";
+    final long expectedContentId = 1;
+    final long expectedStreamId = 1;
+    final String expectedTitle = "title";
+    final ContentStatus status = ContentStatus.SOON;
+
     Set<String> expectedTags = Set.of("tag1", "tag2");
 
-    ContentServiceResponse response = service.createContent(expectedContentId,
-            expectedStreamId,
+    ContentServiceResponse response = service.createContent(expectedStreamId,
             expectedTitle,
+            status,
             expectedTags);
 
     Assertions.assertThat(response).isInstanceOf(ContentServiceResponseFailure.class);
@@ -72,27 +89,30 @@ public class ContentServiceTest {
   @Test
   public void when_TryToCreateAnAlreadyExistingContent_then_ShouldFail() {
 
-    long expectedContentId = 1;
-    long expectedStreamId = 1;
-    String expectedTitle = "title";
+    final long expectedContentId = 1;
+    final long expectedStreamId = 1;
+    final String expectedTitle = "title";
+    final ContentStatus status = ContentStatus.ON_HOLD;
+
     String[] expectedTags = new String[]{"tag1", "tag2"};
 
     //given
     Mockito.doNothing()
             .when(repository)
             .save(Mockito.any(CatalogContent.class));
+
     Mockito.doReturn(CatalogContent.builder()
             .contentId(expectedContentId)
             .streamId(expectedStreamId)
+            .status(status)
             .title(expectedTitle)
             .tags(Set.of(expectedTags))
             .build()
     ).when(repository).findById(expectedContentId);
 
 
-    ContentServiceResponse response = service.createContent(expectedContentId,
-            expectedStreamId,
-            expectedTitle,
+    ContentServiceResponse response = service.createContent(expectedStreamId,
+            expectedTitle, status,
             Set.of(expectedTags));
 
     Assertions.assertThat(response).isInstanceOf(ContentServiceResponseFailure.class);

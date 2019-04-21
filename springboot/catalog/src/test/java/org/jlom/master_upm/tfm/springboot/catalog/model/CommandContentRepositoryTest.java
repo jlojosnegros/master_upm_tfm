@@ -19,7 +19,10 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.testcontainers.containers.GenericContainer;
 
+import java.time.Instant;
 import java.util.Collection;
+import java.util.Date;
+import java.util.Set;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.NONE)
@@ -64,19 +67,39 @@ public class CommandContentRepositoryTest {
   @Test
   public void when_SomeContentIsSaved_then_ShouldBeInTheDataBase() {
 
+    final long streamId = 1;
+    final long contentId = 0;
+    final String title = "title";
+    final ContentStatus status = ContentStatus.SOON;
+    final Date available = Date.from(Instant.now());
+    final Set<String> tags = Set.of("tag1", "tag2");
+
     CatalogContent content_01 = CatalogContent.builder()
-            .contentId(1)
-            .status(ContentStatus.SOON)
+            .streamId(streamId)
+            .title(title)
+            .status(status)
+            .available(available)
+            .tags(tags)
             .build();
-    LOG.error("jlom: content_01: " + content_01);
+
+    CatalogContent expectedContent = CatalogContent.builder()
+            .contentId(contentId)
+            .streamId(streamId)
+            .title(title)
+            .status(status)
+            .available(available)
+            .tags(tags)
+            .build();
+
+    LOG.error("jlom: toInsert: " + content_01);
 
     Assertions.assertThat(repository).isNotNull();
     repository.save(content_01);
 
+    CatalogContent byId = repository.findByStreamId(streamId);
 
-    CatalogContent byId = repository.findById(1);
-
-    Assertions.assertThat(byId).isEqualTo(content_01);
+    LOG.error("jlom: inserted: " + byId);
+    Assertions.assertThat(byId).isEqualTo(expectedContent);
 
   }
 
@@ -84,20 +107,24 @@ public class CommandContentRepositoryTest {
   public void given_ASavedContent_when_WeDeleteIt_thenShouldNotBeFound() {
     //given
     CatalogContent content_01 = CatalogContent.builder()
-            .contentId(1)
+            .status(ContentStatus.SOON)
+            .build();
+
+    CatalogContent expected_content_01 = CatalogContent.builder()
+            .contentId(0)
             .status(ContentStatus.SOON)
             .build();
 
     repository.save(content_01);
-    Assertions.assertThat(repository.findAll()).contains(content_01);
+    Assertions.assertThat(repository.findAll()).contains(expected_content_01);
 
     Long deleted = repository.delete(content_01.getContentId());
-    Assertions.assertThat(repository.findAll()).doesNotContain(content_01);
+    Assertions.assertThat(repository.findAll()).doesNotContain(expected_content_01);
 
     Assertions.assertThat(deleted).isNotNull();
     Assertions.assertThat(deleted).isEqualTo(1);
 
-    deleted = repository.delete(content_01.getContentId());
+    deleted = repository.delete(expected_content_01.getContentId());
     Assertions.assertThat(deleted).isNotNull();
     Assertions.assertThat(deleted).isEqualTo(0);
   }

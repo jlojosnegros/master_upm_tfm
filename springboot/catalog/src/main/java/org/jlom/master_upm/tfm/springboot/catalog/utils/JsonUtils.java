@@ -20,7 +20,8 @@ public class JsonUtils {
   public static String ObjectToJson(Object obj) throws JsonProcessingException {
 
     ObjectMapper mapper = createConfiguredObjectMapper();
-    return mapper.writeValueAsString(obj);
+    String s = mapper.writeValueAsString(obj);
+    return s;
 
 //    Gson gson = new Gson();
 //    String s = gson.toJson(obj);

@@ -6,7 +6,6 @@ import org.jlom.master_upm.tfm.springboot.catalog.controller.api.CatalogServiceQ
 import org.jlom.master_upm.tfm.springboot.catalog.controller.api.dtos.ContentServiceResponseFailureInternalError;
 import org.jlom.master_upm.tfm.springboot.catalog.controller.api.dtos.ContentServiceResponseFailureNotFound;
 import org.jlom.master_upm.tfm.springboot.catalog.controller.api.dtos.ContentServiceResponse;
-import org.jlom.master_upm.tfm.springboot.catalog.controller.api.dtos.ContentServiceResponseFailure;
 import org.jlom.master_upm.tfm.springboot.catalog.controller.api.dtos.ContentServiceResponseFailureException;
 import org.jlom.master_upm.tfm.springboot.catalog.controller.api.dtos.ContentServiceResponseFailureInvalidInputParameter;
 import org.jlom.master_upm.tfm.springboot.catalog.controller.api.dtos.ContentServiceResponseOk;
@@ -30,27 +29,28 @@ public class CatalogService implements CatalogServiceCommands, CatalogServiceQue
   }
 
   @Override
-  public ContentServiceResponse createContent(long contentId, long streamId, String title, Set<String> tags) {
+  public ContentServiceResponse createContent(long streamId, String title, ContentStatus status, Set<String> tags) {
 
     try {
-      if(null != repository.findById(contentId)) {
-        return new ContentServiceResponseFailureInvalidInputParameter("Content with id already exists",
-                "contentId", contentId);
-      } else if (null != repository.findByStreamId(streamId)) {
+      if (null != repository.findByStreamId(streamId)) {
         return new ContentServiceResponseFailureInvalidInputParameter("Content with streamId already exists",
                 "streamId", streamId);
       }
 
       CatalogContent toInsert = CatalogContent.builder()
-              .contentId(contentId)
               .streamId(streamId)
+              .status(status)
               .title(title)
               .tags(tags)
               .build();
 
       repository.save(toInsert);
 
-      return new ContentServiceResponseOk(toInsert);
+      CatalogContent insertedContent = repository.findByStreamId(streamId);
+      if (null == insertedContent) {
+        return new ContentServiceResponseFailureInternalError("Unable to insert new content: " + toInsert);
+      }
+      return new ContentServiceResponseOk(insertedContent);
     } catch (Exception ex) {
       return  new ContentServiceResponseFailureException(ex);
     }
