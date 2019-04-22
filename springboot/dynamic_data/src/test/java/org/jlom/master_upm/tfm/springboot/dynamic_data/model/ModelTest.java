@@ -6,7 +6,6 @@ import org.jlom.master_upm.tfm.springboot.dynamic_data.model.api.IUserDevicesRep
 import org.jlom.master_upm.tfm.springboot.dynamic_data.model.daos.UserDevice;
 import org.junit.After;
 import org.junit.Before;
-import org.junit.ClassRule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.slf4j.Logger;
@@ -20,7 +19,7 @@ import org.springframework.context.annotation.Profile;
 import org.springframework.data.redis.connection.RedisStandaloneConfiguration;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
-import org.testcontainers.containers.GenericContainer;
+import redis.embedded.RedisServer;
 
 import java.util.Set;
 
@@ -29,9 +28,12 @@ import java.util.Set;
 @ActiveProfiles("test")
 public class ModelTest {
 
-  @ClassRule
-  public static GenericContainer redis = new GenericContainer<>("redis:5.0.4-alpine")
-          .withExposedPorts(6379);
+
+  private static int redisEmbeddedServerPort = 6379;
+//  @ClassRule
+//  public static GenericContainer redis = new GenericContainer<>("redis:5.0.4-alpine")
+//          .withExposedPorts(6379);
+  private RedisServer embeddedRedis = new RedisServer(redisEmbeddedServerPort);
 
   //private GenericContainer redis = new GenericContainer<>("redis:5.0.4-alpine")
   @Autowired
@@ -45,9 +47,15 @@ public class ModelTest {
 
   @Before
   public void setup() {
-    String redisContainerIpAddress = redis.getContainerIpAddress();
-    Integer redisFirstMappedPort = redis.getFirstMappedPort();
+    embeddedRedis.start();
+    String redisContainerIpAddress = "localhost";
+    int redisFirstMappedPort = redisEmbeddedServerPort;
     LOG.info("-=* Redis Container running on: " + redisContainerIpAddress + ":" + redisFirstMappedPort);
+  }
+
+  @After
+  public void tearDown() {
+    embeddedRedis.stop();
   }
 
   @TestConfiguration
@@ -57,8 +65,8 @@ public class ModelTest {
     @Profile("test")
     @Primary
     public RedisStandaloneConfiguration redisStandaloneConfigurationTest() {
-      var redisContainerIpAddress = redis.getContainerIpAddress();
-      var redisFirstMappedPort = redis.getFirstMappedPort();
+      var redisContainerIpAddress = "localhost";
+      var redisFirstMappedPort = redisEmbeddedServerPort;
       LOG.info("jlom: -=* TestConfiguration Redis Container running on: " + redisContainerIpAddress + ":" + redisFirstMappedPort);
       var configuration = new RedisStandaloneConfiguration();
       configuration.setHostName(redisContainerIpAddress);
