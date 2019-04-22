@@ -1,7 +1,10 @@
 package org.jlom.master_upm.tfm.springboot.dynamic_data.config;
 
+import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Primary;
+import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.data.redis.connection.RedisPassword;
 import org.springframework.data.redis.connection.RedisStandaloneConfiguration;
 import org.springframework.data.redis.connection.lettuce.LettuceConnectionFactory;
@@ -28,11 +31,17 @@ public class RedisConfig {
 
 
   @Bean
-  public RedisTemplate<String,Object> redisTemplate(LettuceConnectionFactory factory) {
+  @ConditionalOnMissingBean(name = "redisTemplate")
+  @Primary
+  public RedisTemplate<String,Object> redisTemplate(RedisConnectionFactory factory) {
 
     final RedisTemplate<String,Object> template = new RedisTemplate<>();
     template.setConnectionFactory(factory);
     template.setValueSerializer(new GenericJackson2JsonRedisSerializer());
     return template;
+  }
+
+  public void resetRedis() {
+
   }
 }

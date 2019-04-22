@@ -7,6 +7,6 @@ import org.springframework.stereotype.Repository;
 public interface UserDevicesCommandRepository {
 
   boolean add(UserDevice userDevice);
-  void update(UserDevice userDevice);
-  void delete(long userId);
+  boolean update(UserDevice userDevice);
+  Long delete(long userId);
 }

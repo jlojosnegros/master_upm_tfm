@@ -27,13 +27,17 @@ public class UserDevicesRepository implements IUserDevicesRepository {
   }
 
   @Override
-  public void delete(long userId) {
-    hashOperations.delete(KEY,userId);
+  public Long delete(long userId) {
+    return hashOperations.delete(KEY,userId);
   }
 
   @Override
-  public void update(UserDevice userDevice) {
-    hashOperations.put(KEY, userDevice.getUserId(), userDevice);
+  public boolean update(UserDevice userDevice) {
+    if (null != hashOperations.get(KEY, userDevice.getUserId()) ) {
+      hashOperations.put(KEY, userDevice.getUserId(), userDevice);
+      return true;
+    }
+    return false;
   }
 
   @Override
