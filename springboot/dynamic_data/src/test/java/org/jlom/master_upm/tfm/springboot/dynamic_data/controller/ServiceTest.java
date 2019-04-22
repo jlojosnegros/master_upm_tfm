@@ -121,7 +121,6 @@ public class ServiceTest {
     final long expectedUserId = 1;
     final Set<Long> initialDevices = Set.of(1L,2L);
     final Set<Long> additionalDevices = Set.of(1L,3L);
-    final Long[] expectedDevices = new Long[]{1L, 2L, 3L};
 
     UserDevice nonExistingUser = UserDevice.builder()
             .userId(expectedUserId)
@@ -132,7 +131,9 @@ public class ServiceTest {
     UserDeviceServiceResponse response = service.addDevicesToUser(nonExistingUser.getUserId(), additionalDevices);
 
     //then
-    assertThat(response).isInstanceOf(UserDeviceServiceResponseFailureNotFound.class);
+    UserDevice actualUserDevice = ((UserDeviceServiceResponseOK) response).getUserDevice();
+    assertThat(actualUserDevice.getUserId()).isEqualTo(nonExistingUser.getUserId());
+    assertThat(actualUserDevice.getDevices()).containsOnly(additionalDevices.toArray(new Long[0]));
   }
 
 
@@ -168,7 +169,6 @@ public class ServiceTest {
     //given
     final long expectedUserId = 1;
     final Set<Long> initialDevices = Set.of(1L,2L);
-    final Set<Long> removedDevices = Set.of(1L,3L);
 
     UserDevice nonExistingUser = UserDevice.builder()
             .userId(expectedUserId)
@@ -176,10 +176,11 @@ public class ServiceTest {
             .build();
 
     //when
-    UserDeviceServiceResponse response = service.addDevicesToUser(nonExistingUser.getUserId(), removedDevices);
+    UserDeviceServiceResponse response = service.addDevicesToUser(nonExistingUser.getUserId(), initialDevices);
 
     //then
-    assertThat(response).isInstanceOf(UserDeviceServiceResponseFailureNotFound.class);
+    UserDevice actualUserDevice = ((UserDeviceServiceResponseOK) response).getUserDevice();
+    assertThat(actualUserDevice).isEqualTo(nonExistingUser);
   }
 
 

@@ -3,6 +3,7 @@ package org.jlom.master_upm.tfm.springboot.dynamic_data.controller.api.dtos;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.ToString;
+import org.springframework.http.ResponseEntity;
 
 @Getter
 @ToString(callSuper = true)
@@ -18,5 +19,10 @@ public class UserDeviceServiceResponseFailureException extends UserDeviceService
 
   public UserDeviceServiceResponseFailureException(Exception exception) {
     this("error: Exception captured. ", exception);
+  }
+
+  @Override
+  public ResponseEntity<?> accept(UserDeviceServiceResponseHandler handler) {
+    return handler.handle(this);
   }
 }

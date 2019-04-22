@@ -7,7 +7,7 @@ import lombok.ToString;
 @Getter
 @ToString
 @EqualsAndHashCode
-public class UserDeviceServiceResponseFailure implements UserDeviceServiceResponse {
+public abstract class UserDeviceServiceResponseFailure implements UserDeviceServiceResponse {
 
   private final String message;
 

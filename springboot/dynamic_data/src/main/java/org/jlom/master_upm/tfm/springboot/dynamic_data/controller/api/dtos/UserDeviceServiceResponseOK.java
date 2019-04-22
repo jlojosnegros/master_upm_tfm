@@ -4,6 +4,7 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.ToString;
 import org.jlom.master_upm.tfm.springboot.dynamic_data.model.daos.UserDevice;
+import org.springframework.http.ResponseEntity;
 
 @Getter
 @ToString
@@ -14,5 +15,10 @@ public class UserDeviceServiceResponseOK implements UserDeviceServiceResponse {
 
   public UserDeviceServiceResponseOK(UserDevice userDevice) {
     this.userDevice = userDevice;
+  }
+
+  @Override
+  public ResponseEntity<?> accept(UserDeviceServiceResponseHandler handler) {
+    return handler.handle(this);
   }
 }

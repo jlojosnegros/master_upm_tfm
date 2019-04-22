@@ -6,7 +6,7 @@ public interface UserDeviceServiceResponseHandler {
   ResponseEntity<?> handle(UserDeviceServiceResponseOK response);
 
   ResponseEntity<?> handle(UserDeviceServiceResponseFailureException response);
-  ResponseEntity<?> handle(UserDeviceServiceResponseFailureInteralError response);
+  ResponseEntity<?> handle(UserDeviceServiceResponseFailureInternalError response);
   ResponseEntity<?> handle(UserDeviceServiceResponseFailureInvalidInputParameter response);
   ResponseEntity<?> handle(UserDeviceServiceResponseFailureNotFound response);
 }

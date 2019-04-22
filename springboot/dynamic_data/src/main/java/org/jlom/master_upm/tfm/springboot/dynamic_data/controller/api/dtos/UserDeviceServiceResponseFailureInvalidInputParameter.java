@@ -3,6 +3,7 @@ package org.jlom.master_upm.tfm.springboot.dynamic_data.controller.api.dtos;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.ToString;
+import org.springframework.http.ResponseEntity;
 
 @Getter
 @ToString(callSuper = true)
@@ -22,4 +23,8 @@ public class UserDeviceServiceResponseFailureInvalidInputParameter extends UserD
     this ("InvalidInputParameter:",paramName,param);
   }
 
+  @Override
+  public ResponseEntity<?> accept(UserDeviceServiceResponseHandler handler) {
+    return handler.handle(this);
+  }
 }

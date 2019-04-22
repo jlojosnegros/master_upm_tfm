@@ -3,7 +3,7 @@ package org.jlom.master_upm.tfm.springboot.dynamic_data.controller;
 import org.jlom.master_upm.tfm.springboot.dynamic_data.controller.api.UserDeviceServiceCommands;
 import org.jlom.master_upm.tfm.springboot.dynamic_data.controller.api.UserDeviceServiceQueries;
 import org.jlom.master_upm.tfm.springboot.dynamic_data.controller.api.dtos.UserDeviceServiceResponse;
-import org.jlom.master_upm.tfm.springboot.dynamic_data.controller.api.dtos.UserDeviceServiceResponseFailureInteralError;
+import org.jlom.master_upm.tfm.springboot.dynamic_data.controller.api.dtos.UserDeviceServiceResponseFailureInternalError;
 import org.jlom.master_upm.tfm.springboot.dynamic_data.controller.api.dtos.UserDeviceServiceResponseFailureInvalidInputParameter;
 import org.jlom.master_upm.tfm.springboot.dynamic_data.controller.api.dtos.UserDeviceServiceResponseFailureNotFound;
 import org.jlom.master_upm.tfm.springboot.dynamic_data.controller.api.dtos.UserDeviceServiceResponseOK;
@@ -39,6 +39,15 @@ public class UserDeviceService implements UserDeviceServiceCommands, UserDeviceS
             .anyMatch(byDeviceId -> (null != byDeviceId) && (userId != byDeviceId.getUserId()));
   }
 
+  private boolean addEntity(long userId, Set<Long> deviceIds) {
+    UserDevice built = UserDevice.builder()
+            .userId(userId)
+            .devices(deviceIds)
+            .build();
+
+    return repository.add(built);
+  }
+
   @Override
   public UserDeviceServiceResponse createUser(long userId, Set<Long> deviceIds) {
 
@@ -48,13 +57,7 @@ public class UserDeviceService implements UserDeviceServiceCommands, UserDeviceS
               deviceIds);
     }
 
-    UserDevice built = UserDevice.builder()
-            .userId(userId)
-            .devices(deviceIds)
-            .build();
-
-    boolean added = repository.add(built);
-    if (added) {
+    if (addEntity(userId, deviceIds)) {
       UserDevice inserted = repository.findByUserId(userId);
       return new UserDeviceServiceResponseOK(inserted);
     } else {
@@ -62,6 +65,8 @@ public class UserDeviceService implements UserDeviceServiceCommands, UserDeviceS
     }
 
   }
+
+
 
   @Override
   public UserDeviceServiceResponse addDevicesToUser(long userId, Set<Long> deviceIds) {
@@ -72,10 +77,8 @@ public class UserDeviceService implements UserDeviceServiceCommands, UserDeviceS
               deviceIds);
     }
 
+    addEntity(userId, deviceIds);
     UserDevice byUserId = repository.findByUserId(userId);
-    if (null == byUserId) {
-      return new UserDeviceServiceResponseFailureNotFound("userId", userId);
-    }
 
     for (var deviceId : deviceIds) {
       byUserId.addDevice(deviceId);
@@ -91,7 +94,7 @@ public class UserDeviceService implements UserDeviceServiceCommands, UserDeviceS
     }
     boolean update = repository.update(userDevice);
     if (!update) {
-      return new UserDeviceServiceResponseFailureInteralError("Unable to update: " + userDevice);
+      return new UserDeviceServiceResponseFailureInternalError("Unable to update: " + userDevice);
     }
     return new UserDeviceServiceResponseOK(userDevice);
   }
