@@ -7,5 +7,5 @@ import org.springframework.stereotype.Repository;
 public interface UserDevicesQueryRepository {
 
   UserDevice findByUserId(long userId);
-
+  UserDevice findByDeviceId(long deviceId);
 }

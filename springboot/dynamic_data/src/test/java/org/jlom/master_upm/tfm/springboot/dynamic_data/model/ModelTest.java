@@ -21,7 +21,9 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
 import redis.embedded.RedisServer;
 
+import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.NONE)
@@ -215,5 +217,28 @@ public class ModelTest {
 
     UserDevice byUserId = userDevicesRepository.findByUserId(builtAgain.getUserId());
     Assertions.assertThat(byUserId).isNull();
+  }
+
+  @Test
+  public void given_AUserWithMultipleDevices_when_lookingForAnyDevice_then_ShouldWork() {
+
+    Set<Long> deviceIds = Set.of(2L, 44L, 3L);
+
+    UserDevice built = UserDevice.builder()
+            .userId(1)
+            .devices(deviceIds)
+            .build();
+
+    boolean added = userDevicesRepository.add(built);
+    Assertions.assertThat(added).isTrue();
+
+
+    List<UserDevice> userDevices = deviceIds
+            .stream()
+            .map(userDevicesRepository::findByDeviceId)
+            .collect(Collectors.toList());
+
+    Assertions.assertThat(userDevices).allMatch( ud -> ud.equals(built));
+
   }
 }

@@ -12,10 +12,14 @@ import javax.annotation.Resource;
 @Repository
 public class UserDevicesRepository implements IUserDevicesRepository {
 
-  private static final String KEY = "UserDevicesKey";
+  private static final String USER_DEVICES_KEY = "UserDevicesKey";
+  private static final String DEVICE_USER_KEY = "DeviceUserKey";
 
   @Resource(name="redisTemplate")
-  private HashOperations<String, Long, UserDevice> hashOperations;
+  private HashOperations<String, Long, UserDevice> userDeviceHashOperations;
+
+  @Resource(name="redisTemplate")
+  private HashOperations<String, Long, Long> deviceUserHashOperations;
 
   private static final Logger LOG = LoggerFactory.getLogger(UserDevicesRepository.class);
 
@@ -23,25 +27,60 @@ public class UserDevicesRepository implements IUserDevicesRepository {
 
   @Override
   public boolean add(UserDevice userDevice) {
-    return hashOperations.putIfAbsent(KEY, userDevice.getUserId(), userDevice);
+    Boolean inserted = userDeviceHashOperations.putIfAbsent(USER_DEVICES_KEY, userDevice.getUserId(), userDevice);
+    if (inserted) {
+      userDevice.getDevices()
+              .forEach( deviceId -> deviceUserHashOperations.put(DEVICE_USER_KEY,
+                      deviceId,
+                      userDevice.getUserId())
+              );
+    }
+    return inserted;
   }
 
   @Override
   public Long delete(long userId) {
-    return hashOperations.delete(KEY,userId);
+
+    UserDevice byUserId = userDeviceHashOperations.get(USER_DEVICES_KEY,userId);
+    if (null != byUserId) {
+      byUserId.getDevices().forEach(
+              deviceId -> deviceUserHashOperations.delete(DEVICE_USER_KEY,deviceId)
+      );
+    }
+    return userDeviceHashOperations.delete(USER_DEVICES_KEY, userId);
   }
 
   @Override
   public boolean update(UserDevice userDevice) {
-    if (null != hashOperations.get(KEY, userDevice.getUserId()) ) {
-      hashOperations.put(KEY, userDevice.getUserId(), userDevice);
-      return true;
+    UserDevice before = userDeviceHashOperations.get(USER_DEVICES_KEY, userDevice.getUserId());
+    if (null == before) {
+      return false;
     }
-    return false;
+    //delete all the old values
+    before.getDevices().forEach(
+            deviceId -> deviceUserHashOperations.delete(DEVICE_USER_KEY, deviceId)
+    );
+
+    userDeviceHashOperations.put(USER_DEVICES_KEY, userDevice.getUserId(), userDevice);
+
+    //insert new values
+    userDevice.getDevices().forEach(
+            deviceId -> deviceUserHashOperations.put(DEVICE_USER_KEY,deviceId,userDevice.getUserId())
+    );
+    return true;
   }
 
   @Override
   public UserDevice findByUserId(long userId) {
-    return hashOperations.get(KEY, userId);
+    return userDeviceHashOperations.get(USER_DEVICES_KEY, userId);
+  }
+
+  @Override
+  public UserDevice findByDeviceId(long deviceId) {
+    Long userId = deviceUserHashOperations.get(DEVICE_USER_KEY, deviceId);
+    if (null == userId) {
+      return null;
+    }
+    return userDeviceHashOperations.get(USER_DEVICES_KEY, userId);
   }
 }
