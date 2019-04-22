@@ -3,13 +3,16 @@ package org.jlom.master_upm.tfm.springboot.dynamic_data.model.daos;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.ToString;
 
 import java.io.Serializable;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.Objects;
 import java.util.Set;
 
 @Builder
+@ToString
 public class UserDevice implements Serializable {
 
   private static final long serialVersionUID = 1L;
@@ -17,13 +20,10 @@ public class UserDevice implements Serializable {
   @Getter
   @Setter
   private long userId;
+
   private Set<Long> devices;
 
 
-//  public UserDevice(final long userId) {
-//    this.userId = userId;
-//    this.devices = new HashSet<>();
-//  }
 
   public UserDevice(final long userId, Set<Long> devices) {
     this.userId = userId;
@@ -46,4 +46,18 @@ public class UserDevice implements Serializable {
     return Collections.unmodifiableSet(devices);
   }
 
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) return true;
+    if (o == null || getClass() != o.getClass()) return false;
+    UserDevice that = (UserDevice) o;
+    return userId == that.userId &&
+            Objects.equals(devices, that.devices);
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(userId);
+  }
 }

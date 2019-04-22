@@ -37,8 +37,8 @@ public class ModelTest {
   @Autowired
   private IUserDevicesRepository userDevicesRepository;
 
-  @Autowired
-  private IDevicesRepository devicesRepository;
+//  @Autowired
+//  private IDevicesRepository devicesRepository;
 
 
   private static final Logger LOG = LoggerFactory.getLogger(ModelTest.class);
