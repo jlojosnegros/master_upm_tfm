@@ -5,6 +5,7 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 
+import javax.validation.constraints.NotNull;
 import java.io.Serializable;
 import java.util.Collections;
 import java.util.HashSet;
@@ -25,9 +26,12 @@ public class UserDevice implements Serializable {
 
 
 
-  public UserDevice(final long userId, Set<Long> devices) {
+  public UserDevice(final long userId, @NotNull Set<Long> devices) {
     this.userId = userId;
-    this.devices = devices;
+    this.devices = new HashSet<>();
+    if (null != devices) {
+      this.devices.addAll(devices);
+    }
   }
 
   public void addDevice(final long deviceId) {

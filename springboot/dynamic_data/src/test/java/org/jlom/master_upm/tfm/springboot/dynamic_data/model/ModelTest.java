@@ -60,23 +60,6 @@ public class ModelTest {
     embeddedRedis.stop();
   }
 
-  @TestConfiguration
-  static public class RedisTestConfiguration {
-
-    @Bean
-    @Profile("test")
-    @Primary
-    public RedisStandaloneConfiguration redisStandaloneConfigurationTest() {
-      var redisContainerIpAddress = "localhost";
-      var redisFirstMappedPort = redisEmbeddedServerPort;
-      LOG.info("jlom: -=* TestConfiguration Redis Container running on: " + redisContainerIpAddress + ":" + redisFirstMappedPort);
-      var configuration = new RedisStandaloneConfiguration();
-      configuration.setHostName(redisContainerIpAddress);
-      configuration.setPort(redisFirstMappedPort);
-      return configuration;
-    }
-  }
-
 
   @Test
   public void given_ANonExistingEntity_when_adding_then_ShouldWorkFine() {
@@ -240,5 +223,24 @@ public class ModelTest {
 
     Assertions.assertThat(userDevices).allMatch( ud -> ud.equals(built));
 
+  }
+
+  @Test
+  public void listAllTest() {
+
+    UserDevice built = UserDevice.builder()
+            .userId(1)
+            .devices(Set.of(2L))
+            .build();
+    Assertions.assertThat(userDevicesRepository.add(built)).isTrue();
+
+    UserDevice builtAgain = UserDevice.builder()
+            .userId(2)
+            .devices(Set.of(22L))
+            .build();
+    Assertions.assertThat(userDevicesRepository.add(builtAgain)).isTrue();
+
+
+    Assertions.assertThat(userDevicesRepository.listAllUsers()).containsOnly(built,builtAgain);
   }
 }

@@ -11,6 +11,7 @@ import org.jlom.master_upm.tfm.springboot.dynamic_data.model.api.IUserDevicesRep
 import org.jlom.master_upm.tfm.springboot.dynamic_data.model.daos.UserDevice;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
@@ -26,19 +27,50 @@ public class UserDeviceService implements UserDeviceServiceCommands, UserDeviceS
 
   @Override
   public UserDeviceServiceResponse createUser(long userId) {
-    UserDevice built = UserDevice.builder().userId(userId).build();
+    return createUser(userId,null);
+
+  }
+
+  private boolean inconsistentDeviceIds(long userId, Set<Long> deviceIds) {
+    if (null == deviceIds) return false;
+
+    return deviceIds.stream()
+            .map(repository::findByDeviceId)
+            .anyMatch(byDeviceId -> (null != byDeviceId) && (userId != byDeviceId.getUserId()));
+  }
+
+  @Override
+  public UserDeviceServiceResponse createUser(long userId, Set<Long> deviceIds) {
+
+    if (inconsistentDeviceIds(userId, deviceIds)) {
+      return new UserDeviceServiceResponseFailureInvalidInputParameter("One device can only belong to one user",
+              "deviceIds",
+              deviceIds);
+    }
+
+    UserDevice built = UserDevice.builder()
+            .userId(userId)
+            .devices(deviceIds)
+            .build();
 
     boolean added = repository.add(built);
-    if ( added) {
+    if (added) {
       UserDevice inserted = repository.findByUserId(userId);
       return new UserDeviceServiceResponseOK(inserted);
     } else {
       return new UserDeviceServiceResponseFailureInvalidInputParameter("userId", userId);
     }
+
   }
 
   @Override
   public UserDeviceServiceResponse addDevicesToUser(long userId, Set<Long> deviceIds) {
+
+    if (inconsistentDeviceIds(userId, deviceIds)) {
+      return new UserDeviceServiceResponseFailureInvalidInputParameter("One device can only belong to one user",
+              "deviceIds",
+              deviceIds);
+    }
 
     UserDevice byUserId = repository.findByUserId(userId);
     if (null == byUserId) {
@@ -51,12 +83,17 @@ public class UserDeviceService implements UserDeviceServiceCommands, UserDeviceS
     return updateUserDevice(byUserId);
   }
 
-  private UserDeviceServiceResponse updateUserDevice(UserDevice byUserId) {
-    boolean update = repository.update(byUserId);
-    if (!update) {
-      return new UserDeviceServiceResponseFailureInteralError("Unable to update: " + byUserId);
+  private UserDeviceServiceResponse updateUserDevice(UserDevice userDevice) {
+    if (inconsistentDeviceIds(userDevice.getUserId(), userDevice.getDevices())) {
+      return new UserDeviceServiceResponseFailureInvalidInputParameter("One device can only belong to one user",
+              "deviceIds",
+              userDevice.getDevices());
     }
-    return new UserDeviceServiceResponseOK(byUserId);
+    boolean update = repository.update(userDevice);
+    if (!update) {
+      return new UserDeviceServiceResponseFailureInteralError("Unable to update: " + userDevice);
+    }
+    return new UserDeviceServiceResponseOK(userDevice);
   }
 
   @Override
@@ -89,5 +126,10 @@ public class UserDeviceService implements UserDeviceServiceCommands, UserDeviceS
       return Optional.empty();
     }
     return Optional.of(byDeviceId.getUserId());
+  }
+
+  @Override
+  public List<UserDevice> listAll() {
+    return repository.listAllUsers();
   }
 }

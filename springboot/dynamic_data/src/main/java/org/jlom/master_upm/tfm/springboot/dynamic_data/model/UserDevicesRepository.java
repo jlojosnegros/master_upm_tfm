@@ -8,6 +8,7 @@ import org.springframework.data.redis.core.HashOperations;
 import org.springframework.stereotype.Repository;
 
 import javax.annotation.Resource;
+import java.util.List;
 
 @Repository
 public class UserDevicesRepository implements IUserDevicesRepository {
@@ -28,7 +29,8 @@ public class UserDevicesRepository implements IUserDevicesRepository {
   @Override
   public boolean add(UserDevice userDevice) {
     Boolean inserted = userDeviceHashOperations.putIfAbsent(USER_DEVICES_KEY, userDevice.getUserId(), userDevice);
-    if (inserted) {
+//    if (inserted && !userDevice.getDevices().isEmpty()){
+    if(inserted) {
       userDevice.getDevices()
               .forEach( deviceId -> deviceUserHashOperations.put(DEVICE_USER_KEY,
                       deviceId,
@@ -82,5 +84,10 @@ public class UserDevicesRepository implements IUserDevicesRepository {
       return null;
     }
     return userDeviceHashOperations.get(USER_DEVICES_KEY, userId);
+  }
+
+  @Override
+  public List<UserDevice> listAllUsers() {
+    return userDeviceHashOperations.values(USER_DEVICES_KEY);
   }
 }
