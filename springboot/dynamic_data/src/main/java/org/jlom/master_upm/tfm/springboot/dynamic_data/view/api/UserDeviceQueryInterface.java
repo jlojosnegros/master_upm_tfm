@@ -25,7 +25,7 @@ public interface UserDeviceQueryInterface {
           method = RequestMethod.GET,
           produces = {MediaType.APPLICATION_JSON_VALUE, APPLICATION_JSON_PROBLEM_VALUE}
   )
-  ResponseEntity<?> getDevicesByUser(HttpServletRequest request, @Valid @PathVariable(name = "userId") long userId);
+  ResponseEntity<?> getUser(HttpServletRequest request, @Valid @PathVariable(name = "userId") long userId);
 
   @RequestMapping(
           value = "/user-device/device/{deviceId}",

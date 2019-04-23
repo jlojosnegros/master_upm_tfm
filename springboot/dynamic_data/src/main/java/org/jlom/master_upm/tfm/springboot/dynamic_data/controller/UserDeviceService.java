@@ -114,12 +114,8 @@ public class UserDeviceService implements UserDeviceServiceCommands, UserDeviceS
   }
 
   @Override
-  public Set<Long> getDevices(long userId) {
-    UserDevice byUserId = repository.findByUserId(userId);
-    if (null == byUserId) {
-      return Set.of();
-    }
-    return byUserId.getDevices();
+  public UserDevice getUser(long userId) {
+    return repository.findByUserId(userId);
   }
 
   @Override

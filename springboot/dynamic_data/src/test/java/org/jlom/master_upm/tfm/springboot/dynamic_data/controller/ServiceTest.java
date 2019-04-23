@@ -2,7 +2,6 @@ package org.jlom.master_upm.tfm.springboot.dynamic_data.controller;
 
 import org.jlom.master_upm.tfm.springboot.dynamic_data.controller.api.dtos.UserDeviceServiceResponse;
 import org.jlom.master_upm.tfm.springboot.dynamic_data.controller.api.dtos.UserDeviceServiceResponseFailureInvalidInputParameter;
-import org.jlom.master_upm.tfm.springboot.dynamic_data.controller.api.dtos.UserDeviceServiceResponseFailureNotFound;
 import org.jlom.master_upm.tfm.springboot.dynamic_data.controller.api.dtos.UserDeviceServiceResponseOK;
 import org.jlom.master_upm.tfm.springboot.dynamic_data.model.daos.UserDevice;
 import org.junit.After;
@@ -184,7 +183,7 @@ public class ServiceTest {
   }
 
 
-  private void addCheckedUserDevice(long userId, Set<Long> deviceIds) {
+  private UserDevice addCheckedUserDevice(long userId, Set<Long> deviceIds) {
 
     UserDevice userDevice = UserDevice.builder()
             .userId(userId)
@@ -198,23 +197,24 @@ public class ServiceTest {
     UserDevice actualUserDevice = ((UserDeviceServiceResponseOK) response).getUserDevice();
     assertThat(actualUserDevice).isEqualTo(userDevice);
 
+    return actualUserDevice;
   }
   @Test
-  public void getDevices() {
+  public void getUsers() {
     //given
     final Set<Long> odd_devices = Set.of(1L,3L,5L,7L,9L);
     final Set<Long> even_devices = Set.of(2L,4L,6L,8L,10L);
 
-    addCheckedUserDevice(1,odd_devices);
-    addCheckedUserDevice(2,even_devices);
+    UserDevice userDevice_one = addCheckedUserDevice(1, odd_devices);
+    UserDevice userDevice_two = addCheckedUserDevice(2, even_devices);
 
     //when
-    Set<Long> devices_one = service.getDevices(1);
-    Set<Long> devices_two = service.getDevices(2);
+    UserDevice actualUserDevice_one = service.getUser(1);
+    UserDevice actualUserDevice_two = service.getUser(2);
 
     //then
-    assertThat(devices_one).containsOnly(odd_devices.toArray(new Long[0]));
-    assertThat(devices_two).containsOnly(even_devices.toArray(new Long[0]));
+    assertThat(actualUserDevice_one).isEqualTo(userDevice_one);
+    assertThat(actualUserDevice_two).isEqualTo(userDevice_two);
 
   }
 

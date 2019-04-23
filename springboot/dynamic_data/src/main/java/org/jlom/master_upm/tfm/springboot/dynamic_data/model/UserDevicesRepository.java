@@ -29,7 +29,7 @@ public class UserDevicesRepository implements IUserDevicesRepository {
   @Override
   public boolean add(UserDevice userDevice) {
     Boolean inserted = userDeviceHashOperations.putIfAbsent(USER_DEVICES_KEY, userDevice.getUserId(), userDevice);
-//    if (inserted && !userDevice.getDevices().isEmpty()){
+//    if (inserted && !userDevice.getUser().isEmpty()){
     if(inserted) {
       userDevice.getDevices()
               .forEach( deviceId -> deviceUserHashOperations.put(DEVICE_USER_KEY,

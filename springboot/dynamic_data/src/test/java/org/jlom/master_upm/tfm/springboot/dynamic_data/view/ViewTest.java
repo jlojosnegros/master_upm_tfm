@@ -7,16 +7,15 @@ import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.HttpClientBuilder;
-import org.assertj.core.api.Assertions;
 import org.jlom.master_upm.tfm.springboot.dynamic_data.controller.UserDeviceService;
 import org.jlom.master_upm.tfm.springboot.dynamic_data.controller.api.dtos.UserDeviceServiceResponse;
 import org.jlom.master_upm.tfm.springboot.dynamic_data.controller.api.dtos.UserDeviceServiceResponseOK;
 import org.jlom.master_upm.tfm.springboot.dynamic_data.model.daos.UserDevice;
+import org.jlom.master_upm.tfm.springboot.dynamic_data.utils.DtosTransformations;
 import org.jlom.master_upm.tfm.springboot.dynamic_data.view.api.dtos.InputUserDevice;
 import org.jlom.master_upm.tfm.springboot.dynamic_data.view.api.dtos.ProblemDetails;
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.slf4j.Logger;
@@ -27,22 +26,26 @@ import org.springframework.boot.web.server.LocalServerPort;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
+import org.xmlunit.builder.Input;
 import redis.embedded.RedisServer;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.validation.Valid;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.stream.LongStream;
 
 import static org.assertj.core.api.Assertions.*;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.jlom.master_upm.tfm.springboot.dynamic_data.utils.DtosTransformations.serviceToView;
 import static org.jlom.master_upm.tfm.springboot.dynamic_data.utils.JsonUtils.ObjectToJson;
+import static org.jlom.master_upm.tfm.springboot.dynamic_data.utils.JsonUtils.retrieveListOfResourcesFromResponse;
 import static org.jlom.master_upm.tfm.springboot.dynamic_data.utils.JsonUtils.retrieveResourceFromResponse;
 
 @RunWith(SpringRunner.class)
@@ -122,6 +125,23 @@ public class ViewTest {
     UserDevice actualUserDevice = ((UserDeviceServiceResponseOK) response).getUserDevice();
     assertThat(actualUserDevice).isEqualTo(userDevice);
 
+  }
+
+  private Map<Long,UserDevice> addSomeCheckedUserDevices(final int numberOfElements) {
+    Map<Long,UserDevice> users = new HashMap<>(numberOfElements);
+
+    for(int idx = 0; idx <= numberOfElements; idx++) {
+
+      long userId = idx+1;
+      Set<Long> devices = LongStream.rangeClosed((idx * numberOfElements) + 1, ((idx + 1) * numberOfElements))
+              .boxed()
+              .collect(Collectors.toSet());
+
+      users.putIfAbsent(userId,new UserDevice(userId, devices));
+      addCheckedUserDevice(userId,devices);
+    }
+
+    return users;
   }
 
   @Test
@@ -243,20 +263,67 @@ public class ViewTest {
   }
 
   @Test
-  @Ignore
-  public void given_SomePreCreatedUsers_when_listAllUsers_then_AllUsersShouldBeListed() {
-    fail("Not Implemented");
+  public void given_SomePreCreatedUsers_when_listAllUsers_then_AllUsersShouldBeListed() throws IOException {
+    final int numberOfElements = 5;
+
+    Map<Long,UserDevice> users = addSomeCheckedUserDevices(numberOfElements);
+
+    HttpResponse httpResponse = getRestResponseTo("/dynamic-data/user-device/users");
+    int statusCode = httpResponse.getStatusLine().getStatusCode();
+    LOG.error("response: " + httpResponse);
+    assertThat(statusCode).isEqualTo(HttpStatus.OK.value());
+
+    List<InputUserDevice> inputUserDevices = retrieveListOfResourcesFromResponse(httpResponse, InputUserDevice.class);
+
+    LOG.error("recv: " + inputUserDevices);
+    assertThat(inputUserDevices).containsOnly(
+            users.values().stream().map(DtosTransformations::serviceToView)
+                    .toArray(InputUserDevice[]::new)
+    );
+
   }
 
   @Test
-  @Ignore
-  public void given_SomePreCreatedUsersWithDevices_when_getDevicesByUser_then_EachUserShouldHaveItsDevices() {
-    fail("Not Implemented");
+  public void given_SomePreCreatedUsersWithDevices_when_getDevicesByUser_then_EachUserShouldHaveItsDevices() throws IOException {
+
+    final int numberOfElements = 5;
+    Map<Long,UserDevice> users = addSomeCheckedUserDevices(numberOfElements);
+
+    for (int userId = 1; userId <= numberOfElements; userId++) {
+      HttpResponse httpResponse = getRestResponseTo("/dynamic-data/user-device/users/" + userId);
+      LOG.error("response: " + httpResponse);
+
+      int statusCode = httpResponse.getStatusLine().getStatusCode();
+      assertThat(statusCode).isEqualTo(HttpStatus.OK.value());
+
+      InputUserDevice inputUserDevice = retrieveResourceFromResponse(httpResponse, InputUserDevice.class);
+      LOG.error("recv: " + inputUserDevice);
+
+      assertThat(inputUserDevice).isEqualTo(serviceToView(users.get((long)userId)));
+    }
   }
 
   @Test
-  @Ignore
-  public void given_SomePreCreatedUsersWithDevices_when_getUserForDevice_then_ShouldWorkOK() {
-    fail("Not Implemented");
+  public void given_SomePreCreatedUsersWithDevices_when_getUserForDevice_then_ShouldWorkOK() throws IOException {
+
+    final int numberOfElements = 5;
+    Map<Long, UserDevice> users = addSomeCheckedUserDevices(numberOfElements);
+
+
+    for (UserDevice user : users.values()) {
+      for (var deviceId : user.getDevices()) {
+        HttpResponse httpResponse = getRestResponseTo("/dynamic-data/user-device/device/" + deviceId);
+        LOG.error("response: " + httpResponse);
+
+        int statusCode = httpResponse.getStatusLine().getStatusCode();
+        assertThat(statusCode).isEqualTo(HttpStatus.OK.value());
+
+        InputUserDevice inputUserDevice = retrieveResourceFromResponse(httpResponse, InputUserDevice.class);
+        LOG.error("recv: " + inputUserDevice);
+
+        assertThat(inputUserDevice).isEqualTo(serviceToView(user));
+
+      }
+    }
   }
 }
