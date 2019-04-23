@@ -16,30 +16,7 @@ public class StreamControlData implements Serializable {
   private long streamId;
 
   private StreamStatus status;
-  private boolean tillTheEnd;
+  private boolean tillTheEnd = false;
 
-  public StreamControlData(final long userId, final long deviceId, final long streamId, final StreamStatus status) {
-    this.userId = userId;
-    this.deviceId = deviceId;
-    this.streamId = streamId;
-    this.status = status;
-    this.tillTheEnd = false;
-  }
-
-  public StreamControlData(final long userId, final long deviceId, final long streamId) {
-    this(userId,deviceId,streamId,StreamStatus.RUNNING);
-  }
-
-  public String getKey() {
-    return calculateKeyFor(userId,deviceId,streamId);
-  }
-
-  public static String calculateKeyFor(final long userId, final long deviceId, final long streamId) {
-    return String.format(":%s:%s:%s:",
-            String.valueOf(userId),
-            String.valueOf(deviceId),
-            String.valueOf(streamId)
-    );
-  }
 
 }

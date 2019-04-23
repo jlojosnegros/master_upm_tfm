@@ -3,6 +3,7 @@ package org.jlom.master_upm.tfm.springboot.stream_control.controller.api.dtos;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.ToString;
+import org.jlom.master_upm.tfm.springboot.stream_control.view.api.dtos.StreamControlReturnValue;
 import org.springframework.http.ResponseEntity;
 
 @Getter
@@ -23,6 +24,11 @@ public class StreamControlServiceResponseFailureException extends StreamControlS
 
   @Override
   public ResponseEntity<?> accept(StreamControlServiceResponseHandler handler) {
+    return handler.handle(this);
+  }
+
+  @Override
+  public StreamControlReturnValue accept(StreamControlServiceResponseHandlerRPC handler) {
     return handler.handle(this);
   }
 }

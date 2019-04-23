@@ -1,8 +1,10 @@
 package org.jlom.master_upm.tfm.springboot.stream_control.controller.api;
 
 
-public interface StreamControlServiceCommands {
+import org.jlom.master_upm.tfm.springboot.stream_control.controller.api.dtos.StreamControlServiceResponse;
 
-  //StreamControlServiceResponse createUser(long userId);
-  
+public interface StreamControlServiceCommands {
+  StreamControlServiceResponse play(final long streamId, final long deviceId);
+  StreamControlServiceResponse stop(final long deviceId);
+  StreamControlServiceResponse pause(final long deviceId);
 }
