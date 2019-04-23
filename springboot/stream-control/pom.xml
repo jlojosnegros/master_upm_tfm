@@ -121,6 +121,16 @@
 			<id>maven-central</id>
 			<url>https://repo.maven.apache.org/maven2/</url>
 		</repository>
+		<repository>
+			<id>mvn-repo</id>
+			<url>https://rawgit.com/jlojosnegros/master_upm_tfm_artifacts/master</url>
+			<releases>
+				<enabled>true</enabled>
+			</releases>
+			<snapshots>
+				<enabled>true</enabled>
+			</snapshots>
+		</repository>
 	</repositories>
 
 </project>
