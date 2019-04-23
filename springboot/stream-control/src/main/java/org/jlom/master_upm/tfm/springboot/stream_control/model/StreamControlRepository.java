@@ -36,7 +36,7 @@ public class StreamControlRepository implements IStreamControlRepository {
     final String userCollectionKey = buildUserCollectionKey(userId);
     // and deviceId as key inside each collection.
     StreamControlData streamControlData = streamControlDataHashOperations.get(userCollectionKey, deviceId);
-    if (streamControlData.getStatus() == StreamStatus.DONE) {
+    if ( (null == streamControlData) || (streamControlData.getStatus() == StreamStatus.DONE)) {
       return null;
     }
     return streamControlData;
