@@ -19,6 +19,7 @@ public class RPCConfiguration {
     return new StreamControlView();
   }
 
+  @Bean
   Queue queue() {
     return new Queue("stream-control-queue");
   }
