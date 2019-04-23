@@ -3,11 +3,16 @@ package org.jlom.master_upm.tfm.springboot.stream_control.view;
 import org.jlom.master_upm.tfm.springboot.stream_control.controller.StreamControlService;
 import org.jlom.master_upm.tfm.springboot.stream_control.view.api.StreamControlQueryInterface;
 import org.jlom.master_upm.tfm.springboot.stream_control.view.api.StreamControlCommandInterface;
+import org.jlom.master_upm.tfm.springboot.stream_control.view.api.dtos.InputStreamData;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.validation.Valid;
 
 
 @RestController
@@ -22,6 +27,21 @@ public class StreamControlRestService implements StreamControlQueryInterface, St
 
   public StreamControlRestService(StreamControlService service) {
     this.service = service;
+  }
+
+  @Override
+  public ResponseEntity<?> play(HttpServletRequest request, @Valid InputStreamData streamData) {
+    return null;
+  }
+
+  @Override
+  public ResponseEntity<?> stop(HttpServletRequest request, @Valid InputStreamData streamData) {
+    return null;
+  }
+
+  @Override
+  public ResponseEntity<?> pause(HttpServletRequest request, @Valid InputStreamData streamData) {
+    return null;
   }
 
   // @Override
