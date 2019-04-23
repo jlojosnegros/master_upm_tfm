@@ -8,32 +8,32 @@ import org.jlom.master_upm.tfm.springboot.stream_control.controller.api.dtos.Str
 import org.jlom.master_upm.tfm.springboot.stream_control.controller.api.dtos.StreamControlServiceResponseFailureInvalidInputParameter;
 import org.jlom.master_upm.tfm.springboot.stream_control.controller.api.dtos.StreamControlServiceResponseFailureNotFound;
 import org.jlom.master_upm.tfm.springboot.stream_control.controller.api.dtos.StreamControlServiceResponseOK;
-import org.jlom.master_upm.tfm.springboot.stream_control.controller.clients.DynamicClient;
 import org.jlom.master_upm.tfm.springboot.stream_control.controller.clients.InputUserDevice;
 import org.jlom.master_upm.tfm.springboot.stream_control.model.api.IStreamControlRepository;
 import org.jlom.master_upm.tfm.springboot.stream_control.model.daos.StreamControlData;
 import org.jlom.master_upm.tfm.springboot.stream_control.model.daos.StreamStatus;
 import org.springframework.stereotype.Service;
-
-import java.util.List;
+import org.springframework.web.client.RestTemplate;
 
 @Service
 public class StreamControlService implements StreamControlServiceCommands, StreamControlServiceQueries {
 
   private final IStreamControlRepository repository;
 
-  private final DynamicClient dynamicClient;
 
-  public StreamControlService(IStreamControlRepository repository, DynamicClient dynamicClient) {
+
+  public StreamControlService(IStreamControlRepository repository) {
     this.repository = repository;
-    this.dynamicClient = dynamicClient;
   }
 
 
   @Override
   public StreamControlServiceResponse play(long streamId, long deviceId) {
 
-    InputUserDevice userFromDevice = dynamicClient.getUserFromDevice(deviceId);
+    final RestTemplate restTemplate = new RestTemplate();
+
+    InputUserDevice userFromDevice = restTemplate.getForObject("dynamic-service/dynamic-data/user-device/device/" + deviceId
+            , InputUserDevice.class);
     if (null == userFromDevice) {
       return new StreamControlServiceResponseFailureNotFound("Unable to find userId for deviceId",
               "deviceId", deviceId);
