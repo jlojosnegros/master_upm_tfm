@@ -38,7 +38,7 @@ public class StreamControlService implements StreamControlServiceCommands, Strea
 
     InputUserDevice userFromDevice;
     try {
-      userFromDevice = restTemplate.getForObject("http://dynamic-service/dynamic-data/user-device/device/" + deviceId
+      userFromDevice = restTemplate.getForObject("http://dynamic-service:8080/dynamic-data/user-device/device/" + deviceId
               , InputUserDevice.class);
     } catch (RestClientException ex) {
       LOG.error("Exception while getting userId: " + ex.getMessage());
@@ -81,11 +81,32 @@ public class StreamControlService implements StreamControlServiceCommands, Strea
 
   @Override
   public StreamControlServiceResponse stop(long deviceId) {
-    return null;
+    return changeStatus(deviceId,StreamStatus.DONE);
   }
 
   @Override
   public StreamControlServiceResponse pause(long deviceId) {
-    return null;
+    return changeStatus(deviceId,StreamStatus.PAUSED);
+  }
+
+  private StreamControlServiceResponse changeStatus(long deviceId, StreamStatus status) {
+    //find running stream in database
+    StreamControlData deviceRunning = repository.isDeviceRunning(deviceId);
+    if (null == deviceRunning) {
+      return new StreamControlServiceResponseFailureInvalidInputParameter("No running stream for deviceID",
+              "deviceId",
+              deviceId);
+    }
+
+    //TODO Aqui es donde habria que interactuar con el player externo.
+
+    //update data in database
+    deviceRunning.setStatus(status);
+    deviceRunning.setTillTheEnd(false);
+
+    if (! repository.update(deviceRunning)) {
+      return new StreamControlServiceResponseFailureInternalError("Unable to update " + deviceRunning);
+    }
+    return new StreamControlServiceResponseOK(deviceRunning);
   }
 }

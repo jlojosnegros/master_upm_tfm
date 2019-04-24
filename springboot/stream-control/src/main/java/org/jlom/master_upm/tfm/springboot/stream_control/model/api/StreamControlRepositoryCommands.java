@@ -7,4 +7,6 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface StreamControlRepositoryCommands {
   void save(StreamControlData toInsert);
+
+  boolean update(StreamControlData deviceRunning);
 }

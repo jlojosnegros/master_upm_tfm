@@ -1,29 +1,42 @@
 package org.jlom.master_upm.tfm.springboot.stream_control.controller;
 
-import org.assertj.core.api.Assertions;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.github.tomakehurst.wiremock.junit.WireMockRule;
 import org.jlom.master_upm.tfm.springboot.stream_control.controller.api.dtos.StreamControlServiceResponse;
+import org.jlom.master_upm.tfm.springboot.stream_control.controller.api.dtos.StreamControlServiceResponseFailureInvalidInputParameter;
 import org.jlom.master_upm.tfm.springboot.stream_control.controller.api.dtos.StreamControlServiceResponseOK;
+import org.jlom.master_upm.tfm.springboot.stream_control.controller.clients.InputUserDevice;
 import org.jlom.master_upm.tfm.springboot.stream_control.model.api.IStreamControlRepository;
 import org.jlom.master_upm.tfm.springboot.stream_control.model.daos.StreamControlData;
 import org.jlom.master_upm.tfm.springboot.stream_control.model.daos.StreamStatus;
+import org.jlom.master_upm.tfm.springboot.stream_control.utils.JsonUtils;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.cloud.contract.wiremock.AutoConfigureWireMock;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
 import redis.embedded.RedisServer;
 
 import java.util.Set;
 
-import static org.assertj.core.api.Assertions.*;
+import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
+import static com.github.tomakehurst.wiremock.client.WireMock.get;
+import static com.github.tomakehurst.wiremock.client.WireMock.stubFor;
+import static com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo;
+import static org.assertj.core.api.Assertions.assertThat;
 
 @RunWith(SpringRunner.class)
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.NONE)
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@AutoConfigureWireMock(port = 8080)
 @ActiveProfiles("test")
 public class ServiceTest {
 
@@ -38,7 +51,8 @@ public class ServiceTest {
   private static int redisEmbeddedServerPort = 6379;
   private RedisServer redisEmbeddedServer = new RedisServer(redisEmbeddedServerPort);
 
-
+//  @Rule
+//  public WireMockRule wireMockRule = new WireMockRule(8080); // No-args constructor defaults to port 8080
 
   @Before
   public void setup() {
@@ -67,15 +81,34 @@ public class ServiceTest {
             .build();
     repository.save(streamControlData);
 
-    return null;
+    StreamControlData userRunning = repository.isUserRunning(userId);
+    StreamControlData deviceRunning = repository.isDeviceRunning(deviceId);
+    assertThat(userRunning).isEqualTo(deviceRunning);
+    return streamControlData;
   }
 
   @Test
-  public void given_NoStreamingRunning_when_PlayANewStream_then_AllShouldWork() {
+  public void given_NoStreamingRunning_when_PlayANewStream_then_AllShouldWork() throws JsonProcessingException {
 
-
+    final long userId = 1;
     final long streamId = 1;
     final long deviceId = 1;
+
+    final String uri = String.format("/dynamic-data/user-device/device/%d",deviceId);
+
+
+    InputUserDevice userDevice = InputUserDevice.builder()
+            .userId(String.valueOf(userId))
+            .devices(Set.of(String.valueOf(deviceId)))
+            .build();
+
+    stubFor(get(urlEqualTo(uri))
+            //.withHeader("Accept", equalTo(MediaType.APPLICATION_JSON_VALUE))
+            .willReturn(aResponse()
+                    .withStatus(HttpStatus.OK.value())
+                    .withHeader("Content-Type", MediaType.APPLICATION_JSON_VALUE)
+                    .withBody(JsonUtils.ObjectToJson(userDevice))));
+
 
     StreamControlServiceResponse play = service.play(streamId, deviceId);
 
@@ -87,5 +120,123 @@ public class ServiceTest {
     assertThat(streamControlData.getStreamId()).isEqualTo(streamId);
 
   }
-  
+
+  @Test
+  public void given_AStreamingRunning_when_PlayANewStream_then_AllShould_NOT_Work() throws JsonProcessingException {
+
+    final long userId = 1;
+    final long streamId = 1;
+    final long anotherStreamId = 2;
+    final long deviceId = 1;
+    final String uri = String.format("/dynamic-data/user-device/device/%d",deviceId);
+
+    InputUserDevice userDevice = InputUserDevice.builder()
+            .userId(String.valueOf(userId))
+            .devices(Set.of(String.valueOf(deviceId)))
+            .build();
+
+    stubFor(get(urlEqualTo(uri))
+            //.withHeader("Accept", equalTo(MediaType.APPLICATION_JSON_VALUE))
+            .willReturn(aResponse()
+                    .withStatus(HttpStatus.OK.value())
+                    .withHeader("Content-Type", MediaType.APPLICATION_JSON_VALUE)
+                    .withBody(JsonUtils.ObjectToJson(userDevice))));
+
+    StreamControlData alreadyRunning = addCheckedStreamControlData(userId,
+            deviceId,
+            anotherStreamId,
+            StreamStatus.RUNNING,
+            false);
+
+
+    StreamControlServiceResponse response = service.play(streamId, deviceId);
+
+    assertThat(response).isInstanceOf(StreamControlServiceResponseFailureInvalidInputParameter.class);
+    StreamControlServiceResponseFailureInvalidInputParameter invalidResponse = (StreamControlServiceResponseFailureInvalidInputParameter) response;
+    String paramName = invalidResponse.getParamName();
+    Object paramValue = invalidResponse.getParamValue();
+
+    assertThat(paramName).isEqualToIgnoringCase("deviceId");
+    assertThat(paramValue).isEqualTo(deviceId);
+
+  }
+
+  @Test
+  public void given_AStreamingRunning_when_StopAExistingStream_then_AllShouldWork() {
+
+    final long userId = 1;
+    final long streamId = 1;
+    final long anotherStreamId = 2;
+    final long deviceId = 1;
+
+    StreamControlData alreadyRunning = addCheckedStreamControlData(userId,
+            deviceId,
+            anotherStreamId,
+            StreamStatus.RUNNING,
+            false);
+
+    StreamControlServiceResponse response = service.stop(deviceId);
+
+    assertThat(response).isInstanceOf(StreamControlServiceResponseOK.class);
+    StreamControlServiceResponseOK responseOK = (StreamControlServiceResponseOK) response;
+    alreadyRunning.setStatus(StreamStatus.DONE);
+    assertThat(responseOK.getStreamControlData()).isEqualTo(alreadyRunning);
+
+  }
+
+  @Test
+  public void given_NoStreamingRunning_when_StopANonExistingStream_then_AllShould_NOT_Work() throws JsonProcessingException {
+
+    final long deviceId = 1;
+
+    StreamControlServiceResponse response = service.stop(deviceId);
+
+    assertThat(response).isInstanceOf(StreamControlServiceResponseFailureInvalidInputParameter.class);
+    StreamControlServiceResponseFailureInvalidInputParameter invalidResponse = (StreamControlServiceResponseFailureInvalidInputParameter) response;
+    String paramName = invalidResponse.getParamName();
+    Object paramValue = invalidResponse.getParamValue();
+
+    assertThat(paramName).isEqualToIgnoringCase("deviceId");
+    assertThat(paramValue).isEqualTo(deviceId);
+
+  }
+
+  @Test
+  public void given_AStreamingRunning_when_PauseAExistingStream_then_AllShouldWork() {
+
+    final long userId = 1;
+    final long anotherStreamId = 2;
+    final long deviceId = 1;
+
+    StreamControlData alreadyRunning = addCheckedStreamControlData(userId,
+            deviceId,
+            anotherStreamId,
+            StreamStatus.RUNNING,
+            false);
+
+    StreamControlServiceResponse response = service.pause(deviceId);
+
+    assertThat(response).isInstanceOf(StreamControlServiceResponseOK.class);
+    StreamControlServiceResponseOK responseOK = (StreamControlServiceResponseOK) response;
+    alreadyRunning.setStatus(StreamStatus.PAUSED);
+    assertThat(responseOK.getStreamControlData()).isEqualTo(alreadyRunning);
+
+  }
+
+  @Test
+  public void given_NoStreamingRunning_when_PauseANonExistingStream_then_AllShould_NOT_Work() throws JsonProcessingException {
+
+    final long deviceId = 1;
+
+    StreamControlServiceResponse response = service.pause(deviceId);
+
+    assertThat(response).isInstanceOf(StreamControlServiceResponseFailureInvalidInputParameter.class);
+    StreamControlServiceResponseFailureInvalidInputParameter invalidResponse = (StreamControlServiceResponseFailureInvalidInputParameter) response;
+    String paramName = invalidResponse.getParamName();
+    Object paramValue = invalidResponse.getParamValue();
+
+    assertThat(paramName).isEqualToIgnoringCase("deviceId");
+    assertThat(paramValue).isEqualTo(deviceId);
+
+  }
 }

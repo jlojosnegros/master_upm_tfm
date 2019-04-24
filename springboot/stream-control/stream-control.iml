@@ -118,6 +118,8 @@
     <orderEntry type="library" scope="TEST" name="Maven: it.ozimov:embedded-redis:0.7.2" level="project" />
     <orderEntry type="library" scope="TEST" name="Maven: com.google.guava:guava:21.0" level="project" />
     <orderEntry type="library" scope="TEST" name="Maven: commons-io:commons-io:2.5" level="project" />
+    <orderEntry type="library" scope="TEST" name="Maven: org.springframework.cloud:spring-cloud-contract-wiremock:2.1.1.RELEASE" level="project" />
+    <orderEntry type="library" scope="TEST" name="Maven: com.github.tomakehurst:wiremock-standalone:2.20.0" level="project" />
     <orderEntry type="library" name="Maven: org.jlom.master_upm.tfm.springboot:dynamic-data:0.0.1-SNAPSHOT" level="project" />
   </component>
 </module>

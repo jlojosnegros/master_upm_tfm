@@ -100,6 +100,17 @@
 			<scope>test</scope>
 		</dependency>
 		<dependency>
+			<groupId>org.springframework.cloud</groupId>
+			<artifactId>spring-cloud-contract-wiremock</artifactId>
+			<scope>test</scope>
+		</dependency>
+<!--		<dependency>-->
+<!--			<groupId>com.github.tomakehurst</groupId>-->
+<!--			<artifactId>wiremock-jre8</artifactId>-->
+<!--			<version>2.23.2</version>-->
+<!--			<scope>test</scope>-->
+<!--		</dependency>-->
+		<dependency>
 			<groupId>org.jlom.master_upm.tfm.springboot</groupId>
 			<artifactId>dynamic-data</artifactId>
 			<version>0.0.1-SNAPSHOT</version>

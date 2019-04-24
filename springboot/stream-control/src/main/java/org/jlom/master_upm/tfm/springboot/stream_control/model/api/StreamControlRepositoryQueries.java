@@ -8,4 +8,6 @@ import org.springframework.stereotype.Repository;
 public interface StreamControlRepositoryQueries {
 
   StreamControlData findStreamingRunning(long userId, long deviceId);
+  StreamControlData isUserRunning(long userId);
+  StreamControlData isDeviceRunning(long deviceId);
 }
