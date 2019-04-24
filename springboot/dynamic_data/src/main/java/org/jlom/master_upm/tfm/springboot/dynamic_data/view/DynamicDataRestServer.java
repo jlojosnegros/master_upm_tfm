@@ -1,6 +1,7 @@
 package org.jlom.master_upm.tfm.springboot.dynamic_data.view;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import io.micrometer.core.annotation.Timed;
 import org.jlom.master_upm.tfm.springboot.dynamic_data.controller.UserDeviceService;
 import org.jlom.master_upm.tfm.springboot.dynamic_data.controller.api.dtos.UserDeviceServiceResponse;
 import org.jlom.master_upm.tfm.springboot.dynamic_data.model.daos.UserDevice;
@@ -38,6 +39,7 @@ import static org.jlom.master_upm.tfm.springboot.dynamic_data.utils.JsonUtils.Ob
 @RestController
 @RequestMapping("/dynamic-data")
 @Validated
+@Timed("dynamic")
 public class DynamicDataRestServer implements UserDeviceQueryInterface, UserDeviceCommandInterface {
 
   private static final Logger LOG = LoggerFactory.getLogger(DynamicDataRestServer.class);
