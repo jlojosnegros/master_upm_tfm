@@ -2,7 +2,7 @@ package org.jlom.master_upm.tfm.springboot.stream_control.controller.api.dtos;
 
 import org.jlom.master_upm.tfm.springboot.stream_control.view.api.dtos.StreamControlReturnValue;
 
-public interface StreamControlServiceResponseHandlerRPC {
+public interface IStreamControlServiceResponseHandlerRPC {
 
   StreamControlReturnValue handle(StreamControlServiceResponseOK response);
 

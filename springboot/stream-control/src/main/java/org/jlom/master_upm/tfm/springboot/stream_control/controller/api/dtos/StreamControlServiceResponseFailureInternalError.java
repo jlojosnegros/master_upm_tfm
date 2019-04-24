@@ -15,7 +15,7 @@ public class StreamControlServiceResponseFailureInternalError extends StreamCont
   }
 
   @Override
-  public StreamControlReturnValue accept(StreamControlServiceResponseHandlerRPC handler) {
+  public StreamControlReturnValue accept(IStreamControlServiceResponseHandlerRPC handler) {
     return handler.handle(this);
   }
 }

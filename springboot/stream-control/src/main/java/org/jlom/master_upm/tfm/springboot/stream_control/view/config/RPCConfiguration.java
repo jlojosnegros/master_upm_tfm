@@ -21,7 +21,7 @@ public class RPCConfiguration {
 
   @Bean
   Queue queue() {
-    return new Queue("stream-control-queue");
+    return new Queue("stream-control-rpc-queue");
   }
 
   @Bean

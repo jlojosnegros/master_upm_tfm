@@ -28,7 +28,7 @@ public class StreamControlServiceResponseFailureNotFound extends StreamControlSe
   }
 
   @Override
-  public StreamControlReturnValue accept(StreamControlServiceResponseHandlerRPC handler) {
+  public StreamControlReturnValue accept(IStreamControlServiceResponseHandlerRPC handler) {
     return handler.handle(this);
   }
 }

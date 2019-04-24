@@ -5,5 +5,5 @@ import org.springframework.http.ResponseEntity;
 
 public interface StreamControlServiceResponse {
   ResponseEntity<?> accept(StreamControlServiceResponseHandler handler);
-  StreamControlReturnValue accept(StreamControlServiceResponseHandlerRPC handler);
+  StreamControlReturnValue accept(IStreamControlServiceResponseHandlerRPC handler);
 }

@@ -19,7 +19,7 @@ import java.io.Serializable;
 @Setter
 @ToString
 @EqualsAndHashCode(callSuper = true)
-class StreamControlReturnValueOk extends StreamControlReturnValue implements Serializable {
+public class StreamControlReturnValueOk extends StreamControlReturnValue implements Serializable {
 
   private final static long serialVersionUID = 1L;
 

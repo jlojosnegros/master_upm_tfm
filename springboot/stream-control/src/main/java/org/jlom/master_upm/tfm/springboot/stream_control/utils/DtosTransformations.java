@@ -7,11 +7,18 @@ import org.jlom.master_upm.tfm.springboot.stream_control.view.api.dtos.InputStre
 public class DtosTransformations {
 
   public static StreamControlData viewToService(final InputStreamData inputStreamData) {
-    return null;
+    return StreamControlData.builder()
+            .userId(Long.parseLong(inputStreamData.getUserId()))
+            .deviceId(Long.parseLong(inputStreamData.getDeviceId()))
+            .streamId(Long.parseLong(inputStreamData.getStreamId()))
+            .build();
   }
 
   public static InputStreamData serviceToView(final StreamControlData streamControlData) {
-    return null;
-
+    return InputStreamData.builder()
+            .userId(String.valueOf(streamControlData.getUserId()))
+            .deviceId(String.valueOf(streamControlData.getDeviceId()))
+            .streamId(String.valueOf(streamControlData.getStreamId()))
+            .build();
   }
 }

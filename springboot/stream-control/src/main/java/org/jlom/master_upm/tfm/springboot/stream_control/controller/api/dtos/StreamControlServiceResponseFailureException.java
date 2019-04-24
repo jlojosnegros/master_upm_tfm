@@ -28,7 +28,7 @@ public class StreamControlServiceResponseFailureException extends StreamControlS
   }
 
   @Override
-  public StreamControlReturnValue accept(StreamControlServiceResponseHandlerRPC handler) {
+  public StreamControlReturnValue accept(IStreamControlServiceResponseHandlerRPC handler) {
     return handler.handle(this);
   }
 }

@@ -1,7 +1,6 @@
 package org.jlom.master_upm.tfm.springboot.stream_control.controller;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.github.tomakehurst.wiremock.junit.WireMockRule;
 import org.jlom.master_upm.tfm.springboot.stream_control.controller.api.dtos.StreamControlServiceResponse;
 import org.jlom.master_upm.tfm.springboot.stream_control.controller.api.dtos.StreamControlServiceResponseFailureInvalidInputParameter;
 import org.jlom.master_upm.tfm.springboot.stream_control.controller.api.dtos.StreamControlServiceResponseOK;
@@ -12,7 +11,6 @@ import org.jlom.master_upm.tfm.springboot.stream_control.model.daos.StreamStatus
 import org.jlom.master_upm.tfm.springboot.stream_control.utils.JsonUtils;
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.slf4j.Logger;
