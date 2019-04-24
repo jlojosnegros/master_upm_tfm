@@ -9,6 +9,7 @@ import org.jlom.master_upm.tfm.springboot.stream_control.controller.api.dtos.Str
 import org.jlom.master_upm.tfm.springboot.stream_control.controller.api.dtos.StreamControlServiceResponseFailureInvalidInputParameter;
 import org.jlom.master_upm.tfm.springboot.stream_control.controller.api.dtos.StreamControlServiceResponseFailureNotFound;
 import org.jlom.master_upm.tfm.springboot.stream_control.controller.api.dtos.StreamControlServiceResponseOK;
+import org.jlom.master_upm.tfm.springboot.stream_control.controller.api.out.StreamControlStreamingNotification;
 import org.jlom.master_upm.tfm.springboot.stream_control.controller.clients.InputUserDevice;
 import org.jlom.master_upm.tfm.springboot.stream_control.model.api.IStreamControlRepository;
 import org.jlom.master_upm.tfm.springboot.stream_control.model.daos.StreamControlData;
@@ -24,12 +25,14 @@ public class StreamControlService implements StreamControlServiceCommands, Strea
 
   private final IStreamControlRepository repository;
   private final RestTemplate restTemplate;
+  private final NotificationsBusProducer notificationsBusProducer;
 
   private static final Logger LOG = LoggerFactory.getLogger(StreamControlService.class);
 
-  public StreamControlService(IStreamControlRepository repository, RestTemplate restTemplate) {
+  public StreamControlService(IStreamControlRepository repository, RestTemplate restTemplate, NotificationsBusProducer notificationsBusProducer) {
     this.repository = repository;
     this.restTemplate = restTemplate;
+    this.notificationsBusProducer = notificationsBusProducer;
   }
 
 
@@ -67,7 +70,13 @@ public class StreamControlService implements StreamControlServiceCommands, Strea
 
     repository.save(toInsert);
 
-    //jlom TODO publicar la notificacion.
+    //publicar la notificacion.
+    notificationsBusProducer.publish(StreamControlStreamingNotification.builder()
+            .userId(String.valueOf(toInsert.getUserId()))
+            .deviceId(String.valueOf(toInsert.getDeviceId()))
+            .streamId(String.valueOf(toInsert.getStreamId()))
+            .operation(StreamControlStreamingNotification.Operation.PLAY)
+            .build());
 
     StreamControlData streamingRunning = repository.findStreamingRunning(userId, deviceId);
     if (null == streamingRunning) {
@@ -99,6 +108,15 @@ public class StreamControlService implements StreamControlServiceCommands, Strea
     }
 
     //TODO Aqui es donde habria que interactuar con el player externo.
+
+    notificationsBusProducer.publish(StreamControlStreamingNotification.builder()
+            .userId(String.valueOf(deviceRunning.getUserId()))
+            .deviceId(String.valueOf(deviceRunning.getDeviceId()))
+            .streamId(String.valueOf(deviceRunning.getStreamId()))
+            .operation((status == StreamStatus.DONE)?
+                    (StreamControlStreamingNotification.Operation.STOP):
+                    (StreamControlStreamingNotification.Operation.PAUSE))
+            .build());
 
     //update data in database
     deviceRunning.setStatus(status);

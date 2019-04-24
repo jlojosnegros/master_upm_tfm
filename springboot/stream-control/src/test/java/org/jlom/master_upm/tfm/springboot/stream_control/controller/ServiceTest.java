@@ -4,6 +4,8 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import org.jlom.master_upm.tfm.springboot.stream_control.controller.api.dtos.StreamControlServiceResponse;
 import org.jlom.master_upm.tfm.springboot.stream_control.controller.api.dtos.StreamControlServiceResponseFailureInvalidInputParameter;
 import org.jlom.master_upm.tfm.springboot.stream_control.controller.api.dtos.StreamControlServiceResponseOK;
+import org.jlom.master_upm.tfm.springboot.stream_control.controller.api.out.OutBoundNotifications;
+import org.jlom.master_upm.tfm.springboot.stream_control.controller.api.out.StreamControlStreamingNotification;
 import org.jlom.master_upm.tfm.springboot.stream_control.controller.clients.InputUserDevice;
 import org.jlom.master_upm.tfm.springboot.stream_control.model.api.IStreamControlRepository;
 import org.jlom.master_upm.tfm.springboot.stream_control.model.daos.StreamControlData;
@@ -18,12 +20,17 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.cloud.contract.wiremock.AutoConfigureWireMock;
+import org.springframework.cloud.stream.test.binder.MessageCollector;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.messaging.Message;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
 import redis.embedded.RedisServer;
 
+import java.io.IOException;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Set;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
@@ -31,6 +38,7 @@ import static com.github.tomakehurst.wiremock.client.WireMock.get;
 import static com.github.tomakehurst.wiremock.client.WireMock.stubFor;
 import static com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.Assert.fail;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
@@ -45,6 +53,12 @@ public class ServiceTest {
 
   @Autowired
   private IStreamControlRepository repository;
+
+  @Autowired
+  private OutBoundNotifications outBoundNotifications;
+
+  @Autowired
+  private MessageCollector messageCollector;
 
   private static int redisEmbeddedServerPort = 6379;
   private RedisServer redisEmbeddedServer = new RedisServer(redisEmbeddedServerPort);
@@ -117,6 +131,25 @@ public class ServiceTest {
     assertThat(streamControlData.getStatus()).isEqualTo(StreamStatus.RUNNING);
     assertThat(streamControlData.getStreamId()).isEqualTo(streamId);
 
+
+    final List<Message> listOfNotifications = new LinkedList<>();
+    messageCollector.forChannel(outBoundNotifications.streamingNotifications()).drainTo(listOfNotifications);
+
+    assertThat(listOfNotifications).hasSize(1);
+    Object payload = listOfNotifications.get(0).getPayload();
+    LOG.error("jlom: payload:" + payload.toString());
+    StreamControlStreamingNotification notification = null;
+    try {
+      notification = JsonUtils.jsonToObject((String) payload, StreamControlStreamingNotification.class);
+    } catch (IOException e) {
+      e.printStackTrace();
+      fail("Unable con convert payload to notification: " + payload.toString());
+    }
+    assertThat(notification.getUserId()).isEqualTo(String.valueOf(streamControlData.getUserId()));
+    assertThat(notification.getDeviceId()).isEqualTo(String.valueOf(streamControlData.getDeviceId()));
+    assertThat(notification.getStreamId()).isEqualTo(String.valueOf(streamControlData.getStreamId()));
+    assertThat(notification.getOperation()).isEqualTo(StreamControlStreamingNotification.Operation.PLAY);
+
   }
 
   @Test
@@ -157,6 +190,10 @@ public class ServiceTest {
     assertThat(paramName).isEqualToIgnoringCase("deviceId");
     assertThat(paramValue).isEqualTo(deviceId);
 
+    final List<Message> listOfNotifications = new LinkedList<>();
+    messageCollector.forChannel(outBoundNotifications.streamingNotifications()).drainTo(listOfNotifications);
+
+    assertThat(listOfNotifications).hasSize(0);
   }
 
   @Test
@@ -180,6 +217,24 @@ public class ServiceTest {
     alreadyRunning.setStatus(StreamStatus.DONE);
     assertThat(responseOK.getStreamControlData()).isEqualTo(alreadyRunning);
 
+    final List<Message> listOfNotifications = new LinkedList<>();
+    messageCollector.forChannel(outBoundNotifications.streamingNotifications()).drainTo(listOfNotifications);
+
+    assertThat(listOfNotifications).hasSize(1);
+    Object payload = listOfNotifications.get(0).getPayload();
+    LOG.error("jlom: payload:" + payload.toString());
+    StreamControlStreamingNotification notification = null;
+    try {
+      notification = JsonUtils.jsonToObject((String) payload, StreamControlStreamingNotification.class);
+    } catch (IOException e) {
+      e.printStackTrace();
+      fail("Unable con convert payload to notification: " + payload.toString());
+    }
+    assertThat(notification.getUserId()).isEqualTo(String.valueOf(alreadyRunning.getUserId()));
+    assertThat(notification.getDeviceId()).isEqualTo(String.valueOf(alreadyRunning.getDeviceId()));
+    assertThat(notification.getStreamId()).isEqualTo(String.valueOf(alreadyRunning.getStreamId()));
+    assertThat(notification.getOperation()).isEqualTo(StreamControlStreamingNotification.Operation.STOP);
+
   }
 
   @Test
@@ -196,6 +251,11 @@ public class ServiceTest {
 
     assertThat(paramName).isEqualToIgnoringCase("deviceId");
     assertThat(paramValue).isEqualTo(deviceId);
+
+    final List<Message> listOfNotifications = new LinkedList<>();
+    messageCollector.forChannel(outBoundNotifications.streamingNotifications()).drainTo(listOfNotifications);
+
+    assertThat(listOfNotifications).hasSize(0);
 
   }
 
@@ -219,6 +279,24 @@ public class ServiceTest {
     alreadyRunning.setStatus(StreamStatus.PAUSED);
     assertThat(responseOK.getStreamControlData()).isEqualTo(alreadyRunning);
 
+    final List<Message> listOfNotifications = new LinkedList<>();
+    messageCollector.forChannel(outBoundNotifications.streamingNotifications()).drainTo(listOfNotifications);
+
+    assertThat(listOfNotifications).hasSize(1);
+    Object payload = listOfNotifications.get(0).getPayload();
+    LOG.error("jlom: payload:" + payload.toString());
+    StreamControlStreamingNotification notification = null;
+    try {
+      notification = JsonUtils.jsonToObject((String) payload, StreamControlStreamingNotification.class);
+    } catch (IOException e) {
+      e.printStackTrace();
+      fail("Unable con convert payload to notification: " + payload.toString());
+    }
+    assertThat(notification.getUserId()).isEqualTo(String.valueOf(alreadyRunning.getUserId()));
+    assertThat(notification.getDeviceId()).isEqualTo(String.valueOf(alreadyRunning.getDeviceId()));
+    assertThat(notification.getStreamId()).isEqualTo(String.valueOf(alreadyRunning.getStreamId()));
+    assertThat(notification.getOperation()).isEqualTo(StreamControlStreamingNotification.Operation.PAUSE);
+
   }
 
   @Test
@@ -236,5 +314,9 @@ public class ServiceTest {
     assertThat(paramName).isEqualToIgnoringCase("deviceId");
     assertThat(paramValue).isEqualTo(deviceId);
 
+    final List<Message> listOfNotifications = new LinkedList<>();
+    messageCollector.forChannel(outBoundNotifications.streamingNotifications()).drainTo(listOfNotifications);
+
+    assertThat(listOfNotifications).hasSize(0);
   }
 }
