@@ -8,16 +8,11 @@ import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.HttpClientBuilder;
-import org.jlom.master_upm.tfm.springboot.user_categories.controller.StreamControlService;
-import org.jlom.master_upm.tfm.springboot.user_categories.controller.api.dtos.StreamControlServiceResponse;
-import org.jlom.master_upm.tfm.springboot.user_categories.controller.api.dtos.StreamControlServiceResponseFailureInvalidInputParameter;
-import org.jlom.master_upm.tfm.springboot.user_categories.controller.api.dtos.StreamControlServiceResponseOK;
 import org.jlom.master_upm.tfm.springboot.user_categories.controller.clients.InputUserDevice;
-import org.jlom.master_upm.tfm.springboot.user_categories.model.api.IStreamControlRepository;
+import org.jlom.master_upm.tfm.springboot.user_categories.model.api.IUserCategoriesRepository;
 import org.jlom.master_upm.tfm.springboot.user_categories.model.daos.StreamControlData;
 import org.jlom.master_upm.tfm.springboot.user_categories.model.daos.StreamStatus;
 import org.jlom.master_upm.tfm.springboot.user_categories.utils.JsonUtils;
-import org.jlom.master_upm.tfm.springboot.user_categories.view.api.StreamControlInterface;
 import org.jlom.master_upm.tfm.springboot.user_categories.view.api.dtos.StreamControlReturnValue;
 import org.jlom.master_upm.tfm.springboot.user_categories.view.api.dtos.StreamControlReturnValueError;
 import org.jlom.master_upm.tfm.springboot.user_categories.view.api.dtos.StreamControlReturnValueOk;
@@ -31,7 +26,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.web.server.LocalServerPort;
 import org.springframework.cloud.contract.wiremock.AutoConfigureWireMock;
-import org.springframework.context.ApplicationContext;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -40,8 +34,6 @@ import org.springframework.test.context.junit4.SpringRunner;
 import redis.embedded.RedisServer;
 
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Set;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
@@ -67,7 +59,7 @@ public class ViewTest {
   private int port;
 
   @Autowired
-  private IStreamControlRepository repository;
+  private IUserCategoriesRepository repository;
 
   private static final Logger LOG = LoggerFactory.getLogger(ViewTest.class);
 

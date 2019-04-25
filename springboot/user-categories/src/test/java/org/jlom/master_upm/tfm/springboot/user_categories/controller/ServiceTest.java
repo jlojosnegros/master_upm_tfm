@@ -1,13 +1,11 @@
 package org.jlom.master_upm.tfm.springboot.user_categories.controller;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import org.jlom.master_upm.tfm.springboot.user_categories.controller.api.dtos.StreamControlServiceResponse;
-import org.jlom.master_upm.tfm.springboot.user_categories.controller.api.dtos.StreamControlServiceResponseFailureInvalidInputParameter;
-import org.jlom.master_upm.tfm.springboot.user_categories.controller.api.dtos.StreamControlServiceResponseOK;
-import org.jlom.master_upm.tfm.springboot.user_categories.controller.api.out.OutBoundNotifications;
-import org.jlom.master_upm.tfm.springboot.user_categories.controller.api.out.StreamControlStreamingNotification;
+import org.jlom.master_upm.tfm.springboot.user_categories.controller.api.dtos.UserCategoriesServiceResponse;
+import org.jlom.master_upm.tfm.springboot.user_categories.controller.api.dtos.UserCategoriesServiceResponseFailureInvalidInputParameter;
+import org.jlom.master_upm.tfm.springboot.user_categories.controller.api.dtos.UserCategoriesServiceResponseOK;
 import org.jlom.master_upm.tfm.springboot.user_categories.controller.clients.InputUserDevice;
-import org.jlom.master_upm.tfm.springboot.user_categories.model.api.IStreamControlRepository;
+import org.jlom.master_upm.tfm.springboot.user_categories.model.api.IUserCategoriesRepository;
 import org.jlom.master_upm.tfm.springboot.user_categories.model.daos.StreamControlData;
 import org.jlom.master_upm.tfm.springboot.user_categories.model.daos.StreamStatus;
 import org.jlom.master_upm.tfm.springboot.user_categories.utils.JsonUtils;
@@ -49,10 +47,10 @@ public class ServiceTest {
   private static final Logger LOG = LoggerFactory.getLogger(ServiceTest.class);
 
   @Autowired
-  private StreamControlService service;
+  private UserCategoriesService service;
 
   @Autowired
-  private IStreamControlRepository repository;
+  private IUserCategoriesRepository repository;
 
   @Autowired
   private OutBoundNotifications outBoundNotifications;
@@ -122,10 +120,10 @@ public class ServiceTest {
                     .withBody(JsonUtils.ObjectToJson(userDevice))));
 
 
-    StreamControlServiceResponse play = service.play(streamId, deviceId);
+    UserCategoriesServiceResponse play = service.play(streamId, deviceId);
 
-    assertThat(play).isInstanceOf(StreamControlServiceResponseOK.class);
-    StreamControlData streamControlData = ((StreamControlServiceResponseOK) play).getStreamControlData();
+    assertThat(play).isInstanceOf(UserCategoriesServiceResponseOK.class);
+    StreamControlData streamControlData = ((UserCategoriesServiceResponseOK) play).getStreamControlData();
 
     assertThat(streamControlData.getDeviceId()).isEqualTo(deviceId);
     assertThat(streamControlData.getStatus()).isEqualTo(StreamStatus.RUNNING);
@@ -180,10 +178,10 @@ public class ServiceTest {
             false);
 
 
-    StreamControlServiceResponse response = service.play(streamId, deviceId);
+    UserCategoriesServiceResponse response = service.play(streamId, deviceId);
 
-    assertThat(response).isInstanceOf(StreamControlServiceResponseFailureInvalidInputParameter.class);
-    StreamControlServiceResponseFailureInvalidInputParameter invalidResponse = (StreamControlServiceResponseFailureInvalidInputParameter) response;
+    assertThat(response).isInstanceOf(UserCategoriesServiceResponseFailureInvalidInputParameter.class);
+    UserCategoriesServiceResponseFailureInvalidInputParameter invalidResponse = (UserCategoriesServiceResponseFailureInvalidInputParameter) response;
     String paramName = invalidResponse.getParamName();
     Object paramValue = invalidResponse.getParamValue();
 
@@ -210,10 +208,10 @@ public class ServiceTest {
             StreamStatus.RUNNING,
             false);
 
-    StreamControlServiceResponse response = service.stop(deviceId);
+    UserCategoriesServiceResponse response = service.stop(deviceId);
 
-    assertThat(response).isInstanceOf(StreamControlServiceResponseOK.class);
-    StreamControlServiceResponseOK responseOK = (StreamControlServiceResponseOK) response;
+    assertThat(response).isInstanceOf(UserCategoriesServiceResponseOK.class);
+    UserCategoriesServiceResponseOK responseOK = (UserCategoriesServiceResponseOK) response;
     alreadyRunning.setStatus(StreamStatus.DONE);
     assertThat(responseOK.getStreamControlData()).isEqualTo(alreadyRunning);
 
@@ -242,10 +240,10 @@ public class ServiceTest {
 
     final long deviceId = 1;
 
-    StreamControlServiceResponse response = service.stop(deviceId);
+    UserCategoriesServiceResponse response = service.stop(deviceId);
 
-    assertThat(response).isInstanceOf(StreamControlServiceResponseFailureInvalidInputParameter.class);
-    StreamControlServiceResponseFailureInvalidInputParameter invalidResponse = (StreamControlServiceResponseFailureInvalidInputParameter) response;
+    assertThat(response).isInstanceOf(UserCategoriesServiceResponseFailureInvalidInputParameter.class);
+    UserCategoriesServiceResponseFailureInvalidInputParameter invalidResponse = (UserCategoriesServiceResponseFailureInvalidInputParameter) response;
     String paramName = invalidResponse.getParamName();
     Object paramValue = invalidResponse.getParamValue();
 
@@ -272,10 +270,10 @@ public class ServiceTest {
             StreamStatus.RUNNING,
             false);
 
-    StreamControlServiceResponse response = service.pause(deviceId);
+    UserCategoriesServiceResponse response = service.pause(deviceId);
 
-    assertThat(response).isInstanceOf(StreamControlServiceResponseOK.class);
-    StreamControlServiceResponseOK responseOK = (StreamControlServiceResponseOK) response;
+    assertThat(response).isInstanceOf(UserCategoriesServiceResponseOK.class);
+    UserCategoriesServiceResponseOK responseOK = (UserCategoriesServiceResponseOK) response;
     alreadyRunning.setStatus(StreamStatus.PAUSED);
     assertThat(responseOK.getStreamControlData()).isEqualTo(alreadyRunning);
 
@@ -304,10 +302,10 @@ public class ServiceTest {
 
     final long deviceId = 1;
 
-    StreamControlServiceResponse response = service.pause(deviceId);
+    UserCategoriesServiceResponse response = service.pause(deviceId);
 
-    assertThat(response).isInstanceOf(StreamControlServiceResponseFailureInvalidInputParameter.class);
-    StreamControlServiceResponseFailureInvalidInputParameter invalidResponse = (StreamControlServiceResponseFailureInvalidInputParameter) response;
+    assertThat(response).isInstanceOf(UserCategoriesServiceResponseFailureInvalidInputParameter.class);
+    UserCategoriesServiceResponseFailureInvalidInputParameter invalidResponse = (UserCategoriesServiceResponseFailureInvalidInputParameter) response;
     String paramName = invalidResponse.getParamName();
     Object paramValue = invalidResponse.getParamValue();
 

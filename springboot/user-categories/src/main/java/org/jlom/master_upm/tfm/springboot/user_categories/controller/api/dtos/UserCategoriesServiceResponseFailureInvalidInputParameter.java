@@ -9,23 +9,23 @@ import org.springframework.http.ResponseEntity;
 @Getter
 @ToString(callSuper = true)
 @EqualsAndHashCode(callSuper = true)
-public class StreamControlServiceResponseFailureInvalidInputParameter extends StreamControlServiceResponseFailure {
+public class UserCategoriesServiceResponseFailureInvalidInputParameter extends UserCategoriesServiceResponseFailure {
 
   private final String paramName;
   private final Object paramValue;
 
-  public StreamControlServiceResponseFailureInvalidInputParameter(String message, String paramName, Object paramValue) {
+  public UserCategoriesServiceResponseFailureInvalidInputParameter(String message, String paramName, Object paramValue) {
     super(message + ":Parameter="+paramName+" with value="+paramValue.toString());
     this.paramName = paramName;
     this.paramValue = paramValue;
   }
 
-  public StreamControlServiceResponseFailureInvalidInputParameter(String paramName, Object param) {
+  public UserCategoriesServiceResponseFailureInvalidInputParameter(String paramName, Object param) {
     this ("InvalidInputParameter:",paramName,param);
   }
 
   @Override
-  public ResponseEntity<?> accept(StreamControlServiceResponseHandler handler) {
+  public ResponseEntity<?> accept(UserCategoriesServiceResponseHandler handler) {
     return handler.handle(this);
   }
 

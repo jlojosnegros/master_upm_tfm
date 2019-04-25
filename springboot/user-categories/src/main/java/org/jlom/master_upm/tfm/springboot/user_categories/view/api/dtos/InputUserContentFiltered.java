@@ -6,24 +6,19 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.io.Serializable;
+import java.util.List;
 
 @Data
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class InputStreamData implements Serializable {
+public class InputUserContentFiltered {
 
   private final static long serialVersionUID = 1L;
 
-  @JsonProperty(value = "stream-id",required = true)
-  private  String streamId;
+  @JsonProperty(value = "user-id",required = true)
+  String userId;
 
-  @JsonProperty(value = "device-id",required = false)
-  private String deviceId;
-
-  @JsonProperty(value = "user-id",required = false)
-  private String userId;
-
+  @JsonProperty(value = "contents",required = true)
+  List<InputCatalogContent> contents;
 }
-

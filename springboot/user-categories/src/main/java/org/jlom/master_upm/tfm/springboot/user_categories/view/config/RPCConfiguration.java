@@ -1,8 +1,6 @@
 package org.jlom.master_upm.tfm.springboot.user_categories.view.config;
 
 
-import org.jlom.master_upm.tfm.springboot.user_categories.view.StreamControlView;
-import org.jlom.master_upm.tfm.springboot.user_categories.view.api.StreamControlInterface;
 import org.springframework.amqp.core.AmqpTemplate;
 import org.springframework.amqp.core.Queue;
 import org.springframework.amqp.rabbit.listener.SimpleMessageListenerContainer;

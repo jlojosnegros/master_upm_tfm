@@ -9,21 +9,21 @@ import org.springframework.http.ResponseEntity;
 @Getter
 @ToString(callSuper = true)
 @EqualsAndHashCode(callSuper = true)
-public class StreamControlServiceResponseFailureException extends StreamControlServiceResponseFailure {
+public class UserCategoriesServiceResponseFailureException extends UserCategoriesServiceResponseFailure {
 
   private final Exception exception;
 
-  public StreamControlServiceResponseFailureException(String message, Exception exception) {
+  public UserCategoriesServiceResponseFailureException(String message, Exception exception) {
     super(message + " Exception:" + exception.getMessage());
     this.exception = exception;
   }
 
-  public StreamControlServiceResponseFailureException(Exception exception) {
+  public UserCategoriesServiceResponseFailureException(Exception exception) {
     this("error: Exception captured. ", exception);
   }
 
   @Override
-  public ResponseEntity<?> accept(StreamControlServiceResponseHandler handler) {
+  public ResponseEntity<?> accept(UserCategoriesServiceResponseHandler handler) {
     return handler.handle(this);
   }
 

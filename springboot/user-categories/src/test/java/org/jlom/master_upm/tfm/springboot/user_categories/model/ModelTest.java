@@ -1,7 +1,7 @@
 package org.jlom.master_upm.tfm.springboot.user_categories.model;
 
 
-import org.jlom.master_upm.tfm.springboot.user_categories.model.api.IStreamControlRepository;
+import org.jlom.master_upm.tfm.springboot.user_categories.model.api.IUserCategoriesRepository;
 import org.jlom.master_upm.tfm.springboot.user_categories.model.daos.StreamControlData;
 import org.jlom.master_upm.tfm.springboot.user_categories.model.daos.StreamStatus;
 import org.junit.After;
@@ -30,7 +30,7 @@ public class ModelTest {
 
  
   @Autowired
-  private IStreamControlRepository streamControlRepository;
+  private IUserCategoriesRepository streamControlRepository;
 
   private static final Logger LOG = LoggerFactory.getLogger(ModelTest.class);
 

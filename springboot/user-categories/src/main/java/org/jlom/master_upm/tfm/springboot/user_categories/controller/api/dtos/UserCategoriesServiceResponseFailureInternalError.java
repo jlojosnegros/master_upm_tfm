@@ -3,14 +3,14 @@ package org.jlom.master_upm.tfm.springboot.user_categories.controller.api.dtos;
 import org.jlom.master_upm.tfm.springboot.user_categories.view.api.dtos.StreamControlReturnValue;
 import org.springframework.http.ResponseEntity;
 
-public class StreamControlServiceResponseFailureInternalError extends StreamControlServiceResponseFailure {
+public class UserCategoriesServiceResponseFailureInternalError extends UserCategoriesServiceResponseFailure {
 
-  public StreamControlServiceResponseFailureInternalError(String message) {
+  public UserCategoriesServiceResponseFailureInternalError(String message) {
     super(message);
   }
 
   @Override
-  public ResponseEntity<?> accept(StreamControlServiceResponseHandler handler) {
+  public ResponseEntity<?> accept(UserCategoriesServiceResponseHandler handler) {
     return handler.handle(this);
   }
 
