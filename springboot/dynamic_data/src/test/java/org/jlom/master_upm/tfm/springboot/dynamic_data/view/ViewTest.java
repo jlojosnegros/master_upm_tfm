@@ -28,11 +28,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
-import org.xmlunit.builder.Input;
 import redis.embedded.RedisServer;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -41,7 +39,6 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.LongStream;
 
-import static org.assertj.core.api.Assertions.*;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.jlom.master_upm.tfm.springboot.dynamic_data.utils.DtosTransformations.serviceToView;
 import static org.jlom.master_upm.tfm.springboot.dynamic_data.utils.JsonUtils.ObjectToJson;
@@ -325,5 +322,11 @@ public class ViewTest {
 
       }
     }
+  }
+
+  @Test
+  public void propReading() throws IOException {
+    HttpResponse response = getRestResponseTo("/dynamic-data/configuration/prop");
+    LOG.error("jlom: response =>" + response);
   }
 }

@@ -1,6 +1,4 @@
 spring:
-  application:
-    name: dynamic-service
   metrics:
     prometheus:
       enabled: true
