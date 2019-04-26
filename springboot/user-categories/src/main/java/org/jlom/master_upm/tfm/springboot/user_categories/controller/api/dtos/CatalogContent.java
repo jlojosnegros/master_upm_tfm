@@ -1,6 +1,8 @@
 package org.jlom.master_upm.tfm.springboot.user_categories.controller.api.dtos;
 
+import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.springframework.data.annotation.Id;
 
@@ -9,6 +11,8 @@ import java.util.Date;
 import java.util.Set;
 
 @Getter
+@NoArgsConstructor
+@AllArgsConstructor
 public class CatalogContent implements Serializable {
 
   private static final long serialVersionUID = 1L;

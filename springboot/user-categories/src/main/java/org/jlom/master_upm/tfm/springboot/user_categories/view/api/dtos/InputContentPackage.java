@@ -7,25 +7,25 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.io.Serializable;
-import java.util.List;
 import java.util.Set;
 
 @Data
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class InputUserCategoryData implements Serializable {
+public class InputContentPackage implements Serializable {
 
   private final static long serialVersionUID = 1L;
 
-  @JsonProperty(value = "user-id",required = true)
-  private String userId;
+  @JsonProperty(value = "package-id",required = true)
+  private String packageId;
 
-  @JsonProperty(value = "category-id",required = false)
-  private  String categoryId;
+  @JsonProperty(value = "price",required = true)
+  private double price;
 
-  @JsonProperty(value = "package-ids",required = false)
-  private Set<String> packageIds;
+  @JsonProperty(value = "name",required = true)
+  private String name;
 
+  @JsonProperty(value = "tags-filter",required = true)
+  Set<String> tagsFilter;
 }
-

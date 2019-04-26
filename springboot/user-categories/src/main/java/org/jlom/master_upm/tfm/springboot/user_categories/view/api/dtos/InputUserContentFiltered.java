@@ -6,13 +6,14 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.io.Serializable;
 import java.util.List;
 
 @Data
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class InputUserContentFiltered {
+public class InputUserContentFiltered implements Serializable {
 
   private final static long serialVersionUID = 1L;
 

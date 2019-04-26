@@ -8,7 +8,6 @@ import org.jlom.master_upm.tfm.springboot.user_categories.controller.api.dtos.Us
 import org.jlom.master_upm.tfm.springboot.user_categories.controller.api.dtos.UserCategoriesServiceResponseFailureInternalError;
 import org.jlom.master_upm.tfm.springboot.user_categories.controller.api.dtos.UserCategoriesServiceResponseFailureInvalidInputParameter;
 import org.jlom.master_upm.tfm.springboot.user_categories.controller.api.dtos.UserCategoriesServiceResponseOKCatalogContent;
-import org.jlom.master_upm.tfm.springboot.user_categories.controller.api.dtos.UserCategoriesServiceResponseOKContentPackage;
 import org.jlom.master_upm.tfm.springboot.user_categories.controller.api.dtos.UserCategoriesServiceResponseOKUserData;
 import org.jlom.master_upm.tfm.springboot.user_categories.model.api.IUserCategoriesRepository;
 import org.jlom.master_upm.tfm.springboot.user_categories.model.daos.ContentPackage;
@@ -173,7 +172,7 @@ public class UserCategoriesService implements UserCategoriesServiceCommands, Use
   }
 
   @Override
-  public UserCategoriesServiceResponse addPackageToUser(long userId, String packageId) {
+  public UserCategoriesServiceResponse addPackageToUser(long userId, Set<String> packageIds) {
     Optional<UserData> userById = repository.findUserById(userId);
     if (userById.isEmpty()) {
       return new UserCategoriesServiceResponseFailureInvalidInputParameter(
@@ -183,22 +182,26 @@ public class UserCategoriesService implements UserCategoriesServiceCommands, Use
       );
     }
 
-    Optional<ContentPackage> packageById = repository.findPackageById(packageId);
-    if (packageById.isEmpty()) {
-      return new UserCategoriesServiceResponseFailureInvalidInputParameter(
-              "Package does not exist",
-              "packageId",
-              packageId
-      );
+    for (var packageId : packageIds) {
+      Optional<ContentPackage> packageById = repository.findPackageById(packageId);
+      if (packageById.isEmpty()) {
+        return new UserCategoriesServiceResponseFailureInvalidInputParameter(
+                "Package does not exist",
+                "packageId",
+                packageId
+        );
+      }
     }
 
-    UserData userData = repository.addPackageToUser(userId, packageId);
-
+    UserData userData = null;
+    for (var packageId : packageIds) {
+      userData = repository.addPackageToUser(userId, packageId);
+    }
     return new UserCategoriesServiceResponseOKUserData(userData);
   }
 
   @Override
-  public UserCategoriesServiceResponse removePackageFromUser(long userId, String packageId) {
+  public UserCategoriesServiceResponse removePackageFromUser(long userId, Set<String> packageIds) {
     Optional<UserData> userById = repository.findUserById(userId);
     if (userById.isEmpty()) {
       return new UserCategoriesServiceResponseFailureInvalidInputParameter(
@@ -208,7 +211,10 @@ public class UserCategoriesService implements UserCategoriesServiceCommands, Use
       );
     }
 
-    UserData userData = repository.removePackageFromUser(userId, packageId);
+    UserData userData = null;
+    for(var packageId: packageIds) {
+      userData = repository.removePackageFromUser(userId, packageId);
+    }
 
     return new UserCategoriesServiceResponseOKUserData(userData);
   }

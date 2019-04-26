@@ -36,7 +36,7 @@ public class JsonUtils {
             .registerModule(new JavaTimeModule());
   }
 
-  public static <T> String ListToJson(List<T> collection) throws JsonProcessingException {
+  public static <T> String listToJson(List<T> collection) throws JsonProcessingException {
     ObjectMapper mapper = createConfiguredObjectMapper();
     return mapper.writeValueAsString(collection);
 
