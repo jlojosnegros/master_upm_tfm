@@ -29,8 +29,4 @@ public class UserCategoriesServiceResponseFailureInvalidInputParameter extends U
     return handler.handle(this);
   }
 
-  @Override
-  public StreamControlReturnValue accept(IStreamControlServiceResponseHandlerRPC handler) {
-    return handler.handle(this);
-  }
 }

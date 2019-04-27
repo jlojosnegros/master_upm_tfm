@@ -27,8 +27,5 @@ public class UserCategoriesServiceResponseFailureException extends UserCategorie
     return handler.handle(this);
   }
 
-  @Override
-  public StreamControlReturnValue accept(IStreamControlServiceResponseHandlerRPC handler) {
-    return handler.handle(this);
-  }
+
 }

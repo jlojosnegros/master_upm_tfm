@@ -14,8 +14,5 @@ public class UserCategoriesServiceResponseFailureInternalError extends UserCateg
     return handler.handle(this);
   }
 
-  @Override
-  public StreamControlReturnValue accept(IStreamControlServiceResponseHandlerRPC handler) {
-    return handler.handle(this);
-  }
+
 }

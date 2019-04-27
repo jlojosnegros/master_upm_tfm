@@ -117,12 +117,6 @@
 			<artifactId>spring-cloud-stream-test-support</artifactId>
 			<scope>test</scope>
 		</dependency>
-		<dependency>
-			<groupId>org.jlom.master_upm.tfm.springboot</groupId>
-			<artifactId>dynamic-data</artifactId>
-			<version>0.0.1-SNAPSHOT</version>
-		</dependency>
-
 	</dependencies>
 
 	<dependencyManagement>

@@ -26,9 +26,4 @@ public class UserCategoriesServiceResponseFailureNotFound extends UserCategories
   public ResponseEntity<?> accept(UserCategoriesServiceResponseHandler handler) {
     return handler.handle(this);
   }
-
-  @Override
-  public StreamControlReturnValue accept(IStreamControlServiceResponseHandlerRPC handler) {
-    return handler.handle(this);
-  }
 }

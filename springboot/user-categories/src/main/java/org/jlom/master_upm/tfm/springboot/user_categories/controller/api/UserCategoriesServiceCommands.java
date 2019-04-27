@@ -14,6 +14,6 @@ public interface UserCategoriesServiceCommands {
                                         Set<String> packageIds);
   UserCategoriesServiceResponse removeUser(final long userId);
   UserCategoriesServiceResponse changeCategoryForUser(final long userId, final String newCategoryId);
-  UserCategoriesServiceResponse addPackageToUser(final long userId, final String packageId);
-  UserCategoriesServiceResponse removePackageFromUser(final long userId, final String packageId);
+  UserCategoriesServiceResponse addPackageToUser(final long userId, final Set<String> packageIds);
+  UserCategoriesServiceResponse removePackageFromUser(final long userId, final Set<String> packageIds);
 }

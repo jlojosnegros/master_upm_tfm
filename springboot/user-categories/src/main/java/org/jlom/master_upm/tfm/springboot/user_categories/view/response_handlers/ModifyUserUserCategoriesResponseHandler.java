@@ -77,5 +77,6 @@ public class ModifyUserUserCategoriesResponseHandler implements UserCategoriesSe
 
   @Override
   public ResponseEntity<?> handle(UserCategoriesServiceResponseFailureNotFound response) {
-    throw new InvalidParamException(response.getParamName(), response.getMessage())}
+    throw new InvalidParamException(response.getParamName(), response.getMessage());
+  }
 }

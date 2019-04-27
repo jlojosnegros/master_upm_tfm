@@ -12,9 +12,9 @@ import org.springframework.stereotype.Repository;
 
 import javax.annotation.Resource;
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Repository
@@ -90,31 +90,13 @@ public class UserCategoriesRepository implements IUserCategoriesRepository {
   }
 
   @Override
-  public ContentPackage changeTags(String packageId, Map<String, String> tags) {
-
+  public ContentPackage addTags(String packageId, Set<String> tags) {
     ContentPackage contentPackage = contentPackageHashOperations.get(buildCollectionKey(PACKAGE_COLLECTION), packageId);
     if (null == contentPackage) {
       return null;
     }
 
-    contentPackage.getTagsFilter().putAll(tags);
-
-    contentPackageHashOperations.put(buildCollectionKey(PACKAGE_COLLECTION),
-            contentPackage.getPackageId(),contentPackage);
-
-    return contentPackage;
-  }
-
-  @Override
-  public ContentPackage addTags(String packageId, Map<String, String> tags) {
-    ContentPackage contentPackage = contentPackageHashOperations.get(buildCollectionKey(PACKAGE_COLLECTION), packageId);
-    if (null == contentPackage) {
-      return null;
-    }
-
-    for (var entry : tags.entrySet()) {
-      contentPackage.getTagsFilter().putIfAbsent(entry.getKey(),entry.getValue());
-    }
+    contentPackage.getTagsFilter().addAll(tags);
 
     contentPackageHashOperations.put(buildCollectionKey(PACKAGE_COLLECTION),
             contentPackage.getPackageId(),contentPackage);

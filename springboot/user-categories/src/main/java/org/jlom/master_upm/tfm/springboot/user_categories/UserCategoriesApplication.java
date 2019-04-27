@@ -7,7 +7,6 @@ import org.springframework.cloud.stream.annotation.EnableBinding;
 
 @SpringBootApplication
 @EnableDiscoveryClient
-@EnableBinding(OutBoundNotifications.class)
 public class UserCategoriesApplication {
 	public static void main(String[] args) {
 		SpringApplication.run(UserCategoriesApplication.class, args);

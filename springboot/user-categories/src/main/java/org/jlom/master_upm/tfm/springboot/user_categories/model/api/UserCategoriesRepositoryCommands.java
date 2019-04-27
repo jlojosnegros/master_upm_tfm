@@ -7,7 +7,7 @@ import org.jlom.master_upm.tfm.springboot.user_categories.model.daos.UserData;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
-import java.util.Map;
+import java.util.Set;
 
 @Repository
 public interface UserCategoriesRepositoryCommands {
@@ -17,8 +17,8 @@ public interface UserCategoriesRepositoryCommands {
 
   void save(final ContentPackage contentPackage);
   boolean update(final ContentPackage contentPackage);
-  ContentPackage changeTags(final String packageId, Map<String,String> tags);
-  ContentPackage addTags(final String packageId, Map<String,String> tags);
+
+  ContentPackage addTags(final String packageId, Set<String> tags);
   ContentPackage removeTags(final String packageId, List<String> tags);
 
   void  save(UserData userData);
