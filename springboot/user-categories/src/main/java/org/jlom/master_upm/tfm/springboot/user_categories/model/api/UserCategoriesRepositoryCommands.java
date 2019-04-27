@@ -6,20 +6,17 @@ import org.jlom.master_upm.tfm.springboot.user_categories.model.daos.UserCategor
 import org.jlom.master_upm.tfm.springboot.user_categories.model.daos.UserData;
 import org.springframework.stereotype.Repository;
 
-import java.util.List;
 import java.util.Set;
 
 @Repository
 public interface UserCategoriesRepositoryCommands {
 
   void  save(UserCategory category);
-  boolean update(UserCategory category);
 
   void save(final ContentPackage contentPackage);
-  boolean update(final ContentPackage contentPackage);
 
   ContentPackage addTags(final String packageId, Set<String> tags);
-  ContentPackage removeTags(final String packageId, List<String> tags);
+  ContentPackage removeTags(final String packageId, Set<String> tags);
 
   void  save(UserData userData);
   boolean update(UserData userData);

@@ -5,6 +5,7 @@ import org.jlom.master_upm.tfm.springboot.user_categories.model.api.IUserCategor
 import org.jlom.master_upm.tfm.springboot.user_categories.model.daos.ContentPackage;
 import org.jlom.master_upm.tfm.springboot.user_categories.model.daos.UserCategory;
 import org.jlom.master_upm.tfm.springboot.user_categories.model.daos.UserData;
+import org.jlom.master_upm.tfm.springboot.user_categories.utils.CollectionUtilities;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.redis.core.HashOperations;
@@ -48,13 +49,8 @@ public class UserCategoriesRepository implements IUserCategoriesRepository {
   @Override
   public void save(UserCategory category) {
     userCategoryHashOperations.put(buildCollectionKey(CATEGORY_COLLECTION)
-            , category.getTagId()
+            , category.getCategoryId()
             , category);
-  }
-
-  @Override
-  public boolean update(UserCategory category) {
-    return false;
   }
 
   @Override
@@ -85,18 +81,14 @@ public class UserCategoriesRepository implements IUserCategoriesRepository {
   }
 
   @Override
-  public boolean update(ContentPackage contentPackage) {
-    return false;
-  }
-
-  @Override
   public ContentPackage addTags(String packageId, Set<String> tags) {
     ContentPackage contentPackage = contentPackageHashOperations.get(buildCollectionKey(PACKAGE_COLLECTION), packageId);
     if (null == contentPackage) {
       return null;
     }
 
-    contentPackage.getTagsFilter().addAll(tags);
+    Set<String> newTags = CollectionUtilities.union(contentPackage.getTagsFilter(), tags);
+    contentPackage.setTagsFilter(newTags);
 
     contentPackageHashOperations.put(buildCollectionKey(PACKAGE_COLLECTION),
             contentPackage.getPackageId(),contentPackage);
@@ -105,15 +97,14 @@ public class UserCategoriesRepository implements IUserCategoriesRepository {
   }
 
   @Override
-  public ContentPackage removeTags(String packageId, List<String> tags) {
+  public ContentPackage removeTags(String packageId, Set<String> tags) {
     ContentPackage contentPackage = contentPackageHashOperations.get(buildCollectionKey(PACKAGE_COLLECTION), packageId);
     if (null == contentPackage) {
       return null;
     }
 
-    for (var tag : tags) {
-      contentPackage.getTagsFilter().remove(tag);
-    }
+    Set<String> newTags = CollectionUtilities.difference(contentPackage.getTagsFilter(), tags);
+    contentPackage.setTagsFilter(newTags);
 
     contentPackageHashOperations.put(buildCollectionKey(PACKAGE_COLLECTION),
             contentPackage.getPackageId(),contentPackage);
@@ -139,7 +130,8 @@ public class UserCategoriesRepository implements IUserCategoriesRepository {
       return null;
     }
 
-    userData.getPackageIds().add(packageId);
+    userData.setPackageIds(CollectionUtilities.union(userData.getPackageIds(), Set.of(packageId)) );
+
 
     userDataHashOperations.put(buildCollectionKey(USERDATA_COLLECTION),userId,userData);
 
@@ -153,7 +145,11 @@ public class UserCategoriesRepository implements IUserCategoriesRepository {
     if (null == userData) {
       return null;
     }
-    userData.getPackageIds().remove(packageId);
+
+    userData.setPackageIds(
+            CollectionUtilities.difference(userData.getPackageIds(), Set.of(packageId))
+    );
+
 
     userDataHashOperations.put(buildCollectionKey(USERDATA_COLLECTION),userId,userData);
 
