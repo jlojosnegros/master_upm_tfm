@@ -4,6 +4,7 @@ import org.jlom.master_upm.tfm.springboot.user_categories.view.api.dtos.InputUse
 import org.jlom.master_upm.tfm.springboot.user_categories.view.api.dtos.InputUserContentFiltered;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -30,11 +31,11 @@ public interface UserCategoriesCommandInterface {
   ResponseEntity<?> addUser(HttpServletRequest request, @Valid @RequestBody InputUserCategoryData inputUserCategoryData);
 
   @RequestMapping(
-          value = "/user",
+          value = "/user/{userId}",
           method = RequestMethod.DELETE,
           produces = {MediaType.APPLICATION_JSON_VALUE, APPLICATION_JSON_PROBLEM_VALUE}
   )
-  ResponseEntity<?> removeUser(HttpServletRequest request, @Valid @RequestBody InputUserCategoryData inputUserCategoryData);
+  ResponseEntity<?> removeUser(HttpServletRequest request, @Valid @PathVariable("userId") long userId);
 
   @RequestMapping(
           value = "/user/category",

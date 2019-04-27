@@ -83,9 +83,9 @@ public class UserCategoriesRestServer implements UserCategoriesQueryInterface, U
 
   @Override
   public ResponseEntity<?> removeUser(HttpServletRequest request,
-                                      @Valid InputUserCategoryData inputUserCategoryData) {
+                                      @Valid long userId) {
 
-    long userId = Long.parseLong(inputUserCategoryData.getUserId());
+
     UserCategoriesServiceResponse response = service.removeUser(userId);
     return response.accept(new ModifyUserUserCategoriesResponseHandler(request));
   }
