@@ -1,14 +1,16 @@
 package org.jlom.master_upm.tfm.springboot.user_categories.controller;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
+import org.assertj.core.api.Assertions;
+import org.jlom.master_upm.tfm.springboot.user_categories.controller.api.dtos.CatalogContent;
+import org.jlom.master_upm.tfm.springboot.user_categories.controller.api.dtos.ContentStatus;
 import org.jlom.master_upm.tfm.springboot.user_categories.controller.api.dtos.UserCategoriesServiceResponse;
-import org.jlom.master_upm.tfm.springboot.user_categories.controller.api.dtos.UserCategoriesServiceResponseFailureInvalidInputParameter;
 import org.jlom.master_upm.tfm.springboot.user_categories.controller.api.dtos.UserCategoriesServiceResponseOK;
-import org.jlom.master_upm.tfm.springboot.user_categories.controller.clients.InputUserDevice;
+import org.jlom.master_upm.tfm.springboot.user_categories.controller.api.dtos.UserCategoriesServiceResponseOKCatalogContent;
+import org.jlom.master_upm.tfm.springboot.user_categories.controller.api.dtos.UserCategoriesServiceResponseOKUserData;
 import org.jlom.master_upm.tfm.springboot.user_categories.model.api.IUserCategoriesRepository;
-import org.jlom.master_upm.tfm.springboot.user_categories.model.daos.StreamControlData;
-import org.jlom.master_upm.tfm.springboot.user_categories.model.daos.StreamStatus;
-import org.jlom.master_upm.tfm.springboot.user_categories.utils.JsonUtils;
+import org.jlom.master_upm.tfm.springboot.user_categories.model.daos.ContentPackage;
+import org.jlom.master_upm.tfm.springboot.user_categories.model.daos.UserCategory;
+import org.jlom.master_upm.tfm.springboot.user_categories.model.daos.UserData;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -17,30 +19,19 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.cloud.contract.wiremock.AutoConfigureWireMock;
-import org.springframework.cloud.stream.test.binder.MessageCollector;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
-import org.springframework.messaging.Message;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
 import redis.embedded.RedisServer;
 
-import java.io.IOException;
-import java.util.LinkedList;
+import java.sql.Date;
+import java.time.Instant;
 import java.util.List;
 import java.util.Set;
 
-import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
-import static com.github.tomakehurst.wiremock.client.WireMock.get;
-import static com.github.tomakehurst.wiremock.client.WireMock.stubFor;
-import static com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assert.fail;
+import static org.assertj.core.api.Assertions.*;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-@AutoConfigureWireMock(port = 8080)
 @ActiveProfiles("test")
 public class ServiceTest {
 
@@ -53,15 +44,8 @@ public class ServiceTest {
   private IUserCategoriesRepository repository;
 
 
-
-  @Autowired
-  private MessageCollector messageCollector;
-
   private static int redisEmbeddedServerPort = 6379;
   private RedisServer redisEmbeddedServer = new RedisServer(redisEmbeddedServerPort);
-
-//  @Rule
-//  public WireMockRule wireMockRule = new WireMockRule(8080); // No-args constructor defaults to port 8080
 
   @Before
   public void setup() {
@@ -76,244 +60,529 @@ public class ServiceTest {
     redisEmbeddedServer.stop();
   }
 
-//  private StreamControlData addCheckedStreamControlData(long userId,
-//                                                        long deviceId,
-//                                                        long streamId,
-//                                                        StreamStatus status,
-//                                                        boolean tillTheEnd) {
-//    StreamControlData streamControlData = StreamControlData.builder()
-//            .userId(userId)
-//            .deviceId(deviceId)
-//            .streamId(streamId)
-//            .status(status)
-//            .tillTheEnd(tillTheEnd)
-//            .build();
-//    repository.save(streamControlData);
-//
-//    StreamControlData userRunning = repository.isUserRunning(userId);
-//    StreamControlData deviceRunning = repository.isDeviceRunning(deviceId);
-//    assertThat(userRunning).isEqualTo(deviceRunning);
-//    return streamControlData;
-//  }
+  @Test
+  public void add_a_new_user() {
 
-//  @Test
-//  public void given_NoStreamingRunning_when_PlayANewStream_then_AllShouldWork() throws JsonProcessingException {
-//
-//    final long userId = 1;
-//    final long streamId = 1;
-//    final long deviceId = 1;
-//
-//    final String uri = String.format("/dynamic-data/user-device/device/%d",deviceId);
-//
-//
-//    InputUserDevice userDevice = InputUserDevice.builder()
-//            .userId(String.valueOf(userId))
-//            .devices(Set.of(String.valueOf(deviceId)))
-//            .build();
-//
-//    stubFor(get(urlEqualTo(uri))
-//            //.withHeader("Accept", equalTo(MediaType.APPLICATION_JSON_VALUE))
-//            .willReturn(aResponse()
-//                    .withStatus(HttpStatus.OK.value())
-//                    .withHeader("Content-Type", MediaType.APPLICATION_JSON_VALUE)
-//                    .withBody(JsonUtils.ObjectToJson(userDevice))));
-//
-//
-//    UserCategoriesServiceResponse play = service.play(streamId, deviceId);
-//
-//    assertThat(play).isInstanceOf(UserCategoriesServiceResponseOK.class);
-//    StreamControlData streamControlData = ((UserCategoriesServiceResponseOK) play).getStreamControlData();
-//
-//    assertThat(streamControlData.getDeviceId()).isEqualTo(deviceId);
-//    assertThat(streamControlData.getStatus()).isEqualTo(StreamStatus.RUNNING);
-//    assertThat(streamControlData.getStreamId()).isEqualTo(streamId);
-//
-//
-//    final List<Message> listOfNotifications = new LinkedList<>();
-//    messageCollector.forChannel(outBoundNotifications.streamingNotifications()).drainTo(listOfNotifications);
-//
-//    assertThat(listOfNotifications).hasSize(1);
-//    Object payload = listOfNotifications.get(0).getPayload();
-//    LOG.error("jlom: payload:" + payload.toString());
-//    StreamControlStreamingNotification notification = null;
-//    try {
-//      notification = JsonUtils.jsonToObject((String) payload, StreamControlStreamingNotification.class);
-//    } catch (IOException e) {
-//      e.printStackTrace();
-//      fail("Unable con convert payload to notification: " + payload.toString());
-//    }
-//    assertThat(notification.getUserId()).isEqualTo(String.valueOf(streamControlData.getUserId()));
-//    assertThat(notification.getDeviceId()).isEqualTo(String.valueOf(streamControlData.getDeviceId()));
-//    assertThat(notification.getStreamId()).isEqualTo(String.valueOf(streamControlData.getStreamId()));
-//    assertThat(notification.getOperation()).isEqualTo(StreamControlStreamingNotification.Operation.PLAY);
-//
-//  }
-//
-//  @Test
-//  public void given_AStreamingRunning_when_PlayANewStream_then_AllShould_NOT_Work() throws JsonProcessingException {
-//
-//    final long userId = 1;
-//    final long streamId = 1;
-//    final long anotherStreamId = 2;
-//    final long deviceId = 1;
-//    final String uri = String.format("/dynamic-data/user-device/device/%d",deviceId);
-//
-//    InputUserDevice userDevice = InputUserDevice.builder()
-//            .userId(String.valueOf(userId))
-//            .devices(Set.of(String.valueOf(deviceId)))
-//            .build();
-//
-//    stubFor(get(urlEqualTo(uri))
-//            //.withHeader("Accept", equalTo(MediaType.APPLICATION_JSON_VALUE))
-//            .willReturn(aResponse()
-//                    .withStatus(HttpStatus.OK.value())
-//                    .withHeader("Content-Type", MediaType.APPLICATION_JSON_VALUE)
-//                    .withBody(JsonUtils.ObjectToJson(userDevice))));
-//
-//    StreamControlData alreadyRunning = addCheckedStreamControlData(userId,
-//            deviceId,
-//            anotherStreamId,
-//            StreamStatus.RUNNING,
-//            false);
-//
-//
-//    UserCategoriesServiceResponse response = service.play(streamId, deviceId);
-//
-//    assertThat(response).isInstanceOf(UserCategoriesServiceResponseFailureInvalidInputParameter.class);
-//    UserCategoriesServiceResponseFailureInvalidInputParameter invalidResponse = (UserCategoriesServiceResponseFailureInvalidInputParameter) response;
-//    String paramName = invalidResponse.getParamName();
-//    Object paramValue = invalidResponse.getParamValue();
-//
-//    assertThat(paramName).isEqualToIgnoringCase("deviceId");
-//    assertThat(paramValue).isEqualTo(deviceId);
-//
-//    final List<Message> listOfNotifications = new LinkedList<>();
-//    messageCollector.forChannel(outBoundNotifications.streamingNotifications()).drainTo(listOfNotifications);
-//
-//    assertThat(listOfNotifications).hasSize(0);
-//  }
-//
-//  @Test
-//  public void given_AStreamingRunning_when_StopAExistingStream_then_AllShouldWork() {
-//
-//    final long userId = 1;
-//    final long streamId = 1;
-//    final long anotherStreamId = 2;
-//    final long deviceId = 1;
-//
-//    StreamControlData alreadyRunning = addCheckedStreamControlData(userId,
-//            deviceId,
-//            anotherStreamId,
-//            StreamStatus.RUNNING,
-//            false);
-//
-//    UserCategoriesServiceResponse response = service.stop(deviceId);
-//
-//    assertThat(response).isInstanceOf(UserCategoriesServiceResponseOK.class);
-//    UserCategoriesServiceResponseOK responseOK = (UserCategoriesServiceResponseOK) response;
-//    alreadyRunning.setStatus(StreamStatus.DONE);
-//    assertThat(responseOK.getStreamControlData()).isEqualTo(alreadyRunning);
-//
-//    final List<Message> listOfNotifications = new LinkedList<>();
-//    messageCollector.forChannel(outBoundNotifications.streamingNotifications()).drainTo(listOfNotifications);
-//
-//    assertThat(listOfNotifications).hasSize(1);
-//    Object payload = listOfNotifications.get(0).getPayload();
-//    LOG.error("jlom: payload:" + payload.toString());
-//    StreamControlStreamingNotification notification = null;
-//    try {
-//      notification = JsonUtils.jsonToObject((String) payload, StreamControlStreamingNotification.class);
-//    } catch (IOException e) {
-//      e.printStackTrace();
-//      fail("Unable con convert payload to notification: " + payload.toString());
-//    }
-//    assertThat(notification.getUserId()).isEqualTo(String.valueOf(alreadyRunning.getUserId()));
-//    assertThat(notification.getDeviceId()).isEqualTo(String.valueOf(alreadyRunning.getDeviceId()));
-//    assertThat(notification.getStreamId()).isEqualTo(String.valueOf(alreadyRunning.getStreamId()));
-//    assertThat(notification.getOperation()).isEqualTo(StreamControlStreamingNotification.Operation.STOP);
-//
-//  }
-//
-//  @Test
-//  public void given_NoStreamingRunning_when_StopANonExistingStream_then_AllShould_NOT_Work() throws JsonProcessingException {
-//
-//    final long deviceId = 1;
-//
-//    UserCategoriesServiceResponse response = service.stop(deviceId);
-//
-//    assertThat(response).isInstanceOf(UserCategoriesServiceResponseFailureInvalidInputParameter.class);
-//    UserCategoriesServiceResponseFailureInvalidInputParameter invalidResponse = (UserCategoriesServiceResponseFailureInvalidInputParameter) response;
-//    String paramName = invalidResponse.getParamName();
-//    Object paramValue = invalidResponse.getParamValue();
-//
-//    assertThat(paramName).isEqualToIgnoringCase("deviceId");
-//    assertThat(paramValue).isEqualTo(deviceId);
-//
-//    final List<Message> listOfNotifications = new LinkedList<>();
-//    messageCollector.forChannel(outBoundNotifications.streamingNotifications()).drainTo(listOfNotifications);
-//
-//    assertThat(listOfNotifications).hasSize(0);
-//
-//  }
-//
-//  @Test
-//  public void given_AStreamingRunning_when_PauseAExistingStream_then_AllShouldWork() {
-//
-//    final long userId = 1;
-//    final long anotherStreamId = 2;
-//    final long deviceId = 1;
-//
-//    StreamControlData alreadyRunning = addCheckedStreamControlData(userId,
-//            deviceId,
-//            anotherStreamId,
-//            StreamStatus.RUNNING,
-//            false);
-//
-//    UserCategoriesServiceResponse response = service.pause(deviceId);
-//
-//    assertThat(response).isInstanceOf(UserCategoriesServiceResponseOK.class);
-//    UserCategoriesServiceResponseOK responseOK = (UserCategoriesServiceResponseOK) response;
-//    alreadyRunning.setStatus(StreamStatus.PAUSED);
-//    assertThat(responseOK.getStreamControlData()).isEqualTo(alreadyRunning);
-//
-//    final List<Message> listOfNotifications = new LinkedList<>();
-//    messageCollector.forChannel(outBoundNotifications.streamingNotifications()).drainTo(listOfNotifications);
-//
-//    assertThat(listOfNotifications).hasSize(1);
-//    Object payload = listOfNotifications.get(0).getPayload();
-//    LOG.error("jlom: payload:" + payload.toString());
-//    StreamControlStreamingNotification notification = null;
-//    try {
-//      notification = JsonUtils.jsonToObject((String) payload, StreamControlStreamingNotification.class);
-//    } catch (IOException e) {
-//      e.printStackTrace();
-//      fail("Unable con convert payload to notification: " + payload.toString());
-//    }
-//    assertThat(notification.getUserId()).isEqualTo(String.valueOf(alreadyRunning.getUserId()));
-//    assertThat(notification.getDeviceId()).isEqualTo(String.valueOf(alreadyRunning.getDeviceId()));
-//    assertThat(notification.getStreamId()).isEqualTo(String.valueOf(alreadyRunning.getStreamId()));
-//    assertThat(notification.getOperation()).isEqualTo(StreamControlStreamingNotification.Operation.PAUSE);
-//
-//  }
-//
-//  @Test
-//  public void given_NoStreamingRunning_when_PauseANonExistingStream_then_AllShould_NOT_Work() throws JsonProcessingException {
-//
-//    final long deviceId = 1;
-//
-//    UserCategoriesServiceResponse response = service.pause(deviceId);
-//
-//    assertThat(response).isInstanceOf(UserCategoriesServiceResponseFailureInvalidInputParameter.class);
-//    UserCategoriesServiceResponseFailureInvalidInputParameter invalidResponse = (UserCategoriesServiceResponseFailureInvalidInputParameter) response;
-//    String paramName = invalidResponse.getParamName();
-//    Object paramValue = invalidResponse.getParamValue();
-//
-//    assertThat(paramName).isEqualToIgnoringCase("deviceId");
-//    assertThat(paramValue).isEqualTo(deviceId);
-//
-//    final List<Message> listOfNotifications = new LinkedList<>();
-//    messageCollector.forChannel(outBoundNotifications.streamingNotifications()).drainTo(listOfNotifications);
-//
-//    assertThat(listOfNotifications).hasSize(0);
-//  }
+    final long userId = 1;
+    final String categoryId = "cat_gold";
+    final String pck_01 = "pck-01";
+    final String pck_02 = "pck-02";
+    final Set<String> packageIds = Set.of(pck_01,pck_02);
+
+
+    UserCategory userCategory = UserCategory.builder()
+            .name("gold category")
+            .price(1.0)
+            .tagId("tag_gold")
+            .categoryId(categoryId)
+            .build();
+
+    ContentPackage contentPackage_one = ContentPackage.builder()
+            .name("pack 01")
+            .price(1.0)
+            .tagsFilter(Set.of("action", "drama"))
+            .packageId(pck_01)
+            .build();
+
+    ContentPackage contentPackage_two = ContentPackage.builder()
+            .name("pack 02")
+            .price(1.0)
+            .tagsFilter(Set.of("humor", "comedy"))
+            .packageId(pck_02)
+            .build();
+
+    repository.save(userCategory);
+    repository.save(contentPackage_one);
+    repository.save(contentPackage_two);
+
+
+    UserCategoriesServiceResponse response = service.addUser(userId, categoryId, packageIds);
+
+    assertThat(response).isInstanceOf(UserCategoriesServiceResponseOKUserData.class);
+
+    UserCategoriesServiceResponseOKUserData responseOKUserData = (UserCategoriesServiceResponseOKUserData) response;
+
+    UserData expectedUserData = UserData.builder()
+            .userId(userId)
+            .packageIds(packageIds)
+            .categoryId(categoryId)
+            .build();
+
+    assertThat(responseOKUserData.getUserData()).isEqualTo(expectedUserData);
+
+
+  }
+
+
+  @Test
+  public void remove_existing_user() {
+
+    final long userId = 1;
+    final String categoryId = "cat_gold";
+    final String pck_01 = "pck-01";
+    final String pck_02 = "pck-02";
+    final Set<String> packageIds = Set.of(pck_01,pck_02);
+
+
+    UserData existingUserData = UserData.builder()
+            .userId(userId)
+            .packageIds(packageIds)
+            .categoryId(categoryId)
+            .build();
+
+    repository.save(existingUserData);
+
+
+    UserCategoriesServiceResponse response = service.removeUser(userId);
+    assertThat(response).isInstanceOf(UserCategoriesServiceResponseOKUserData.class);
+
+    UserCategoriesServiceResponseOKUserData responseOk = (UserCategoriesServiceResponseOKUserData) response;
+    assertThat(responseOk.getUserData()).isEqualTo(existingUserData);
+  }
+
+  @Test
+  public void change_user_category_from_existing_user() {
+
+    final long userId = 1;
+    final String categoryId = "cat_gold";
+    final String categoryId_two = "cat_silver";
+    final String pck_01 = "pck-01";
+    final String pck_02 = "pck-02";
+    final Set<String> packageIds = Set.of(pck_01,pck_02);
+
+
+    UserData existingUserData = UserData.builder()
+            .userId(userId)
+            .packageIds(packageIds)
+            .categoryId(categoryId)
+            .build();
+
+    repository.save(existingUserData);
+
+    UserCategory goldCategory = UserCategory.builder()
+            .name("gold category")
+            .price(1.0)
+            .tagId("tag_gold")
+            .categoryId(categoryId)
+            .build();
+
+    UserCategory silverCategory = UserCategory.builder()
+            .name("silver category")
+            .price(1.0)
+            .tagId("tag_silver")
+            .categoryId(categoryId_two)
+            .build();
+
+    repository.save(goldCategory);
+    repository.save(silverCategory);
+
+
+    UserCategoriesServiceResponse response = service.changeCategoryForUser(userId, categoryId_two);
+    assertThat(response).isInstanceOf(UserCategoriesServiceResponseOKUserData.class);
+
+    final UserData modifiedUserData = existingUserData;
+    modifiedUserData.setCategoryId(categoryId_two);
+
+    UserCategoriesServiceResponseOKUserData responseOKUserData = (UserCategoriesServiceResponseOKUserData) response;
+    assertThat(responseOKUserData.getUserData()).isEqualTo(modifiedUserData);
+  }
+
+  @Test
+  public void add_package_to_existing_user() {
+    final long userId = 1;
+    final String categoryId = "cat_gold";
+    final String pck_01 = "pck-01";
+    final String pck_02 = "pck-02";
+    final Set<String> packageIds = Set.of(pck_01);
+    final Set<String> modified_packageIds = Set.of(pck_01,pck_02);
+
+    UserData existingUserData = UserData.builder()
+            .userId(userId)
+            .packageIds(packageIds)
+            .categoryId(categoryId)
+            .build();
+
+    ContentPackage contentPackage_one = ContentPackage.builder()
+            .name("pack 01")
+            .price(1.0)
+            .tagsFilter(Set.of("action", "drama"))
+            .packageId(pck_01)
+            .build();
+
+    ContentPackage contentPackage_two = ContentPackage.builder()
+            .name("pack 02")
+            .price(1.0)
+            .tagsFilter(Set.of("humor", "comedy"))
+            .packageId(pck_02)
+            .build();
+
+    repository.save(existingUserData);
+    repository.save(contentPackage_one);
+    repository.save(contentPackage_two);
+
+
+    UserCategoriesServiceResponse response = service.addPackageToUser(userId, Set.of(pck_02));
+    assertThat(response).isInstanceOf(UserCategoriesServiceResponseOKUserData.class);
+
+    final UserData modifiedUserData = existingUserData;
+    modifiedUserData.setPackageIds(modified_packageIds);
+    UserCategoriesServiceResponseOKUserData responseOKUserData = (UserCategoriesServiceResponseOKUserData) response;
+    assertThat(responseOKUserData.getUserData()).isEqualTo(modifiedUserData);
+  }
+
+  @Test
+  public void remove_package_to_existing_user() {
+    final long userId = 1;
+    final String categoryId = "cat_gold";
+    final String pck_01 = "pck-01";
+    final String pck_02 = "pck-02";
+    final Set<String> modified_packageIds = Set.of(pck_01);
+    final Set<String> packageIds = Set.of(pck_01,pck_02);
+
+    UserData existingUserData = UserData.builder()
+            .userId(userId)
+            .packageIds(packageIds)
+            .categoryId(categoryId)
+            .build();
+
+    ContentPackage contentPackage_one = ContentPackage.builder()
+            .name("pack 01")
+            .price(1.0)
+            .tagsFilter(Set.of("action", "drama"))
+            .packageId(pck_01)
+            .build();
+
+    ContentPackage contentPackage_two = ContentPackage.builder()
+            .name("pack 02")
+            .price(1.0)
+            .tagsFilter(Set.of("humor", "comedy"))
+            .packageId(pck_02)
+            .build();
+
+    repository.save(existingUserData);
+    repository.save(contentPackage_one);
+    repository.save(contentPackage_two);
+
+
+    UserCategoriesServiceResponse response = service.removePackageFromUser(userId, Set.of(pck_02));
+    assertThat(response).isInstanceOf(UserCategoriesServiceResponseOKUserData.class);
+
+    final UserData modifiedUserData = existingUserData;
+    modifiedUserData.setPackageIds(modified_packageIds);
+    UserCategoriesServiceResponseOKUserData responseOKUserData = (UserCategoriesServiceResponseOKUserData) response;
+    assertThat(responseOKUserData.getUserData()).isEqualTo(modifiedUserData);
+  }
+
+  @Test
+  public void filter_packages_for_user() {
+
+    final long userId = 1;
+    
+    final String gold_categoryId = "gold";
+    final String gold_catTag ="tag_gold";
+    final String action = "action";
+    final String drama = "drama";
+    final String humor = "humor";
+    final String silver_category = "cat_silver";
+    final String sXX = "SXX";
+    final String comedy = "comedy";
+
+    final String pck_01 = "pck-01";
+    final String pck_02 = "pck-02";
+    final String pck_03 = "pck-03";
+
+    final Set<String> packageIds = Set.of(pck_01,pck_02,pck_03);
+
+    UserData userData = UserData.builder()
+            .userId(userId)
+            .categoryId(gold_categoryId)
+            .packageIds(packageIds)
+            .build();
+
+    repository.save(userData);
+
+    UserCategory gold_category = UserCategory.builder()
+            .categoryId(gold_categoryId)
+            .price(100.0)
+            .name("gold category")
+            .tagId(gold_catTag)
+            .build();
+    repository.save(gold_category);
+
+    ContentPackage pack_one = ContentPackage.builder()
+            .packageId(pck_01)
+            .price(1.0)
+            .name("pack_one")
+            .tagsFilter(Set.of(action))
+            .build();
+    repository.save(pack_one);
+
+    ContentPackage pack_two = ContentPackage.builder()
+            .packageId(pck_02)
+            .price(1.0)
+            .name("pack_two")
+            .tagsFilter(Set.of(drama))
+            .build();
+    repository.save(pack_two);
+
+    ContentPackage pack_three = ContentPackage.builder()
+            .packageId(pck_03)
+            .price(1.0)
+            .name("pack_three")
+            .tagsFilter(Set.of(humor,sXX))
+            .build();
+    repository.save(pack_three);
+
+
+
+    CatalogContent content_01 = CatalogContent.builder()
+            .contentId(1)
+            .available(Date.from(Instant.now()))
+            .status(ContentStatus.AVAILABLE)
+            .streamId(1)
+            .title("content_01")
+            .tags(Set.of(gold_catTag))
+            .build();
+
+    CatalogContent content_02 = CatalogContent.builder()
+            .contentId(2)
+            .available(Date.from(Instant.now()))
+            .status(ContentStatus.AVAILABLE)
+            .streamId(2)
+            .title("content_02")
+            .tags(Set.of(gold_catTag, action))
+            .build();
+
+    CatalogContent content_03 = CatalogContent.builder()
+            .contentId(3)
+            .available(Date.from(Instant.now()))
+            .status(ContentStatus.AVAILABLE)
+            .streamId(3)
+            .title("content_03")
+            .tags(Set.of(gold_catTag, drama, humor))
+            .build();
+
+    CatalogContent content_04 = CatalogContent.builder()
+            .contentId(4)
+            .available(Date.from(Instant.now()))
+            .status(ContentStatus.AVAILABLE)
+            .streamId(4)
+            .title("content_04")
+            .tags(Set.of(silver_category, action))
+            .build();
+
+    CatalogContent content_05 = CatalogContent.builder()
+            .contentId(5)
+            .available(Date.from(Instant.now()))
+            .status(ContentStatus.AVAILABLE)
+            .streamId(5)
+            .title("content_05")
+            .tags(Set.of(silver_category, drama))
+            .build();
+
+    CatalogContent content_06 = CatalogContent.builder()
+            .contentId(6)
+            .available(Date.from(Instant.now()))
+            .status(ContentStatus.AVAILABLE)
+            .streamId(6)
+            .title("content_06")
+            .tags(Set.of(silver_category, humor))
+            .build();
+
+    CatalogContent content_07 = CatalogContent.builder()
+            .contentId(7)
+            .available(Date.from(Instant.now()))
+            .status(ContentStatus.AVAILABLE)
+            .streamId(7)
+            .title("content_07")
+            .tags(Set.of(silver_category, humor, sXX))
+            .build();
+
+    CatalogContent content_08 = CatalogContent.builder()
+            .contentId(8)
+            .available(Date.from(Instant.now()))
+            .status(ContentStatus.AVAILABLE)
+            .streamId(8)
+            .title("content_08")
+            .tags(Set.of(silver_category, comedy, sXX))
+            .build();
+
+    List<CatalogContent> contents = List.of(content_01, content_02, content_03, content_04, content_05, content_06, content_07, content_08);
+
+    List<CatalogContent> filteredContents = List.of(content_01, content_02, content_03, content_04, content_05, content_07);
+
+    UserCategoriesServiceResponse response = service.filter(userId, contents);
+    assertThat(response).isInstanceOf(UserCategoriesServiceResponseOKCatalogContent.class);
+
+    UserCategoriesServiceResponseOKCatalogContent responseOKCatalogContent = (UserCategoriesServiceResponseOKCatalogContent) response;
+    assertThat(responseOKCatalogContent.getFilteredContent()).containsOnly(filteredContents.toArray(new CatalogContent[0]));
+  }
+
+
+  @Test
+  public void get_packages_for_user() {
+    final long userId = 1;
+
+
+    final String gold_categoryId = "gold";
+    final String gold_catTag ="tag_gold";
+    final String action = "action";
+    final String drama = "drama";
+
+    final String pck_01 = "pck-01";
+    final String pck_02 = "pck-02";
+
+    final Set<String> packageIds = Set.of(pck_01,pck_02);
+
+    UserData userData = UserData.builder()
+            .userId(userId)
+            .categoryId(gold_categoryId)
+            .packageIds(packageIds)
+            .build();
+
+    repository.save(userData);
+
+    UserCategory gold_category = UserCategory.builder()
+            .categoryId(gold_categoryId)
+            .price(100.0)
+            .name("gold category")
+            .tagId(gold_catTag)
+            .build();
+    repository.save(gold_category);
+
+    ContentPackage pack_one = ContentPackage.builder()
+            .packageId(pck_01)
+            .price(1.0)
+            .name("pack_one")
+            .tagsFilter(Set.of(action))
+            .build();
+    repository.save(pack_one);
+
+    ContentPackage pack_two = ContentPackage.builder()
+            .packageId(pck_02)
+            .price(1.0)
+            .name("pack_two")
+            .tagsFilter(Set.of(drama))
+            .build();
+    repository.save(pack_two);
+
+    List<ContentPackage> packagesForUser = service.getPackagesForUser(userId);
+
+    assertThat(packagesForUser).containsOnly(pack_one,pack_two);
+  }
+
+
+  @Test
+  public void get_category_for_user() {
+    final long userId = 1;
+
+    final String gold_categoryId = "gold";
+    final String gold_catTag ="tag_gold";
+
+    final String pck_01 = "pck-01";
+    final String pck_02 = "pck-02";
+    final String pck_03 = "pck-03";
+
+    final Set<String> packageIds = Set.of(pck_01,pck_02,pck_03);
+
+    UserData userData = UserData.builder()
+            .userId(userId)
+            .categoryId(gold_categoryId)
+            .packageIds(packageIds)
+            .build();
+
+    repository.save(userData);
+
+    UserCategory gold_category = UserCategory.builder()
+            .categoryId(gold_categoryId)
+            .price(100.0)
+            .name("gold category")
+            .tagId(gold_catTag)
+            .build();
+    repository.save(gold_category);
+
+
+    UserCategory categoryForUser = service.getCategoryForUser(userId);
+    assertThat(categoryForUser).isEqualTo(gold_category);
+  }
+
+
+  @Test
+  public void list_all_packages() {
+
+    final String action = "action";
+    final String drama = "drama";
+    final String humor = "humor";
+
+    final String sXX = "SXX";
+
+    final String pck_01 = "pck-01";
+    final String pck_02 = "pck-02";
+    final String pck_03 = "pck-03";
+
+
+
+
+
+    ContentPackage pack_one = ContentPackage.builder()
+            .packageId(pck_01)
+            .price(1.0)
+            .name("pack_one")
+            .tagsFilter(Set.of(action))
+            .build();
+    repository.save(pack_one);
+
+    ContentPackage pack_two = ContentPackage.builder()
+            .packageId(pck_02)
+            .price(1.0)
+            .name("pack_two")
+            .tagsFilter(Set.of(drama))
+            .build();
+    repository.save(pack_two);
+
+    ContentPackage pack_three = ContentPackage.builder()
+            .packageId(pck_03)
+            .price(1.0)
+            .name("pack_three")
+            .tagsFilter(Set.of(humor,sXX))
+            .build();
+    repository.save(pack_three);
+
+    List<ContentPackage> contentPackages = service.listAllPackages();
+    assertThat(contentPackages).containsOnly(pack_one,pack_two,pack_three);
+  }
+
+  @Test
+  public void list_all_categories() {
+
+
+
+
+    UserCategory gold_category = UserCategory.builder()
+            .categoryId("gold")
+            .price(100.0)
+            .name("gold category")
+            .tagId("tag_gold")
+            .build();
+    repository.save(gold_category);
+
+    UserCategory silver_category = UserCategory.builder()
+            .categoryId("silver")
+            .price(100.0)
+            .name("silver category")
+            .tagId("tag_silver")
+            .build();
+    repository.save(silver_category);
+
+    UserCategory bronze_category = UserCategory.builder()
+            .categoryId("bronze")
+            .price(100.0)
+            .name("bronze category")
+            .tagId("tag_bronze")
+            .build();
+    repository.save(bronze_category);
+
+    List<UserCategory> userCategories = service.listAllCategories();
+    assertThat(userCategories).containsOnly(gold_category,silver_category,bronze_category);
+  }
 }

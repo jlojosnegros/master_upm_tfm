@@ -45,17 +45,16 @@ public class UserCategoriesService implements UserCategoriesServiceCommands, Use
               userId
       );
     }
-
-
     UserCategory category = repository.getCategory(userId);
+
     Set<CatalogContent> contentFilteredByCategory = contents.stream()
-            .filter(c -> !c.getTags().contains(category.getTagId()))
+            .filter(c -> c.getTags().contains(category.getTagId()))
             .collect(Collectors.toSet());
 
     Set<ContentPackage> packages = userById.get().getPackageIds()
             .stream()
             .map(repository::findPackageById)
-            .filter(Optional::isEmpty)
+            .filter(Optional::isPresent)
             .map(Optional::get)
             .collect(Collectors.toSet());
 
