@@ -45,15 +45,15 @@ public interface UserCategoriesCommandInterface {
   ResponseEntity<?> changeCategory(HttpServletRequest request, @Valid @RequestBody InputUserCategoryData inputUserCategoryData);
 
   @RequestMapping(
-          value = "/user/packages",
+          value = "/user/add-packages",
           method = RequestMethod.POST,
           produces = {MediaType.APPLICATION_JSON_VALUE, APPLICATION_JSON_PROBLEM_VALUE}
   )
   ResponseEntity<?> addPackages(HttpServletRequest request, @Valid @RequestBody InputUserCategoryData streamData);
 
   @RequestMapping(
-          value = "/user/packages",
-          method = RequestMethod.DELETE,
+          value = "/user/remove-packages",
+          method = RequestMethod.POST,
           produces = {MediaType.APPLICATION_JSON_VALUE, APPLICATION_JSON_PROBLEM_VALUE}
   )
   ResponseEntity<?> removePackages(HttpServletRequest request, @Valid @RequestBody InputUserCategoryData streamData);
