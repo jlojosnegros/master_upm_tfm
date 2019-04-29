@@ -1,0 +1,21 @@
+spring:
+  cloud:
+    stream:
+      bindings:
+#        input:
+#          destination: queue.log.messages
+#          binder: local_rabbit
+        output:
+          destination: stream-control-notifications
+          binder: local_rabbit
+      binders:
+        local_rabbit:
+          type: rabbit
+          environment:
+            spring:
+              rabbitmq:
+                host: localhost
+                port: 5672
+                username: <username>
+                password: <password>
+                virtual-host: /
