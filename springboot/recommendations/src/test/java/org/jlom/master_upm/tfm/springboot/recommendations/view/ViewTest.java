@@ -1,25 +1,16 @@
 package org.jlom.master_upm.tfm.springboot.recommendations.view;
 
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.HttpClientBuilder;
-import org.jlom.master_upm.tfm.springboot.recommendations.controller.clients.InputUserDevice;
 import org.jlom.master_upm.tfm.springboot.recommendations.model.api.IRecommendationsRepository;
-import org.jlom.master_upm.tfm.springboot.recommendations.model.daos.StreamControlData;
-import org.jlom.master_upm.tfm.springboot.recommendations.model.daos.StreamStatus;
-import org.jlom.master_upm.tfm.springboot.recommendations.utils.JsonUtils;
 import org.jlom.master_upm.tfm.springboot.recommendations.view.api.StreamControlInterface;
-import org.jlom.master_upm.tfm.springboot.recommendations.view.api.dtos.StreamControlReturnValue;
-import org.jlom.master_upm.tfm.springboot.recommendations.view.api.dtos.StreamControlReturnValueError;
-import org.jlom.master_upm.tfm.springboot.recommendations.view.api.dtos.StreamControlReturnValueOk;
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -28,19 +19,14 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.web.server.LocalServerPort;
 import org.springframework.cloud.contract.wiremock.AutoConfigureWireMock;
 import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
 import redis.embedded.RedisServer;
 
 import java.io.IOException;
-import java.util.Set;
 
-import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
 import static com.github.tomakehurst.wiremock.client.WireMock.get;
-import static com.github.tomakehurst.wiremock.client.WireMock.stubFor;
-import static com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.fail;
 import static org.jlom.master_upm.tfm.springboot.recommendations.utils.JsonUtils.ObjectToJson;

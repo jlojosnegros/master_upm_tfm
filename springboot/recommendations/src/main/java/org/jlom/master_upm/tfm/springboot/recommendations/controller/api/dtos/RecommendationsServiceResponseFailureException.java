@@ -3,27 +3,26 @@ package org.jlom.master_upm.tfm.springboot.recommendations.controller.api.dtos;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.ToString;
-import org.jlom.master_upm.tfm.springboot.recommendations.view.api.dtos.StreamControlReturnValue;
 import org.springframework.http.ResponseEntity;
 
 @Getter
 @ToString(callSuper = true)
 @EqualsAndHashCode(callSuper = true)
-public class StreamControlServiceResponseFailureException extends StreamControlServiceResponseFailure {
+public class RecommendationsServiceResponseFailureException extends RecommendationsServiceResponseFailure {
 
   private final Exception exception;
 
-  public StreamControlServiceResponseFailureException(String message, Exception exception) {
+  public RecommendationsServiceResponseFailureException(String message, Exception exception) {
     super(message + " Exception:" + exception.getMessage());
     this.exception = exception;
   }
 
-  public StreamControlServiceResponseFailureException(Exception exception) {
+  public RecommendationsServiceResponseFailureException(Exception exception) {
     this("error: Exception captured. ", exception);
   }
 
   @Override
-  public ResponseEntity<?> accept(StreamControlServiceResponseHandler handler) {
+  public ResponseEntity<?> accept(RecommendationsServiceResponseHandler handler) {
     return handler.handle(this);
   }
 

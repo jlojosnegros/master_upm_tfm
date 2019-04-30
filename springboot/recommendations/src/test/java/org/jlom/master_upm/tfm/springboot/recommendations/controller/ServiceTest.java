@@ -1,19 +1,9 @@
 package org.jlom.master_upm.tfm.springboot.recommendations.controller;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import org.jlom.master_upm.tfm.springboot.recommendations.controller.api.dtos.StreamControlServiceResponse;
-import org.jlom.master_upm.tfm.springboot.recommendations.controller.api.dtos.StreamControlServiceResponseFailureInvalidInputParameter;
-import org.jlom.master_upm.tfm.springboot.recommendations.controller.api.dtos.StreamControlServiceResponseOK;
 import org.jlom.master_upm.tfm.springboot.recommendations.controller.api.in.InBoundNotifications;
-import org.jlom.master_upm.tfm.springboot.recommendations.controller.api.in.StreamControlStreamingNotification;
-import org.jlom.master_upm.tfm.springboot.recommendations.controller.clients.InputUserDevice;
 import org.jlom.master_upm.tfm.springboot.recommendations.model.api.IRecommendationsRepository;
-import org.jlom.master_upm.tfm.springboot.recommendations.model.daos.StreamControlData;
-import org.jlom.master_upm.tfm.springboot.recommendations.model.daos.StreamStatus;
-import org.jlom.master_upm.tfm.springboot.recommendations.utils.JsonUtils;
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -21,22 +11,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.cloud.contract.wiremock.AutoConfigureWireMock;
 import org.springframework.cloud.stream.test.binder.MessageCollector;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
-import org.springframework.messaging.Message;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
 import redis.embedded.RedisServer;
 
-import java.io.IOException;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Set;
-
-import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
 import static com.github.tomakehurst.wiremock.client.WireMock.get;
-import static com.github.tomakehurst.wiremock.client.WireMock.stubFor;
-import static com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.fail;
 
@@ -49,7 +28,7 @@ public class ServiceTest {
   private static final Logger LOG = LoggerFactory.getLogger(ServiceTest.class);
 
   @Autowired
-  private StreamControlService service;
+  private RecommendationsService service;
 
   @Autowired
   private IRecommendationsRepository repository;
@@ -122,10 +101,10 @@ public class ServiceTest {
 //                    .withBody(JsonUtils.ObjectToJson(userDevice))));
 //
 //
-//    StreamControlServiceResponse play = service.play(streamId, deviceId);
+//    RecommendationsServiceResponse play = service.play(streamId, deviceId);
 //
-//    assertThat(play).isInstanceOf(StreamControlServiceResponseOK.class);
-//    StreamControlData streamControlData = ((StreamControlServiceResponseOK) play).getStreamControlData();
+//    assertThat(play).isInstanceOf(RecommendationsServiceResponseOK.class);
+//    StreamControlData streamControlData = ((RecommendationsServiceResponseOK) play).getStreamControlData();
 //
 //    assertThat(streamControlData.getDeviceId()).isEqualTo(deviceId);
 //    assertThat(streamControlData.getStatus()).isEqualTo(StreamStatus.RUNNING);
@@ -180,10 +159,10 @@ public class ServiceTest {
 //            false);
 //
 //
-//    StreamControlServiceResponse response = service.play(streamId, deviceId);
+//    RecommendationsServiceResponse response = service.play(streamId, deviceId);
 //
-//    assertThat(response).isInstanceOf(StreamControlServiceResponseFailureInvalidInputParameter.class);
-//    StreamControlServiceResponseFailureInvalidInputParameter invalidResponse = (StreamControlServiceResponseFailureInvalidInputParameter) response;
+//    assertThat(response).isInstanceOf(RecommendationsServiceResponseFailureInvalidInputParameter.class);
+//    RecommendationsServiceResponseFailureInvalidInputParameter invalidResponse = (RecommendationsServiceResponseFailureInvalidInputParameter) response;
 //    String paramName = invalidResponse.getParamName();
 //    Object paramValue = invalidResponse.getParamValue();
 //
@@ -210,10 +189,10 @@ public class ServiceTest {
 //            StreamStatus.RUNNING,
 //            false);
 //
-//    StreamControlServiceResponse response = service.stop(deviceId);
+//    RecommendationsServiceResponse response = service.stop(deviceId);
 //
-//    assertThat(response).isInstanceOf(StreamControlServiceResponseOK.class);
-//    StreamControlServiceResponseOK responseOK = (StreamControlServiceResponseOK) response;
+//    assertThat(response).isInstanceOf(RecommendationsServiceResponseOK.class);
+//    RecommendationsServiceResponseOK responseOK = (RecommendationsServiceResponseOK) response;
 //    alreadyRunning.setStatus(StreamStatus.DONE);
 //    assertThat(responseOK.getStreamControlData()).isEqualTo(alreadyRunning);
 //
@@ -242,10 +221,10 @@ public class ServiceTest {
 //
 //    final long deviceId = 1;
 //
-//    StreamControlServiceResponse response = service.stop(deviceId);
+//    RecommendationsServiceResponse response = service.stop(deviceId);
 //
-//    assertThat(response).isInstanceOf(StreamControlServiceResponseFailureInvalidInputParameter.class);
-//    StreamControlServiceResponseFailureInvalidInputParameter invalidResponse = (StreamControlServiceResponseFailureInvalidInputParameter) response;
+//    assertThat(response).isInstanceOf(RecommendationsServiceResponseFailureInvalidInputParameter.class);
+//    RecommendationsServiceResponseFailureInvalidInputParameter invalidResponse = (RecommendationsServiceResponseFailureInvalidInputParameter) response;
 //    String paramName = invalidResponse.getParamName();
 //    Object paramValue = invalidResponse.getParamValue();
 //
@@ -272,10 +251,10 @@ public class ServiceTest {
 //            StreamStatus.RUNNING,
 //            false);
 //
-//    StreamControlServiceResponse response = service.pause(deviceId);
+//    RecommendationsServiceResponse response = service.pause(deviceId);
 //
-//    assertThat(response).isInstanceOf(StreamControlServiceResponseOK.class);
-//    StreamControlServiceResponseOK responseOK = (StreamControlServiceResponseOK) response;
+//    assertThat(response).isInstanceOf(RecommendationsServiceResponseOK.class);
+//    RecommendationsServiceResponseOK responseOK = (RecommendationsServiceResponseOK) response;
 //    alreadyRunning.setStatus(StreamStatus.PAUSED);
 //    assertThat(responseOK.getStreamControlData()).isEqualTo(alreadyRunning);
 //
@@ -304,10 +283,10 @@ public class ServiceTest {
 //
 //    final long deviceId = 1;
 //
-//    StreamControlServiceResponse response = service.pause(deviceId);
+//    RecommendationsServiceResponse response = service.pause(deviceId);
 //
-//    assertThat(response).isInstanceOf(StreamControlServiceResponseFailureInvalidInputParameter.class);
-//    StreamControlServiceResponseFailureInvalidInputParameter invalidResponse = (StreamControlServiceResponseFailureInvalidInputParameter) response;
+//    assertThat(response).isInstanceOf(RecommendationsServiceResponseFailureInvalidInputParameter.class);
+//    RecommendationsServiceResponseFailureInvalidInputParameter invalidResponse = (RecommendationsServiceResponseFailureInvalidInputParameter) response;
 //    String paramName = invalidResponse.getParamName();
 //    Object paramValue = invalidResponse.getParamValue();
 //

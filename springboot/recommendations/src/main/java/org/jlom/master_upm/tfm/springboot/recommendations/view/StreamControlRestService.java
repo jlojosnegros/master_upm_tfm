@@ -1,6 +1,6 @@
 package org.jlom.master_upm.tfm.springboot.recommendations.view;
 
-import org.jlom.master_upm.tfm.springboot.recommendations.controller.StreamControlService;
+import org.jlom.master_upm.tfm.springboot.recommendations.controller.RecommendationsService;
 import org.jlom.master_upm.tfm.springboot.recommendations.view.api.StreamControlQueryInterface;
 import org.jlom.master_upm.tfm.springboot.recommendations.view.api.StreamControlCommandInterface;
 import org.jlom.master_upm.tfm.springboot.recommendations.view.api.dtos.InputStreamData;
@@ -23,9 +23,9 @@ public class StreamControlRestService implements StreamControlQueryInterface, St
   private static final Logger LOG = LoggerFactory.getLogger(StreamControlRestService.class);
 
 
-  private final StreamControlService service;
+  private final RecommendationsService service;
 
-  public StreamControlRestService(StreamControlService service) {
+  public StreamControlRestService(RecommendationsService service) {
     this.service = service;
   }
 
@@ -51,9 +51,9 @@ public class StreamControlRestService implements StreamControlQueryInterface, St
 
   //   StreamControlData ud = viewToService(userDevice);
 
-  //   StreamControlServiceResponse response = service.addDevicesToUser(ud.getUserId(), ud.getDevices());
+  //   RecommendationsServiceResponse response = service.addDevicesToUser(ud.getUserId(), ud.getDevices());
 
-  //   return response.accept(new CreateStreamControlResponseHandler(request));
+  //   return response.accept(new CreateRecommendationsResponseHandler(request));
   // }
 
  

@@ -7,12 +7,12 @@ import lombok.ToString;
 @Getter
 @ToString
 @EqualsAndHashCode
-public abstract class StreamControlServiceResponseFailure implements StreamControlServiceResponse {
+public abstract class RecommendationsServiceResponseFailure implements RecommendationsServiceResponse {
 
   private final String message;
 
 
-  public StreamControlServiceResponseFailure(String message) {
+  public RecommendationsServiceResponseFailure(String message) {
     this.message = message;
   }
 
