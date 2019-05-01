@@ -11,6 +11,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jlom.master_upm.tfm.springboot.catalog.controller.CatalogService;
 import org.jlom.master_upm.tfm.springboot.catalog.controller.api.dtos.ContentServiceResponseOk;
 import org.jlom.master_upm.tfm.springboot.catalog.model.CatalogContent;
+import org.jlom.master_upm.tfm.springboot.catalog.model.CatalogContentRepository;
 import org.jlom.master_upm.tfm.springboot.catalog.model.ContentStatus;
 import org.jlom.master_upm.tfm.springboot.catalog.view.api.dtos.InputCatalogContent;
 import org.junit.Test;
@@ -534,5 +535,4 @@ public class CatalogRestServerTest {
     Assertions.assertThat(catalogContents).isEqualTo(serviceToViewContent(expectedContentOne));
 
   }
-
 }

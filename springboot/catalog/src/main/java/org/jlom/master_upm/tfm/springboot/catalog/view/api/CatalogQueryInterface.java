@@ -46,4 +46,11 @@ public interface CatalogQueryInterface {
           produces = {MediaType.APPLICATION_JSON_VALUE, APPLICATION_JSON_PROBLEM_VALUE}
   )
   ResponseEntity<?> getContentByStreamId(@PathVariable("streamId") long streamId);
+
+  @RequestMapping(
+          value = "/content/status/{status}",
+          method = RequestMethod.GET,
+          produces = {MediaType.APPLICATION_JSON_VALUE, APPLICATION_JSON_PROBLEM_VALUE}
+  )
+  ResponseEntity<?> getContentByStatus(@PathVariable("status") String status);
 }

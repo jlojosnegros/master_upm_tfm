@@ -125,6 +125,11 @@ public class CatalogService implements CatalogServiceCommands, CatalogServiceQue
   }
 
   @Override
+  public List<CatalogContent> getContentWithStatus(ContentStatus contentStatus) {
+    return repository.findWithStatus(contentStatus);
+  }
+
+  @Override
   public CatalogContent getContentWithStream(long streamId) {
     return repository.findByStreamId(streamId);
   }

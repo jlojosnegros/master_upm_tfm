@@ -123,6 +123,22 @@ public class CatalogRestServer implements CatalogQueryInterface, CatalogCommandI
     }
   }
 
+  @Override
+  public ResponseEntity<?> getContentByStatus(String status) {
+    LOG.error("jlom: getContentByStatus status="+ status);
+
+    ContentStatus contentStatus = ContentStatus.valueOf(status);
+    LOG.error("jlom: getContentByStatus status="+ contentStatus);
+
+    List<InputCatalogContent> content = serviceToViewContent(service.getContentWithStatus(contentStatus));
+    LOG.error("jlom: getContentByStatus  found="+ content);
+    try {
+      return new ResponseEntity<>(ListToJson(content), new HttpHeaders(), HttpStatus.OK);
+    } catch (JsonProcessingException e) {
+      throw new WrapperException("error: Unable to convertToJson obj: " + content, e);
+    }
+  }
+
 
   @Override
   public ResponseEntity<?> createNewContent(HttpServletRequest request,

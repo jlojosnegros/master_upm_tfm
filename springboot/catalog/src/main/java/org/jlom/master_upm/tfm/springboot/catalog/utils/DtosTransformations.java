@@ -16,6 +16,7 @@ public class DtosTransformations {
             .available(content.getAvailable())
             .tags(content.getTags())
             .contentId(String.valueOf(content.getContentId()))
+            .contentStatus(content.getStatus().name())
             .build();
 
   }

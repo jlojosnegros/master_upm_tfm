@@ -85,4 +85,20 @@ public class CatalogContentRepository implements ContentCommandsRepository, Cont
   public Collection<CatalogContent> findAll() {
      return hashOperations.entries(KEY).values();
   }
+
+  @Override
+  public List<CatalogContent> findWithStatus(ContentStatus contentStatus) {
+    Collection<CatalogContent> all = findAll();
+    LOG.error("jlom all: " + all);
+
+    LOG.error("jlom filtered: " +
+            all.stream()
+                    .filter(content -> content.getStatus() == contentStatus)
+                    .collect(Collectors.toList())
+    );
+
+    return findAll().stream()
+            .filter( content -> content.getStatus() == contentStatus)
+            .collect(Collectors.toList());
+  }
 }
