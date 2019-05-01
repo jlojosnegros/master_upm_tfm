@@ -2,7 +2,6 @@ package org.jlom.master_upm.tfm.springboot.user_categories.controller.api.dtos;
 
 import lombok.Getter;
 import lombok.ToString;
-import org.jlom.master_upm.tfm.springboot.user_categories.view.api.dtos.StreamControlReturnValue;
 import org.springframework.http.ResponseEntity;
 
 @Getter
