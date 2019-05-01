@@ -8,7 +8,6 @@ import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.jlom.master_upm.tfm.springboot.recommendations.model.api.IRecommendationsRepository;
-import org.jlom.master_upm.tfm.springboot.recommendations.view.api.StreamControlInterface;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.runner.RunWith;
@@ -39,8 +38,6 @@ import static org.jlom.master_upm.tfm.springboot.recommendations.utils.JsonUtils
 @ActiveProfiles("test")
 public class ViewTest {
 
-  @Autowired
-  private StreamControlInterface view;
 
   @LocalServerPort
   private int port;

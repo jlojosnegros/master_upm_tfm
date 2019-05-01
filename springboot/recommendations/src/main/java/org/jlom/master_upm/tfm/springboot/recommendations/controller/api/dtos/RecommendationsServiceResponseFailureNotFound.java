@@ -26,8 +26,5 @@ public class RecommendationsServiceResponseFailureNotFound extends Recommendatio
     return handler.handle(this);
   }
 
-  @Override
-  public StreamControlReturnValue accept(IStreamControlServiceResponseHandlerRPC handler) {
-    return handler.handle(this);
-  }
+
 }

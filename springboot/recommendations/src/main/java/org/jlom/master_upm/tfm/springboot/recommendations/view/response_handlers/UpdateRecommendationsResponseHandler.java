@@ -27,12 +27,13 @@ public class UpdateRecommendationsResponseHandler implements RecommendationsServ
 
   @Override
   public ResponseEntity<?> handle(RecommendationsServiceResponseOK response) {
-    try {
-      String json = ObjectToJson(serviceToView(response.getStreamControlData()));
-      return new ResponseEntity<>(json,new HttpHeaders(), HttpStatus.OK);
-    } catch (JsonProcessingException e) {
-      throw new WrapperException("error: Unable to convertToJson obj: " + response.getStreamControlData(), e);
-    }
+//    try {
+//      String json = ObjectToJson(serviceToView(response.getStreamControlData()));
+//      return new ResponseEntity<>(json,new HttpHeaders(), HttpStatus.OK);
+//    } catch (JsonProcessingException e) {
+//      throw new WrapperException("error: Unable to convertToJson obj: " + response.getStreamControlData(), e);
+//    }
+    return null;
   }
 
   @Override

@@ -27,9 +27,4 @@ public class RecommendationsServiceResponseFailureInvalidInputParameter extends 
   public ResponseEntity<?> accept(RecommendationsServiceResponseHandler handler) {
     return handler.handle(this);
   }
-
-  @Override
-  public StreamControlReturnValue accept(IStreamControlServiceResponseHandlerRPC handler) {
-    return handler.handle(this);
-  }
 }
