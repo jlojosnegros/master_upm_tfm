@@ -20,6 +20,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
@@ -42,6 +43,9 @@ public class RecommendationsService implements IRecommendationsService {
   @Override
   public RecommendationsServiceResponse register(InputUserActivity userActivity) {
 
+
+    repository.addVisualization(userActivity.getContentId());
+
     long weigh = weighingScales.weigh(userActivity.getOperation());
 
     userActivity.getTags()
@@ -52,7 +56,15 @@ public class RecommendationsService implements IRecommendationsService {
                             .weight(weigh)
                             .build()
             )
-            .forEach(wtag -> repository.save(userActivity.getUserId(),wtag));
+            .forEach(wtag ->
+            {
+              if (repository.find(userActivity.getUserId(),wtag.getTagName()) == null)
+              {
+                repository.save(userActivity.getUserId(),wtag);
+              } else {
+                repository.update(userActivity.getUserId(),wtag.getTagName(),wtag.getWeight());
+              }
+            });
     return new RecommendationsServiceResponseOK();
   }
 
@@ -69,7 +81,7 @@ public class RecommendationsService implements IRecommendationsService {
               map(WeightedTag::getTagName).
               collect(Collectors.joining(","));
 
-      catalogContents = getInputCatalogContents(tagList);
+      catalogContents = getInputCatalogContentsForTags(tagList);
       if (catalogContents == null){
         return null;
       }
@@ -104,7 +116,46 @@ public class RecommendationsService implements IRecommendationsService {
     return filteredContents;
   }
 
-  private List<InputCatalogContent> getInputCatalogContents(String tagList) {
+  @Override
+  public List<InputCatalogContent> getMostViewed(long top) {
+
+
+    Set<String> contentIds = repository.listMostViewed(top);
+
+    return contentIds.stream()
+            .map(this::getInputCatalogContentId)
+            .filter(Objects::nonNull)
+            .limit(top)
+            .collect(Collectors.toList());
+  }
+
+  private InputCatalogContent getInputCatalogContentId(String contentId) {
+    ///@jlom todo esto hay que leerlo de la configuracion
+    final String catalogServiceUrl = "http://catalog-service";
+    final int catalogServicePort = 8080;
+    final String catalogServiceSearchUri = "/catalog/content";
+
+    String completeURL = String.format("%s:%d%s/%s",
+            catalogServiceUrl,
+            catalogServicePort,
+            catalogServiceSearchUri,
+            contentId
+    );
+
+
+    ResponseEntity<InputCatalogContent> responseEntity =
+            restTemplate.getForEntity(completeURL,
+            InputCatalogContent.class);
+
+    InputCatalogContent body = responseEntity.getBody();
+    if (HttpStatus.OK != responseEntity.getStatusCode()) {
+      LOG.error("Unable to get content from catalog-service: " + completeURL);
+      return null;
+    }
+    LOG.info("jlom: body:" + responseEntity.getBody());
+    return body;
+  }
+  private List<InputCatalogContent> getInputCatalogContentsForTags(String tagList) {
     ///@jlom todo esto hay que leerlo de la configuracion
     final String catalogServiceUrl = "http://catalog-service";
     final int catalogServicePort = 8080;

@@ -11,4 +11,5 @@ public class InputUserActivity {
   private final String userId;
   private final Set<String> tags;
   private final UserActivityOperation operation;
+  private final String contentId;
 }

@@ -11,4 +11,6 @@ public interface RecommendationsRepositoryCommands {
 
   void delete(String userId, String tagName);
   void delete(String userId);
+
+  void addVisualization(String contentId);
 }

@@ -61,6 +61,16 @@ public class RecommendationsRestServer implements RecommendationsQueryInterface,
     }
   }
 
+  @Override
+  public ResponseEntity<?> getMostViewed(HttpServletRequest request, long top) {
+    List<InputCatalogContent> mostViewed = service.getMostViewed(top);
+    try {
+      return new ResponseEntity<>(ListToJson(mostViewed), new HttpHeaders(), HttpStatus.OK);
+    } catch (JsonProcessingException e) {
+      throw new WrapperException("error: Unable to convertToJson obj: " + mostViewed, e);
+    }
+  }
+
   @StreamListener(target = InBoundNotifications.StreamControlNotifications)
   public void incomingStreamControlNotifications(StreamControlStreamingNotification notification) {
 
@@ -79,6 +89,7 @@ public class RecommendationsRestServer implements RecommendationsQueryInterface,
     }
 
     InputUserActivity userActivity = InputUserActivity.builder()
+            .contentId(inputCatalogContent.getContentId())
             .operation(UserActivityOperation.WATCH)
             .userId(notification.getUserId())
             .tags(inputCatalogContent.getTags())

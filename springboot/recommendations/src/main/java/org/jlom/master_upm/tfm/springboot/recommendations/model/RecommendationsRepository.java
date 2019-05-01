@@ -20,13 +20,16 @@ public class RecommendationsRepository implements IRecommendationsRepository {
   private static final String RECOMMENDATIONS_DATA_KEY = "RecommendationsDataKey";
   private static final String USER_COLLECTION = "User";
   private static final String USER_RANGE = "RUser";
-
+  private static final String CONTENT_KEY = "Content";
 
   @Resource(name="redisTemplate")
   private HashOperations<String, String, WeightedTag> weightedTagHashOperations;
 
   @Resource(name="redisTemplate")
   private ZSetOperations<String, String> zSetOperations; //esto guarda key,value, score...
+
+  @Resource(name="redisTemplate")
+  private ZSetOperations<String, String> contentOperations;
 
   private static final Logger LOG = LoggerFactory.getLogger(RecommendationsRepository.class);
 
@@ -41,6 +44,12 @@ public class RecommendationsRepository implements IRecommendationsRepository {
   }
   private String buildRangeCollectionKey(String userId) {
     return buildCollectionKey(USER_RANGE,userId);
+  }
+  private String buildContentCollectionKey() {
+    return String.format("%s:%s",
+            RECOMMENDATIONS_DATA_KEY,
+            CONTENT_KEY
+    );
   }
 
 
@@ -106,6 +115,14 @@ public class RecommendationsRepository implements IRecommendationsRepository {
   }
 
   @Override
+  public void addVisualization(String contentId) {
+
+    contentOperations.incrementScore(buildContentCollectionKey(),
+            contentId, 1.0);
+
+  }
+
+  @Override
   public WeightedTag find(String userId, String tagName) {
 
     String userCollectionKey = buildUserCollectionKey(userId);
@@ -129,5 +146,16 @@ public class RecommendationsRepository implements IRecommendationsRepository {
             .map(tagName -> weightedTagHashOperations.get(userCollectionKey, tagName))
             .collect(Collectors.toList());
     return collect;
+  }
+
+  @Override
+  public Set<String> listMostViewed(long top) {
+    final String key = buildContentCollectionKey();
+
+    final long collectionSize = contentOperations.size(key);
+    final long end = (collectionSize > top) ? top : collectionSize;
+    final long start = 0;
+
+    return contentOperations.reverseRange(key, start, end);
   }
 }

@@ -20,4 +20,12 @@ public interface RecommendationsQueryInterface {
   ResponseEntity<?> getRecommendationsForUser(HttpServletRequest request,
                                               @PathVariable("userId") long userId,
                                               @PathVariable("top") long top);
+
+  @RequestMapping(
+          value = "/most-viewed/{top}",
+          method = RequestMethod.GET,
+          produces = {MediaType.APPLICATION_JSON_VALUE, APPLICATION_JSON_PROBLEM_VALUE}
+  )
+  ResponseEntity<?> getMostViewed(HttpServletRequest request,
+                                              @PathVariable("top") long top);
 }
