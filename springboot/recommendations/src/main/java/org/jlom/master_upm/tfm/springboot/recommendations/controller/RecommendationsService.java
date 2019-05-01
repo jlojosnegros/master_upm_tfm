@@ -132,6 +132,8 @@ public class RecommendationsService implements IRecommendationsService {
     LOG.info("jlom: content:" + catalogContents);
     return catalogContents;
   }
+
+
   private List<InputCatalogContent> filterInputCatalogContents(String userId
           , List<InputCatalogContent> catalogContents) {
     final String userCategoryUrl = "http://categories-service";

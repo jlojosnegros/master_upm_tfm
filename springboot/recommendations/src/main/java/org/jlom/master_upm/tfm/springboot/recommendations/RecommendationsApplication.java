@@ -1,6 +1,6 @@
 package org.jlom.master_upm.tfm.springboot.recommendations;
 
-import org.jlom.master_upm.tfm.springboot.recommendations.controller.api.in.InBoundNotifications;
+import org.jlom.master_upm.tfm.springboot.recommendations.view.api.InBoundNotifications;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.cloud.stream.annotation.EnableBinding;

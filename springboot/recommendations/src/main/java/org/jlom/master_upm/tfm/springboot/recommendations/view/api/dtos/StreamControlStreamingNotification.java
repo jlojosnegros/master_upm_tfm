@@ -1,4 +1,4 @@
-package org.jlom.master_upm.tfm.springboot.recommendations.controller.api.in;
+package org.jlom.master_upm.tfm.springboot.recommendations.view.api.dtos;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;

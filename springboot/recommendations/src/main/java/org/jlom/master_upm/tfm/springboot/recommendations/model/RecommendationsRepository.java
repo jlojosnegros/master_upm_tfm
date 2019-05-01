@@ -2,13 +2,10 @@ package org.jlom.master_upm.tfm.springboot.recommendations.model;
 
 
 import org.jlom.master_upm.tfm.springboot.recommendations.model.api.IRecommendationsRepository;
-import org.jlom.master_upm.tfm.springboot.recommendations.model.daos.StreamControlData;
 import org.jlom.master_upm.tfm.springboot.recommendations.model.daos.WeightedTag;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.redis.core.HashOperations;
-import org.springframework.data.redis.core.RedisOperations;
-import org.springframework.data.redis.core.SetOperations;
 import org.springframework.data.redis.core.ZSetOperations;
 import org.springframework.stereotype.Repository;
 

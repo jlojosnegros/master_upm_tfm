@@ -1,7 +1,6 @@
 package org.jlom.master_upm.tfm.springboot.recommendations.model.api;
 
 
-import org.jlom.master_upm.tfm.springboot.recommendations.model.daos.StreamControlData;
 import org.jlom.master_upm.tfm.springboot.recommendations.model.daos.WeightedTag;
 import org.springframework.stereotype.Repository;
 

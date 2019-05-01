@@ -1,13 +1,11 @@
 package org.jlom.master_upm.tfm.springboot.recommendations.controller;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.github.tomakehurst.wiremock.client.ResponseDefinitionBuilder;
 import org.assertj.core.api.Assertions;
 import org.jlom.master_upm.tfm.springboot.recommendations.controller.api.dtos.InputUserActivity;
 import org.jlom.master_upm.tfm.springboot.recommendations.controller.api.dtos.RecommendationsServiceResponse;
 import org.jlom.master_upm.tfm.springboot.recommendations.controller.api.dtos.RecommendationsServiceResponseOK;
 import org.jlom.master_upm.tfm.springboot.recommendations.controller.api.dtos.UserActivityOperation;
-import org.jlom.master_upm.tfm.springboot.recommendations.controller.api.in.InBoundNotifications;
 import org.jlom.master_upm.tfm.springboot.recommendations.controller.api.out.InputUserContentFiltered;
 import org.jlom.master_upm.tfm.springboot.recommendations.model.api.IRecommendationsRepository;
 import org.jlom.master_upm.tfm.springboot.recommendations.model.daos.WeightedTag;
@@ -22,7 +20,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.cloud.contract.wiremock.AutoConfigureWireMock;
-import org.springframework.cloud.stream.test.binder.MessageCollector;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.ActiveProfiles;
@@ -32,6 +29,7 @@ import redis.embedded.RedisServer;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
@@ -210,7 +208,7 @@ public class ServiceTest {
     InputUserActivity input = InputUserActivity.builder()
             .userId(userId)
             .operation(UserActivityOperation.WATCH)
-            .tags(List.of("tag_1", cat_tag, "tag_2"))
+            .tags(Set.of("tag_1", cat_tag, "tag_2"))
             .build();
 
     RecommendationsServiceResponse response = service.register(input);

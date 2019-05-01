@@ -10,6 +10,7 @@ import org.apache.http.impl.client.HttpClientBuilder;
 import org.jlom.master_upm.tfm.springboot.recommendations.model.api.IRecommendationsRepository;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -96,7 +97,8 @@ public class ViewTest {
 
     return httpClient.execute(postRequest);
   }
-
+  @Test
+  public void dummy() {}
 //  private StreamControlData addCheckedStreamControlData(long userId,
 //                                                        long deviceId,
 //                                                        long streamId,
