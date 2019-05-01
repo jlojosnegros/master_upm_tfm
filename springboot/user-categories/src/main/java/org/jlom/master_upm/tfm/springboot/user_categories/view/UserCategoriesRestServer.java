@@ -41,7 +41,7 @@ import static org.jlom.master_upm.tfm.springboot.user_categories.utils.JsonUtils
 
 
 @RestController
-@RequestMapping("/stream-control")
+@RequestMapping("/categories")
 @Validated
 public class UserCategoriesRestServer implements UserCategoriesQueryInterface, UserCategoriesCommandInterface {
 

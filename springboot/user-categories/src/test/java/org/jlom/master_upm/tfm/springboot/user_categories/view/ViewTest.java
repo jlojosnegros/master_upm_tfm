@@ -298,7 +298,7 @@ public class ViewTest {
             .contents(inputCatalogContents)
             .build();
 
-    HttpResponse httpResponse = postMessageTo("/stream-control/filter", input);
+    HttpResponse httpResponse = postMessageTo("/categories/filter", input);
 
     int statusCode = httpResponse.getStatusLine().getStatusCode();
     Assertions.assertThat(statusCode).isEqualTo(HttpStatus.OK.value());
@@ -376,7 +376,7 @@ public class ViewTest {
             .build();
 
 
-    HttpResponse httpResponse = postMessageTo("/stream-control/user", input);
+    HttpResponse httpResponse = postMessageTo("/categories/user", input);
 
     int statusCode = httpResponse.getStatusLine().getStatusCode();
     Assertions.assertThat(statusCode).isEqualTo(HttpStatus.OK.value());
@@ -452,7 +452,7 @@ public class ViewTest {
     repository.save(pack_three);
 
 
-    HttpResponse httpResponse = deleteMessageTo("/stream-control/user/"+userId);
+    HttpResponse httpResponse = deleteMessageTo("/categories/user/"+userId);
 
     int statusCode = httpResponse.getStatusLine().getStatusCode();
     Assertions.assertThat(statusCode).isEqualTo(HttpStatus.OK.value());
@@ -517,7 +517,7 @@ public class ViewTest {
             .build();
 
 
-    HttpResponse httpResponse = postMessageTo("/stream-control/user/category",input);
+    HttpResponse httpResponse = postMessageTo("/categories/user/category",input);
 
     int statusCode = httpResponse.getStatusLine().getStatusCode();
     Assertions.assertThat(statusCode).isEqualTo(HttpStatus.OK.value());
@@ -600,7 +600,7 @@ public class ViewTest {
             .categoryId(gold_categoryId)
             .build();
 
-    HttpResponse httpResponse = postMessageTo("/stream-control/user/add-packages",input);
+    HttpResponse httpResponse = postMessageTo("/categories/user/add-packages",input);
 
     int statusCode = httpResponse.getStatusLine().getStatusCode();
     Assertions.assertThat(statusCode).isEqualTo(HttpStatus.OK.value());
@@ -682,7 +682,7 @@ public class ViewTest {
             .categoryId(gold_categoryId)
             .build();
 
-    HttpResponse httpResponse = postMessageTo("/stream-control/user/remove-packages",input);
+    HttpResponse httpResponse = postMessageTo("/categories/user/remove-packages",input);
 
     int statusCode = httpResponse.getStatusLine().getStatusCode();
     Assertions.assertThat(statusCode).isEqualTo(HttpStatus.OK.value());
@@ -757,7 +757,7 @@ public class ViewTest {
     repository.save(pack_three);
 
 
-    HttpResponse httpResponse = getRestResponseTo("/stream-control/user/"+userId+"/packages");
+    HttpResponse httpResponse = getRestResponseTo("/categories/user/"+userId+"/packages");
 
     int statusCode = httpResponse.getStatusLine().getStatusCode();
     Assertions.assertThat(statusCode).isEqualTo(HttpStatus.OK.value());
@@ -809,7 +809,7 @@ public class ViewTest {
     repository.save(gold_category);
 
 
-    HttpResponse httpResponse = getRestResponseTo("/stream-control/user/"+userId+"/category");
+    HttpResponse httpResponse = getRestResponseTo("/categories/user/"+userId+"/category");
 
     int statusCode = httpResponse.getStatusLine().getStatusCode();
     Assertions.assertThat(statusCode).isEqualTo(HttpStatus.OK.value());
@@ -871,7 +871,7 @@ public class ViewTest {
     repository.save(pack_three);
 
 
-    HttpResponse httpResponse = getRestResponseTo("/stream-control/packages");
+    HttpResponse httpResponse = getRestResponseTo("/categories/packages");
 
     int statusCode = httpResponse.getStatusLine().getStatusCode();
     Assertions.assertThat(statusCode).isEqualTo(HttpStatus.OK.value());
@@ -922,7 +922,7 @@ public class ViewTest {
     repository.save(bronze_category);
 
 
-    HttpResponse httpResponse = getRestResponseTo("/stream-control/categories");
+    HttpResponse httpResponse = getRestResponseTo("/categories/categories");
 
     int statusCode = httpResponse.getStatusLine().getStatusCode();
     Assertions.assertThat(statusCode).isEqualTo(HttpStatus.OK.value());

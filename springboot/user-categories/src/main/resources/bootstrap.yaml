@@ -1,6 +1,6 @@
 spring:
   application:
-    name: user-categories
+    name: categories-service
   cloud:
     consul:
       host: localhost
