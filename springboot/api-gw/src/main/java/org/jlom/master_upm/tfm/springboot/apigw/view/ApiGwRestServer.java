@@ -24,7 +24,7 @@ import java.util.List;
 import static org.jlom.master_upm.tfm.springboot.apigw.utils.JsonUtils.ListToJson;
 
 @RestController
-@RequestMapping("/apigw")
+@RequestMapping("/apigw/content")
 @Validated
 public class ApiGwRestServer implements ApiGwQueryInterface, ApiGwCommandInterface {
 

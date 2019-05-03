@@ -7,22 +7,25 @@ import org.springframework.data.redis.connection.RedisPassword;
 import org.springframework.data.redis.connection.RedisStandaloneConfiguration;
 import org.springframework.data.redis.connection.lettuce.LettuceConnectionFactory;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.repository.configuration.EnableRedisRepositories;
 import org.springframework.data.redis.serializer.GenericJackson2JsonRedisSerializer;
 
 @Configuration
+@EnableRedisRepositories
 public class RedisConfig {
 
   @Bean
   public RedisStandaloneConfiguration redisStandaloneConfiguration() {
     RedisStandaloneConfiguration redisStandaloneConfiguration = new RedisStandaloneConfiguration(); //("apigw-db", 6379);
-    redisStandaloneConfiguration.setHostName("apigw-db");
+    redisStandaloneConfiguration.setHostName("localhost");
     redisStandaloneConfiguration.setPort(6379);
-    redisStandaloneConfiguration.setPassword(RedisPassword.of("apigw-passwd"));
+    //redisStandaloneConfiguration.setPassword(RedisPassword.of("apigw-passwd"));
+    redisStandaloneConfiguration.setDatabase(1);
     return redisStandaloneConfiguration;
   }
 
   @Bean
-  public LettuceConnectionFactory jedisConnectionFactory(RedisStandaloneConfiguration configuration) {
+  public LettuceConnectionFactory connectionFactory(RedisStandaloneConfiguration configuration) {
     return new LettuceConnectionFactory(configuration);
 
   }
