@@ -2,6 +2,8 @@ package org.jlom.master_upm.tfm.springboot.apigw.model;
 
 import org.springframework.data.repository.CrudRepository;
 
-public interface UsersRepository extends CrudRepository<UserModel, String> {
-  UserModel findByUsername(String username);
+import java.util.List;
+
+public interface UsersRepository extends CrudRepository<UserModel, Long> {
+  List<UserModel> findByUsername(String username);
 }

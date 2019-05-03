@@ -7,10 +7,11 @@ import org.jlom.master_upm.tfm.springboot.apigw.view.api.dtos.ApplicationUser;
 public class DtosTransformations {
 
   public static UserModel viewToService(ApplicationUser user) {
-    return UserModel.builder()
-            .username(user.getUsername())
-            .password(user.getPassword())
-            .build();
+    return new UserModel(user.getUsername(),user.getPassword());
+//    return UserModel.builder()
+//            .username(user.getUsername())
+//            .password(user.getPassword())
+//            .build();
   }
 
   public static ApplicationUser serviceToView(UserModel user) {

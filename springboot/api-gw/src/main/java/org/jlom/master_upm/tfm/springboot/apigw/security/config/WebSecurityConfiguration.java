@@ -21,10 +21,13 @@ import java.util.List;
 @EnableWebSecurity
 public class WebSecurityConfiguration extends WebSecurityConfigurerAdapter {
 
-
-  private static final String AUTHENTICATION_URL = "/apigw" + SecurityConfig.SIGN_UP_URL;
+  private static final String BASE_APIGW_URI = "/apigw";
+  private static final String CONTENT_BASE_URI = "/content";
+  private static final String AUTHENTICATION_URL = BASE_APIGW_URI + SecurityConfig.SIGN_UP_URL;
   private static final String ACTUATOR_URL = "/actuator**";
   private static final String USER_LIST = "/apigw/users/all";
+
+  private static final String CONTENT_ROOT_URI = BASE_APIGW_URI + CONTENT_BASE_URI;
 
   private UsersService usersService;
   private BCryptPasswordEncoder passwordEncoder;
@@ -43,7 +46,8 @@ public class WebSecurityConfiguration extends WebSecurityConfigurerAdapter {
     List<String> permitAllEndpointList = Arrays.asList(
             AUTHENTICATION_URL,
             ACTUATOR_URL,
-            "/console"
+            CONTENT_ROOT_URI + "/content/soon",
+            CONTENT_ROOT_URI + "/content/most-viewed/**"
     );
 
     http

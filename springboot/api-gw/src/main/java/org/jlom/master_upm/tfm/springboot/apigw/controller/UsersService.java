@@ -26,8 +26,11 @@ public class UsersService implements UserDetailsService {
 
 
   public void newUser(UserModel user) {
-    //@jlom todo comprobar que no hay otro usuario con el mismo username
-    //@jlom todo Se le asigna el id automaticamente o tengo que asignarlo yo???
+
+    List<UserModel> byUsername = repository.findByUsername(user.getUsername());
+    if (! byUsername.isEmpty()) {
+      throw new RuntimeException("error: user already exist username:" + user.getUsername() );
+    }
     user.setPassword(bCryptPasswordEncoder.encode(user.getPassword()));
     repository.save(user);
   }
@@ -35,11 +38,16 @@ public class UsersService implements UserDetailsService {
   @Override
   public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
 
-    UserModel userModel = repository.findByUsername(username);
-    if (null == userModel) {
+    List<UserModel> users = repository.findByUsername(username);
+
+    if (users.isEmpty()) {
       throw new UsernameNotFoundException(username);
     }
-    return new User(userModel.getUsername(), userModel.getPassword(), Collections.emptyList());
+    if (users.size() > 1) {
+      throw new RuntimeException("FATAL error!! DB inconsistency!! username: " + username + " found:" + users);
+    }
+    var user = users.get(0);
+    return new User(user.getUsername(), user.getPassword(), Collections.emptyList());
   }
 
   public List<UserModel> listAllUsers() {

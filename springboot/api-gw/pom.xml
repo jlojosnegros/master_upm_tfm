@@ -20,6 +20,7 @@
         <testcontainers.version>1.11.2</testcontainers.version>
 		<com.auth0.java-jwt.version>3.8.0</com.auth0.java-jwt.version>
 		<com.google.guava.version>27.1-jre</com.google.guava.version>
+		<embedded.redis.version>0.7.2</embedded.redis.version>
 	</properties>
 
 	<dependencies>
@@ -97,6 +98,12 @@
 			<version>${testcontainers.version}</version>
 			<scope>test</scope>
         </dependency>
+		<dependency>
+			<groupId>it.ozimov</groupId>
+			<artifactId>embedded-redis</artifactId>
+			<version>${embedded.redis.version}</version>
+			<scope>test</scope>
+		</dependency>
 	</dependencies>
 
 	<dependencyManagement>

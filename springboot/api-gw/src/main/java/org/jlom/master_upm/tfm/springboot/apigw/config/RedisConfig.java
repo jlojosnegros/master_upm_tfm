@@ -17,9 +17,10 @@ public class RedisConfig {
   @Bean
   public RedisStandaloneConfiguration redisStandaloneConfiguration() {
     RedisStandaloneConfiguration redisStandaloneConfiguration = new RedisStandaloneConfiguration(); //("apigw-db", 6379);
-    redisStandaloneConfiguration.setHostName("apigw-db");
+    redisStandaloneConfiguration.setHostName("localhost");
     redisStandaloneConfiguration.setPort(6379);
-    redisStandaloneConfiguration.setPassword(RedisPassword.of("apigw-passwd"));
+    //redisStandaloneConfiguration.setPassword(RedisPassword.of("apigw-passwd"));
+    redisStandaloneConfiguration.setDatabase(1);
     return redisStandaloneConfiguration;
   }
 
