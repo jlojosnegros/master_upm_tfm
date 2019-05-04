@@ -24,7 +24,7 @@ public class WebSecurityConfiguration extends WebSecurityConfigurerAdapter {
   private static final String BASE_APIGW_URI = "/apigw";
   private static final String CONTENT_BASE_URI = "/content";
   private static final String AUTHENTICATION_URL = BASE_APIGW_URI + SecurityConfig.SIGN_UP_URL;
-  private static final String ACTUATOR_URL = "/actuator**";
+  private static final String ACTUATOR_URL = "/actuator/**";
   private static final String USER_LIST = "/apigw/users/all";
 
   private static final String CONTENT_ROOT_URI = BASE_APIGW_URI + CONTENT_BASE_URI;
