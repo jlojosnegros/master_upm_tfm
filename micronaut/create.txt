@@ -1,0 +1,1 @@
+mn create-app arquetipo --lang=java --features=config-consul,discovery-consul,http-client,junit,redis-lettuce,security-jwt,tracing-zipkin,micrometer-prometheus,rabbitmq,file-watch

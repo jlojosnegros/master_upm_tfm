@@ -1,0 +1,5 @@
+profile: service
+defaultPackage: catalog
+---
+testFramework: junit
+sourceLanguage: java
