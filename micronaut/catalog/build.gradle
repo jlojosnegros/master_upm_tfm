@@ -35,7 +35,7 @@ dependencies {
     compile "io.opentracing.brave:brave-opentracing"
     compile "io.micronaut:micronaut-tracing"
     compile "io.micronaut:micronaut-security-jwt"
-    compile "io.micronaut:micronaut-discovery-client"
+    //compile "io.micronaut:micronaut-discovery-client"
     compile "javax.annotation:javax.annotation-api"
     compile "io.micronaut.configuration:micronaut-rabbitmq"
     compile "io.micronaut:micronaut-http-client"
@@ -59,7 +59,11 @@ dependencies {
     testCompile "io.micronaut.test:micronaut-test-junit5"
     testRuntime "org.junit.jupiter:junit-jupiter-engine"
     // https://mvnrepository.com/artifact/com.github.kstyrc/embedded-redis
-    testCompile group: 'com.github.kstyrc', name: 'embedded-redis', version: '0.6'
+    testRuntime group: 'com.github.kstyrc', name: 'embedded-redis', version: '0.6'
+    // https://mvnrepository.com/artifact/org.assertj/assertj-core
+    testCompile group: 'org.assertj', name: 'assertj-core', version: '3.12.2'
+    // https://mvnrepository.com/artifact/org.hamcrest/hamcrest-library
+    testCompile group: 'org.hamcrest', name: 'hamcrest-library', version: '2.1'
 
 }
 
