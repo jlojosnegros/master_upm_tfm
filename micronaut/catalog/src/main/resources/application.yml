@@ -57,4 +57,4 @@ consul:
 
 ---
 redis:
-  uri: redis://localhost
+  uri: redis://catalog-db
