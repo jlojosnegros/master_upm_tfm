@@ -12,11 +12,14 @@ import org.slf4j.LoggerFactory;
 
 import javax.inject.Singleton;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
+
+import static org.jlom.master_upm.tfm.micronaut.catalog.utils.JsonUtils.*;
 
 @Singleton
 @Validated
@@ -38,7 +41,7 @@ public class CatalogContentRepository implements CatalogQueriesRepository , Cata
     RedisCommands<String, String> redisApi = connection.sync();
     String s = redisApi.get(String.valueOf(contentId));
     try {
-      return JsonUtils.jsonToObject(s, CatalogContent.class);
+      return jsonToObject(s, CatalogContent.class);
     } catch (IOException e) {
       e.printStackTrace();
       return null;
@@ -47,7 +50,31 @@ public class CatalogContentRepository implements CatalogQueriesRepository , Cata
 
   @Override
   public List<CatalogContent> findWithExactlyTags(Set<String> tags) {
-    return null;
+    LOG.info("CatalogContentRepository::findWithExactlyTags : " + tags);
+    List<CatalogContent> all = findAll();
+    LOG.info("CatalogContentRepository::findWithExactlyTags all:" + all );
+
+    List<CatalogContent> result = new ArrayList<>();
+    for (var content : all) {
+      Set<String> contentTags = content.getTags();
+      LOG.info("content tags: " + contentTags);
+      if ( contentTags.containsAll(tags)) {
+        LOG.info(contentTags + " ContainsAll " + tags);
+        result.add(content);
+      } else {
+        LOG.info(contentTags + " NOT ContainsAll " + tags);
+      }
+    }
+    LOG.info("CatalogContentRepository::findWithExactlyTags filtered:" + result );
+    return result;
+//    List<CatalogContent> collect = all.stream()
+//            .filter(content -> content.getTags().containsAll(tags))
+//            .collect(Collectors.toList());
+//    LOG.info("CatalogContentRepository::findWithExactlyTags filtered:" + collect );
+
+//    return findAll().stream()
+//            .filter(content -> content.getTags().containsAll(tags))
+//            .collect(Collectors.toList());
   }
 
   @Override
@@ -72,7 +99,7 @@ public class CatalogContentRepository implements CatalogQueriesRepository , Cata
             .map(redisApi::get)
             .map(json -> {
               try {
-                return JsonUtils.jsonToObject(json,CatalogContent.class);
+                return jsonToObject(json,CatalogContent.class);
               } catch (IOException e) {
                 e.printStackTrace();
                 return null;
@@ -94,7 +121,7 @@ public class CatalogContentRepository implements CatalogQueriesRepository , Cata
   public void save(CatalogContent content) {
     RedisCommands<String, String> redisApi = connection.sync();
     try {
-      String strContent = JsonUtils.ObjectToJson(content);
+      String strContent = ObjectToJson(content);
       LOG.error("strContent: " + strContent);
       redisApi.set(String.valueOf(content.getContentId()),strContent);
     } catch (JsonProcessingException e) {

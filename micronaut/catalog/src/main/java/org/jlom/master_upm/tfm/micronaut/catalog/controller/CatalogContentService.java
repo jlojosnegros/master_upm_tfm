@@ -33,7 +33,8 @@ public class CatalogContentService implements CatalogServiceQueries {
 
   @Override
   public List<CatalogContent> getContentsWithTags(Set<String> tags) {
-    return null;
+    LOG.info("Service:getContentsWithTags:  " + tags);
+    return repository.findWithExactlyTags(tags);
   }
 
   @Override

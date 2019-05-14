@@ -12,6 +12,8 @@ import org.jlom.master_upm.tfm.micronaut.catalog.view.api.dtos.InputCatalogConte
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Controller("/catalog")
@@ -45,8 +47,16 @@ public class CatalogRestServer implements CatalogQueryInterface {
   }
 
   @Override
-  public HttpResponse<?> getContentExactlyWithTags(String[] tags) {
-    return null;
+  public HttpResponse<?> getContentExactlyWithTags(String tags) {
+    String[] split = tags.split(",");
+    Set<String> tags1 = Set.of(split);
+    LOG.info("Rest: getContentExactlyWithTags: " + tags1);
+    List<CatalogContent> contentsWithTags = service.getContentsWithTags(tags1);
+    List<InputCatalogContent> collected = contentsWithTags.stream()
+            .map(DtosTransformations::serviceToViewContent)
+            .collect(Collectors.toList());
+
+    return HttpResponse.ok(collected);
   }
 
   @Override

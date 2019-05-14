@@ -22,7 +22,7 @@ public interface CatalogQueryInterface {
 
   @Get("/content/exactlyWithTags")
   @Produces(value = {MediaType.APPLICATION_JSON,APPLICATION_JSON_PROBLEM_VALUE})
-  HttpResponse<?> getContentExactlyWithTags(@QueryValue(value = "tags") String[] tags);
+  HttpResponse<?> getContentExactlyWithTags(@QueryValue(value = "tags") String tags);
 
   @Get("/content/after")
   @Produces(value = {MediaType.APPLICATION_JSON,APPLICATION_JSON_PROBLEM_VALUE})

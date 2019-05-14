@@ -14,6 +14,7 @@ import org.jlom.master_upm.tfm.micronaut.catalog.controller.api.CatalogServiceQu
 import org.jlom.master_upm.tfm.micronaut.catalog.model.CatalogContent;
 import org.jlom.master_upm.tfm.micronaut.catalog.model.CatalogContentRepository;
 import org.jlom.master_upm.tfm.micronaut.catalog.model.ContentStatus;
+import org.jlom.master_upm.tfm.micronaut.catalog.utils.JsonUtils;
 import org.jlom.master_upm.tfm.micronaut.catalog.view.api.dtos.InputCatalogContent;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
@@ -23,11 +24,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
+import java.io.IOException;
 import java.time.Instant;
 import java.util.Date;
 import java.util.List;
 import java.util.Set;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.jlom.master_upm.tfm.micronaut.catalog.utils.DtosTransformations.serviceToViewContent;
 import static org.jlom.master_upm.tfm.micronaut.catalog.utils.JsonUtils.jsonToList;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -111,13 +114,13 @@ public class ViewTest {
 
     var inputCatalogContents = jsonToList(body, InputCatalogContent.class);
 
-    Assertions.assertThat(inputCatalogContents)
+    assertThat(inputCatalogContents)
             .containsExactlyInAnyOrder(serviceToViewContent(expectedContents)
                     .toArray(new InputCatalogContent[0]));
   }
 
   @Test
-  public void testService() {
+  public void given_TwoElementsInDB_when_AskingForContentWithId_then_OnlyOneIsReturned() {
 
     final Date now = Date.from(Instant.now());
     CatalogContent expectedContentOne = CatalogContent.builder()
@@ -130,6 +133,16 @@ public class ViewTest {
             .build();
     repository.save(expectedContentOne);
 
+    CatalogContent expectedContentTwo = CatalogContent.builder()
+            .contentId(2)
+            .status(ContentStatus.SOON)
+            .title("dos")
+            .streamId(2)
+            .available(now)
+            .tags(Set.of("tag1", "tag2"))
+            .build();
+    repository.save(expectedContentTwo);
+
     //when(service.getContent(1)).thenReturn(expectedContentOne);
 
     InputCatalogContent catalogContent = client.toBlocking()
@@ -138,7 +151,62 @@ public class ViewTest {
     LOG.error("sent    :" + expectedContentOne);
     LOG.error("received: " + catalogContent);
 
-    Assertions.assertThat(catalogContent).isEqualTo(serviceToViewContent(expectedContentOne));
+    assertThat(catalogContent).isEqualTo(serviceToViewContent(expectedContentOne));
+
+  }
+
+  @Test
+  public void when_AskingForContentWithSpecificTag_then_OnlyThoseWithTheTagAreReturned() throws IOException {
+    //given
+    CatalogContent expectedContentOne = CatalogContent.builder()
+            .contentId(1)
+            .status(ContentStatus.AVAILABLE)
+            .title("uno")
+            .streamId(1)
+            .available(Date.from(Instant.now()))
+            .tags(Set.of("tag1", "tag2"))
+            .build();
+    repository.save(expectedContentOne);
+
+    CatalogContent expectedContentTwo = CatalogContent.builder()
+            .contentId(2)
+            .status(ContentStatus.SOON)
+            .title("dos")
+            .streamId(2)
+            .available(Date.from(Instant.now()))
+            .tags(Set.of("tag1", "tag2"))
+            .build();
+    repository.save(expectedContentTwo);
+
+    CatalogContent expectedContentThree = CatalogContent.builder()
+            .contentId(3)
+            .status(ContentStatus.SOON)
+            .title("tres")
+            .streamId(3)
+            .available(Date.from(Instant.now()))
+            .tags(Set.of("tag1", "tag3"))
+            .build();
+    repository.save(expectedContentThree);
+
+    List<CatalogContent> expectedContents = List.of(expectedContentOne, expectedContentTwo);
+
+
+
+    //when
+    String body = client.toBlocking()
+            .retrieve(HttpRequest.GET("/catalog/content/exactlyWithTags?tags=tag1,tag2"));
+    assertThat(body).isNotEmpty();
+
+    //then
+    List<InputCatalogContent> catalogContents = jsonToList(body, InputCatalogContent.class);
+    List<CatalogContent> withExactlyTags = repository.findWithExactlyTags(Set.of("tag1", "tag2"));
+
+    LOG.info("sent    :" + expectedContents);
+    LOG.info("received: " + catalogContents);
+    //LOG.info("in_repo: " + withExactlyTags);
+
+    assertThat(catalogContents).containsOnly(serviceToViewContent(expectedContentOne),
+            serviceToViewContent(expectedContentTwo));
 
   }
 }
