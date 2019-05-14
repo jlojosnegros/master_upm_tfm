@@ -2,6 +2,7 @@ package org.jlom.master_upm.tfm.springboot.catalog.model;
 
 
 import org.assertj.core.api.Assertions;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
@@ -18,6 +19,7 @@ import org.springframework.data.redis.connection.RedisStandaloneConfiguration;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.testcontainers.containers.GenericContainer;
+import redis.embedded.RedisServer;
 
 import java.time.Instant;
 import java.util.Date;
@@ -28,9 +30,25 @@ import java.util.Set;
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.NONE)
 @ActiveProfiles("test")
 public class CommandContentRepositoryTest {
-  @ClassRule
-  public static GenericContainer redis = new GenericContainer<>("redis:5.0.4-alpine")
-          .withExposedPorts(6379);
+//  @ClassRule
+//  public static GenericContainer redis = new GenericContainer<>("redis:5.0.4-alpine")
+//          .withExposedPorts(6379);
+
+  private static int redisEmbeddedServerPort = 6379;
+  private RedisServer redisEmbeddedServer = new RedisServer(redisEmbeddedServerPort);
+
+  @Before
+  public void setup() {
+    redisEmbeddedServer.start();
+    String redisContainerIpAddress = "localhost";
+    int redisFirstMappedPort = redisEmbeddedServerPort;
+    LOG.info("-=* Redis Container running on: " + redisContainerIpAddress + ":" + redisFirstMappedPort);
+  }
+
+  @After
+  public void tearDown() {
+    redisEmbeddedServer.stop();
+  }
 
   @Autowired
   private CatalogContentRepository repository;
@@ -39,29 +57,29 @@ public class CommandContentRepositoryTest {
   private static final Logger LOG = LoggerFactory.getLogger(CommandContentRepositoryTest.class);
 
 
-  @Before
-  public void setup() {
-    String redisContainerIpAddress = redis.getContainerIpAddress();
-    Integer redisFirstMappedPort = redis.getFirstMappedPort();
-    LOG.info("-=* Redis Container running on: " + redisContainerIpAddress + ":" + redisFirstMappedPort);
-  }
+//  @Before
+//  public void setup() {
+//    String redisContainerIpAddress = redis.getContainerIpAddress();
+//    Integer redisFirstMappedPort = redis.getFirstMappedPort();
+//    LOG.info("-=* Redis Container running on: " + redisContainerIpAddress + ":" + redisFirstMappedPort);
+//  }
 
-  @TestConfiguration
-  static public class RedisTestConfiguration {
-
-    @Bean
-    @Profile("test")
-    @Primary
-    public RedisStandaloneConfiguration redisStandaloneConfigurationTest() {
-      var redisContainerIpAddress = redis.getContainerIpAddress();
-      var redisFirstMappedPort = redis.getFirstMappedPort();
-      LOG.info("jlom: -=* TestConfiguration Redis Container running on: " + redisContainerIpAddress + ":" + redisFirstMappedPort);
-      var configuration = new RedisStandaloneConfiguration();
-      configuration.setHostName(redisContainerIpAddress);
-      configuration.setPort(redisFirstMappedPort);
-      return configuration;
-    }
-  }
+//  @TestConfiguration
+//  static public class RedisTestConfiguration {
+//
+//    @Bean
+//    @Profile("test")
+//    @Primary
+//    public RedisStandaloneConfiguration redisStandaloneConfigurationTest() {
+//      var redisContainerIpAddress = redis.getContainerIpAddress();
+//      var redisFirstMappedPort = redis.getFirstMappedPort();
+//      LOG.info("jlom: -=* TestConfiguration Redis Container running on: " + redisContainerIpAddress + ":" + redisFirstMappedPort);
+//      var configuration = new RedisStandaloneConfiguration();
+//      configuration.setHostName(redisContainerIpAddress);
+//      configuration.setPort(redisFirstMappedPort);
+//      return configuration;
+//    }
+//  }
 
 
   @Test
