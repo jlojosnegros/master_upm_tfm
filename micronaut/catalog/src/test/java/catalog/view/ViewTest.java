@@ -48,14 +48,14 @@ public class ViewTest {
 
 
   @Inject
-  private CatalogServiceQueries service;
+  private CatalogContentService service;
 
 
-  @MockBean
-  @Primary
-  public CatalogServiceQueries mockService() {
-    return Mockito.mock(CatalogServiceQueries.class);
-  }
+//  @MockBean
+//  @Primary
+//  public CatalogServiceQueries mockService() {
+//    return Mockito.mock(CatalogServiceQueries.class);
+//  }
 
 
   @BeforeAll
@@ -128,9 +128,9 @@ public class ViewTest {
             .available(now)
             .tags(Set.of("tag1", "tag2"))
             .build();
-    //repository.save(expectedContentOne);
+    repository.save(expectedContentOne);
 
-    when(service.getContent(1)).thenReturn(expectedContentOne);
+    //when(service.getContent(1)).thenReturn(expectedContentOne);
 
     InputCatalogContent catalogContent = client.toBlocking()
             .retrieve(HttpRequest.GET("/catalog/content/1"), InputCatalogContent.class);
