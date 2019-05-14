@@ -59,8 +59,6 @@ public class ViewTest {
   @Test
   public void testIssue() throws Exception {
 
-//    CatalogContentRepository repository = applicationContext.getBean(CatalogContentRepository.class);
-
     final Date now = Date.from(Instant.now());
 
 
@@ -93,7 +91,7 @@ public class ViewTest {
     var inputCatalogContents = jsonToList(body, InputCatalogContent.class);
 
     Assertions.assertThat(inputCatalogContents)
-            .containsExactly(serviceToViewContent(expectedContents)
+            .containsExactlyInAnyOrder(serviceToViewContent(expectedContents)
                     .toArray(new InputCatalogContent[0]));
   }
 }
