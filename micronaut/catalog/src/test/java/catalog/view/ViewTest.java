@@ -93,7 +93,7 @@ public class ViewTest {
     var inputCatalogContents = jsonToList(body, InputCatalogContent.class);
 
     Assertions.assertThat(inputCatalogContents)
-            .containsExactlyInAnyOrder(serviceToViewContent(expectedContents)
+            .containsExactly(serviceToViewContent(expectedContents)
                     .toArray(new InputCatalogContent[0]));
   }
 }
