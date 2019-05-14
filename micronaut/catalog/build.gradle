@@ -69,7 +69,7 @@ dependencies {
 
 test.classpath += configurations.developmentOnly
 
-mainClassName = "catalog.Application"
+mainClassName = "org.jlom.master_upm.tfm.micronaut.catalog.CatalogApplication"
 // use JUnit 5 platform
 test {
     useJUnitPlatform()
