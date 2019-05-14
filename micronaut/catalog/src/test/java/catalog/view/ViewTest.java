@@ -51,8 +51,7 @@ public class ViewTest {
   private CatalogServiceQueries service;
 
 
-  @MockBean
-  @Primary
+  @MockBean(CatalogContentService.class)
   public CatalogServiceQueries mockService() {
     return Mockito.mock(CatalogServiceQueries.class);
   }
