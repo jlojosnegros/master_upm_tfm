@@ -1,4 +1,4 @@
-package org.jlom.master_upm.tfm.micronaut.catalog.config.redis;
+package config.redis;
 
 import io.lettuce.core.RedisClient;
 import io.lettuce.core.api.StatefulRedisConnection;
@@ -16,6 +16,8 @@ import io.micronaut.context.annotation.Requires;
 import javax.inject.Singleton;
 
 @Requires(beans = DefaultRedisConfiguration.class)
+@Requires(env = "test")
+@Primary
 @Singleton
 @Factory
 @Replaces(bean = DefaultRedisClientFactory.class)

@@ -9,7 +9,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.inject.Singleton;
+import java.util.Date;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Singleton
@@ -27,6 +29,28 @@ public class CatalogContentRepository implements CatalogQueriesRepository , Cata
 
 
   @Override
+  public CatalogContent findById(long contentId) {
+    LOG.info("CatalogContentRepository::findById:" + contentId);
+    RedisCommands<String, CatalogContent> redisApi = connection.sync();
+    return redisApi.get(String.valueOf(contentId));
+  }
+
+  @Override
+  public List<CatalogContent> findWithExactlyTags(Set<String> tags) {
+    return null;
+  }
+
+  @Override
+  public CatalogContent findByStreamId(long streamId) {
+    return null;
+  }
+
+  @Override
+  public List<CatalogContent> findAvailableAfter(Date date) {
+    return null;
+  }
+
+  @Override
   public List<CatalogContent> findAll() {
     LOG.info("CatalogContentRepository::findAll");
     RedisCommands<String, CatalogContent> redisApi = connection.sync();
@@ -40,6 +64,11 @@ public class CatalogContentRepository implements CatalogQueriesRepository , Cata
 
     LOG.info("contents: " + contents);
     return contents;
+  }
+
+  @Override
+  public List<CatalogContent> findWithStatus(ContentStatus contentStatus) {
+    return null;
   }
 
   @Override

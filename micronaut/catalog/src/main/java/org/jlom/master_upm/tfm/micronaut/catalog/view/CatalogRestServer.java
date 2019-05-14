@@ -4,8 +4,11 @@ import io.micronaut.http.HttpResponse;
 import io.micronaut.http.annotation.Controller;
 import io.micronaut.validation.Validated;
 import org.jlom.master_upm.tfm.micronaut.catalog.controller.CatalogContentService;
+import org.jlom.master_upm.tfm.micronaut.catalog.controller.api.CatalogServiceQueries;
+import org.jlom.master_upm.tfm.micronaut.catalog.model.CatalogContent;
 import org.jlom.master_upm.tfm.micronaut.catalog.utils.DtosTransformations;
 import org.jlom.master_upm.tfm.micronaut.catalog.view.api.CatalogQueryInterface;
+import org.jlom.master_upm.tfm.micronaut.catalog.view.api.dtos.InputCatalogContent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -17,9 +20,9 @@ public class CatalogRestServer implements CatalogQueryInterface {
 
   private static final Logger LOG = LoggerFactory.getLogger(CatalogRestServer.class);
 
-  private CatalogContentService service;
+  private CatalogServiceQueries service;
 
-  public CatalogRestServer(CatalogContentService service) {
+  public CatalogRestServer(CatalogServiceQueries service) {
     this.service = service;
   }
 
@@ -36,7 +39,9 @@ public class CatalogRestServer implements CatalogQueryInterface {
 
   @Override
   public HttpResponse<?> getContentById(long contentId) {
-    return null;
+    CatalogContent content = service.getContent(contentId);
+    InputCatalogContent catalogContent = DtosTransformations.serviceToViewContent(content);
+    return HttpResponse.ok(catalogContent);
   }
 
   @Override
