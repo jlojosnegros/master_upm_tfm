@@ -32,11 +32,6 @@ public class CatalogRestServer implements CatalogQueryInterface {
             .collect(Collectors.toList());
 
     return HttpResponse.ok(catalogContents);
-//    try {
-//      return new ResponseEntity<>(ListToJson(catalogContents), new HttpHeaders(), HttpStatus.OK);
-//    } catch (JsonProcessingException e) {
-//      throw new WrapperException("error: Unable to convertToJson", e);
-//    }
   }
 
   @Override

@@ -57,7 +57,7 @@ public class ViewTest {
   }
 
   @Test
-  public void testIssue() throws Exception {
+  public void testFindAll() throws Exception {
 
     final Date now = Date.from(Instant.now());
 
