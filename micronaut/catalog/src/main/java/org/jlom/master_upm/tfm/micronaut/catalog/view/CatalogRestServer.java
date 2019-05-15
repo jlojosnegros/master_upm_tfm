@@ -12,9 +12,12 @@ import org.jlom.master_upm.tfm.micronaut.catalog.view.api.dtos.InputCatalogConte
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Date;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
+
+import static org.jlom.master_upm.tfm.micronaut.catalog.utils.DtosTransformations.serviceToViewContent;
 
 @Controller("/catalog")
 @Validated
@@ -42,7 +45,7 @@ public class CatalogRestServer implements CatalogQueryInterface {
   @Override
   public HttpResponse<?> getContentById(long contentId) {
     CatalogContent content = service.getContent(contentId);
-    InputCatalogContent catalogContent = DtosTransformations.serviceToViewContent(content);
+    InputCatalogContent catalogContent = serviceToViewContent(content);
     return HttpResponse.ok(catalogContent);
   }
 
@@ -61,12 +64,21 @@ public class CatalogRestServer implements CatalogQueryInterface {
 
   @Override
   public HttpResponse<?> getContentAvailableAfter(long date) {
-    return null;
+    LOG.info("Rest: getContentAvailableAfter date(long)="+ date);
+    Date realDate = new Date(date);
+    LOG.info("Rest: getContentAvailableAfter date="+ realDate);
+    List<InputCatalogContent> availableAfter = serviceToViewContent(service.getAvailableAfter(realDate));
+    LOG.info("Rest: getContentAvailableAfter found="+ availableAfter);
+
+    return HttpResponse.ok(availableAfter);
   }
 
   @Override
   public HttpResponse<?> getContentByStreamId(long streamId) {
-    return null;
+    LOG.info("Rest: getContentByStreamId streamId: "+ streamId);
+    CatalogContent contentWithStream = service.getContentWithStream(streamId);
+    LOG.info("Rest: getContentByStreamId content: "+ contentWithStream);
+    return HttpResponse.ok(serviceToViewContent(contentWithStream));
   }
 
   @Override

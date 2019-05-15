@@ -59,12 +59,17 @@ public class CatalogContentRepository implements CatalogQueriesRepository , Cata
 
   @Override
   public CatalogContent findByStreamId(long streamId) {
-    return null;
+    return findAll().stream()
+            .filter(content -> content.getStreamId() == streamId)
+            .findFirst()
+            .orElse(null);
   }
 
   @Override
   public List<CatalogContent> findAvailableAfter(Date date) {
-    return null;
+    return findAll().stream()
+            .filter( content -> content.getAvailable().after(date))
+            .collect(Collectors.toList());
   }
 
   @Override

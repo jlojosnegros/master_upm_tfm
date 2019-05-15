@@ -44,12 +44,13 @@ public class CatalogContentService implements CatalogServiceQueries {
 
   @Override
   public CatalogContent getContentWithStream(long streamId) {
-    return null;
+    LOG.info("Service:getContentWithStream: " + streamId);
+    return repository.findByStreamId(streamId);
   }
 
   @Override
   public List<CatalogContent> getAvailableAfter(Date date) {
-    return null;
+    return repository.findAvailableAfter(date);
   }
 
   @Override

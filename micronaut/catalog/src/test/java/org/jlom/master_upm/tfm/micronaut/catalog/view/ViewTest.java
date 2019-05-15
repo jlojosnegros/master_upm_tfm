@@ -24,13 +24,16 @@ import org.slf4j.LoggerFactory;
 import javax.inject.Inject;
 import java.io.IOException;
 import java.time.Instant;
+import java.util.Calendar;
 import java.util.Date;
+import java.util.GregorianCalendar;
 import java.util.List;
 import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.jlom.master_upm.tfm.micronaut.catalog.utils.DtosTransformations.serviceToViewContent;
 import static org.jlom.master_upm.tfm.micronaut.catalog.utils.JsonUtils.jsonToList;
+import static org.jlom.master_upm.tfm.micronaut.catalog.utils.JsonUtils.jsonToObject;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.Mockito.when;
 
@@ -59,7 +62,7 @@ public class ViewTest {
 
 
   @Test
-  public void testFindAll() throws Exception {
+  public void when_AskingForAllContents_then_AllExistingContentsAreReturned() throws Exception {
 
     final Date now = Date.from(Instant.now());
 
@@ -183,6 +186,203 @@ public class ViewTest {
 
     assertThat(catalogContents).containsOnly(serviceToViewContent(expectedContentOne),
             serviceToViewContent(expectedContentTwo));
+
+  }
+
+  @Test
+  public void when_AskingForContentWithSpecificDate_then_OnlyThoseAvailableAfterThatDateAreReturned() throws IOException {
+    //given
+
+    Date now = Date.from(Instant.now());
+
+    GregorianCalendar cal = new GregorianCalendar();
+    cal.setTime(now);
+    cal.add(Calendar.DATE,-15); // add one day
+    Date halfMonthAgo = cal.getTime();
+
+    cal.setTime(now);
+    cal.add(Calendar.DATE, -30);
+    Date aMonthAgo = cal.getTime();
+
+    CatalogContent expectedContentOne = CatalogContent.builder()
+            .contentId(1)
+            .status(ContentStatus.AVAILABLE)
+            .title("uno")
+            .streamId(1)
+            .available(now)
+            .tags(Set.of("tag1", "tag2"))
+            .build();
+
+    CatalogContent expectedContentTwo = CatalogContent.builder()
+            .contentId(2)
+            .status(ContentStatus.SOON)
+            .title("dos")
+            .streamId(2)
+            .available(aMonthAgo)
+            .tags(Set.of("tag1", "tag2"))
+            .build();
+
+    List<CatalogContent> expectedContents = List.of(expectedContentOne, expectedContentTwo);
+
+    Mockito.doReturn(List.of(expectedContentOne)).when(service)
+            .getAvailableAfter(aMonthAgo);
+
+    //when
+    String body = client.toBlocking()
+            .retrieve(HttpRequest.GET("/catalog/content/after?date=" + halfMonthAgo.getTime()));
+
+    //then
+
+    List<InputCatalogContent> catalogContents = jsonToList(body, InputCatalogContent.class);
+
+    LOG.debug("sent    :" + expectedContents);
+    LOG.debug("received: " + catalogContents);
+
+    assertThat(catalogContents).containsOnly(serviceToViewContent(expectedContentOne));
+
+  }
+
+  @Test
+  public void FULL_when_AskingForContentWithSpecificDate_then_OnlyThoseAvailableAfterThatDateAreReturned() throws IOException {
+    //given
+
+    Date now = Date.from(Instant.now());
+
+    GregorianCalendar cal = new GregorianCalendar();
+    cal.setTime(now);
+    cal.add(Calendar.DATE,-15); // add one day
+    Date halfMonthAgo = cal.getTime();
+
+    cal.setTime(now);
+    cal.add(Calendar.DATE, -30);
+    Date aMonthAgo = cal.getTime();
+
+    CatalogContent expectedContentOne = CatalogContent.builder()
+            .contentId(1)
+            .status(ContentStatus.AVAILABLE)
+            .title("uno")
+            .streamId(1)
+            .available(now)
+            .tags(Set.of("tag1", "tag2"))
+            .build();
+    repository.save(expectedContentOne);
+
+    CatalogContent expectedContentTwo = CatalogContent.builder()
+            .contentId(2)
+            .status(ContentStatus.SOON)
+            .title("dos")
+            .streamId(2)
+            .available(aMonthAgo)
+            .tags(Set.of("tag1", "tag2"))
+            .build();
+    repository.save(expectedContentTwo);
+
+    List<CatalogContent> expectedContents = List.of(expectedContentOne, expectedContentTwo);
+
+
+
+    //when
+    String body = client.toBlocking()
+            .retrieve(HttpRequest.GET("/catalog/content/after?date=" + halfMonthAgo.getTime()));
+
+    //then
+
+    List<InputCatalogContent> catalogContents = jsonToList(body, InputCatalogContent.class);
+
+    LOG.debug("sent    :" + expectedContents);
+    LOG.debug("received: " + catalogContents);
+
+    assertThat(catalogContents).containsOnly(serviceToViewContent(expectedContentOne));
+
+  }
+
+  @Test
+  public void when_AskingForContentWithSpecificStreamId_then_OnlyOneIsReturned() throws IOException {
+    //given
+
+    final Date now = Date.from(Instant.now());
+
+
+    CatalogContent expectedContentOne = CatalogContent.builder()
+            .contentId(1)
+            .status(ContentStatus.AVAILABLE)
+            .title("uno")
+            .streamId(1)
+            .available(now)
+            .tags(Set.of("tag1", "tag2"))
+            .build();
+
+    CatalogContent expectedContentTwo = CatalogContent.builder()
+            .contentId(2)
+            .status(ContentStatus.SOON)
+            .title("dos")
+            .streamId(2)
+            .available(now)
+            .tags(Set.of("tag1", "tag2"))
+            .build();
+
+    List<CatalogContent> expectedContents = List.of(expectedContentOne, expectedContentTwo);
+
+    Mockito.doReturn(expectedContentOne).when(service)
+            .getContentWithStream(1);
+    Mockito.doReturn(expectedContentTwo).when(service)
+            .getContentWithStream(2);
+
+    //when
+    String body = client.toBlocking()
+            .retrieve(HttpRequest.GET("/catalog/content/stream/1"));
+    LOG.info("response body:" + body);
+    //then
+    InputCatalogContent catalogContents = jsonToObject(body, InputCatalogContent.class);
+
+    LOG.info("sent    :" + expectedContents);
+    LOG.info("received: " + catalogContents);
+
+    assertThat(catalogContents).isEqualTo(serviceToViewContent(expectedContentOne));
+
+  }
+
+  @Test
+  public void FULL_when_AskingForContentWithSpecificStreamId_then_OnlyOneIsReturned() throws IOException {
+    //given
+
+    final Date now = Date.from(Instant.now());
+
+
+    CatalogContent expectedContentOne = CatalogContent.builder()
+            .contentId(1)
+            .status(ContentStatus.AVAILABLE)
+            .title("uno")
+            .streamId(1)
+            .available(now)
+            .tags(Set.of("tag1", "tag2"))
+            .build();
+    repository.save(expectedContentOne);
+
+    CatalogContent expectedContentTwo = CatalogContent.builder()
+            .contentId(2)
+            .status(ContentStatus.SOON)
+            .title("dos")
+            .streamId(2)
+            .available(now)
+            .tags(Set.of("tag1", "tag2"))
+            .build();
+    repository.save(expectedContentTwo);
+
+    List<CatalogContent> expectedContents = List.of(expectedContentOne, expectedContentTwo);
+
+
+    //when
+    String body = client.toBlocking()
+            .retrieve(HttpRequest.GET("/catalog/content/stream/1"));
+    LOG.info("response body:" + body);
+    //then
+    InputCatalogContent catalogContents = jsonToObject(body, InputCatalogContent.class);
+
+    LOG.info("sent    :" + expectedContents);
+    LOG.info("received: " + catalogContents);
+
+    assertThat(catalogContents).isEqualTo(serviceToViewContent(expectedContentOne));
 
   }
 }
