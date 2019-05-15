@@ -3,7 +3,6 @@ package org.jlom.master_upm.tfm.micronaut.catalog.view;
 import io.micronaut.http.HttpRequest;
 import io.micronaut.http.client.HttpClient;
 import io.micronaut.http.client.annotation.Client;
-import io.micronaut.http.client.exceptions.HttpClientResponseException;
 import io.micronaut.test.annotation.MicronautTest;
 import io.micronaut.test.annotation.MockBean;
 import org.assertj.core.api.Assertions;
@@ -13,11 +12,15 @@ import org.jlom.master_upm.tfm.micronaut.catalog.controller.api.dtos.ICatalogSer
 import org.jlom.master_upm.tfm.micronaut.catalog.model.CatalogContent;
 import org.jlom.master_upm.tfm.micronaut.catalog.model.CatalogContentRepository;
 import org.jlom.master_upm.tfm.micronaut.catalog.model.ContentStatus;
+import org.jlom.master_upm.tfm.micronaut.catalog.utils.EmbeddedRedisServer;
 import org.jlom.master_upm.tfm.micronaut.catalog.view.api.dtos.InputCatalogContent;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import redis.embedded.RedisServer;
 
 import javax.inject.Inject;
 import java.io.IOException;
@@ -30,7 +33,6 @@ import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.jlom.master_upm.tfm.micronaut.catalog.utils.DtosTransformations.serviceToViewContent;
-import static org.jlom.master_upm.tfm.micronaut.catalog.utils.JsonUtils.ObjectToJson;
 import static org.jlom.master_upm.tfm.micronaut.catalog.utils.JsonUtils.jsonToList;
 import static org.jlom.master_upm.tfm.micronaut.catalog.utils.JsonUtils.jsonToObject;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -41,6 +43,18 @@ import static org.mockito.Mockito.when;
 public class ViewTest {
 
   private static final Logger LOG = LoggerFactory.getLogger(ViewTest.class);
+
+  @Inject
+  EmbeddedRedisServer embeddedRedisServer;
+
+  @BeforeEach
+  public void setup() {
+    embeddedRedisServer.start();
+  }
+  @AfterEach
+  public void tearDown() {
+    embeddedRedisServer.stop();
+  }
 
   @Inject
   @Client("/")

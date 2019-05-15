@@ -65,7 +65,7 @@ dependencies {
     testCompile "io.micronaut.test:micronaut-test-junit5"
     testRuntime "org.junit.jupiter:junit-jupiter-engine"
     // https://mvnrepository.com/artifact/com.github.kstyrc/embedded-redis
-    testRuntime group: 'com.github.kstyrc', name: 'embedded-redis', version: '0.6'
+    testCompile group: 'com.github.kstyrc', name: 'embedded-redis', version: '0.6'
     // https://mvnrepository.com/artifact/org.assertj/assertj-core
     testCompile group: 'org.assertj', name: 'assertj-core', version: '3.12.2'
     // https://mvnrepository.com/artifact/org.hamcrest/hamcrest-library

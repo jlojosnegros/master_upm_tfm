@@ -40,6 +40,9 @@ public class CatalogContentRepository implements CatalogQueriesRepository , Cata
     LOG.info("CatalogContentRepository::findById:" + contentId);
     RedisCommands<String, String> redisApi = connection.sync();
     String s = redisApi.get(String.valueOf(contentId));
+    if ( s == null ) {
+      return null;
+    }
     try {
       return jsonToObject(s, CatalogContent.class);
     } catch (IOException e) {

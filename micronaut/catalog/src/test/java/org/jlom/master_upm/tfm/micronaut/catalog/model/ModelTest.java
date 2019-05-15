@@ -2,6 +2,9 @@ package org.jlom.master_upm.tfm.micronaut.catalog.model;
 
 import io.micronaut.test.annotation.MicronautTest;
 import org.assertj.core.api.Assertions;
+import org.jlom.master_upm.tfm.micronaut.catalog.utils.EmbeddedRedisServer;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -20,6 +23,17 @@ public class ModelTest {
   @Inject
   private CatalogContentRepository repository;
 
+  @Inject
+  EmbeddedRedisServer embeddedRedisServer;
+
+  @BeforeEach
+  public void setup() {
+    embeddedRedisServer.start();
+  }
+  @AfterEach
+  public void tearDown() {
+    embeddedRedisServer.stop();
+  }
 
   @Test
   public void findWithTags() {
