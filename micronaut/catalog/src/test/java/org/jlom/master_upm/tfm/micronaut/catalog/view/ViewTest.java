@@ -1,21 +1,18 @@
 package org.jlom.master_upm.tfm.micronaut.catalog.view;
 
-import io.micronaut.context.ApplicationContext;
 import io.micronaut.http.HttpRequest;
 import io.micronaut.http.client.HttpClient;
 import io.micronaut.http.client.annotation.Client;
-import io.micronaut.runtime.server.EmbeddedServer;
 import io.micronaut.test.annotation.MicronautTest;
-
 import io.micronaut.test.annotation.MockBean;
+import org.assertj.core.api.Assertions;
 import org.jlom.master_upm.tfm.micronaut.catalog.controller.CatalogContentService;
-import org.jlom.master_upm.tfm.micronaut.catalog.controller.api.CatalogServiceQueries;
+import org.jlom.master_upm.tfm.micronaut.catalog.controller.api.dtos.ContentServiceResponseOk;
+import org.jlom.master_upm.tfm.micronaut.catalog.controller.api.dtos.ICatalogService;
 import org.jlom.master_upm.tfm.micronaut.catalog.model.CatalogContent;
 import org.jlom.master_upm.tfm.micronaut.catalog.model.CatalogContentRepository;
 import org.jlom.master_upm.tfm.micronaut.catalog.model.ContentStatus;
 import org.jlom.master_upm.tfm.micronaut.catalog.view.api.dtos.InputCatalogContent;
-import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.slf4j.Logger;
@@ -52,13 +49,13 @@ public class ViewTest {
 
 
   @Inject
-  private CatalogServiceQueries service;
-
+  private ICatalogService service;
 
   @MockBean(CatalogContentService.class)
-  public CatalogServiceQueries mockService() {
+  public ICatalogService mockService() {
     return Mockito.spy(new CatalogContentService(repository));
   }
+
 
 
   @Test
@@ -225,7 +222,7 @@ public class ViewTest {
     List<CatalogContent> expectedContents = List.of(expectedContentOne, expectedContentTwo);
 
     Mockito.doReturn(List.of(expectedContentOne)).when(service)
-            .getAvailableAfter(aMonthAgo);
+            .getAvailableAfter(halfMonthAgo);
 
     //when
     String body = client.toBlocking()
@@ -245,7 +242,6 @@ public class ViewTest {
   @Test
   public void FULL_when_AskingForContentWithSpecificDate_then_OnlyThoseAvailableAfterThatDateAreReturned() throws IOException {
     //given
-
     Date now = Date.from(Instant.now());
 
     GregorianCalendar cal = new GregorianCalendar();
@@ -383,6 +379,55 @@ public class ViewTest {
     LOG.info("received: " + catalogContents);
 
     assertThat(catalogContents).isEqualTo(serviceToViewContent(expectedContentOne));
+
+  }
+
+  @Test
+  public void when_createNewContent_allIsOk() throws IOException {
+    //given
+
+
+    final long contentId = 1;
+    final long streamId = 1;
+    final Date available = Date.from(Instant.now());
+    final ContentStatus status = ContentStatus.AVAILABLE;
+    final String title = "uno";
+    final Set<String> tags = Set.of("tag1", "tag2");
+
+
+    var inputContent = InputCatalogContent.builder()
+            .title(title)
+            .contentStatus(status.name())
+            .streamId(String.valueOf(streamId))
+            .available(available)
+            .tags(tags)
+            .build();
+
+    CatalogContent expectedContentOne = CatalogContent.builder()
+            .title(title)
+            .status(status)
+            .streamId(streamId)
+            .available(available)
+            .tags(tags)
+            .contentId(contentId)
+            .build();
+
+    Mockito.doReturn(new ContentServiceResponseOk(expectedContentOne))
+            .when(service)
+            .createContent(streamId,title, status, tags);
+
+
+    //when
+    String body = client.toBlocking()
+            .retrieve(HttpRequest.POST("/catalog/content/newContent/", inputContent));
+
+    //then
+    InputCatalogContent catalogContents = jsonToObject(body, InputCatalogContent.class);
+
+    LOG.debug("sent    :" + inputContent);
+    LOG.debug("received: " + catalogContents);
+
+    Assertions.assertThat(catalogContents).isEqualTo(serviceToViewContent(expectedContentOne));
 
   }
 }
