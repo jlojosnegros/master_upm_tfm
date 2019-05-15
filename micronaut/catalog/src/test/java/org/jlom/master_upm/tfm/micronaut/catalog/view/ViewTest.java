@@ -3,6 +3,7 @@ package org.jlom.master_upm.tfm.micronaut.catalog.view;
 import io.micronaut.context.ApplicationContext;
 import io.micronaut.http.HttpRequest;
 import io.micronaut.http.client.HttpClient;
+import io.micronaut.http.client.annotation.Client;
 import io.micronaut.runtime.server.EmbeddedServer;
 import io.micronaut.test.annotation.MicronautTest;
 
@@ -36,8 +37,9 @@ public class ViewTest {
 
   private static final Logger LOG = LoggerFactory.getLogger(ViewTest.class);
 
-  private static EmbeddedServer server;
-  private static HttpClient client;
+  @Inject
+  @Client("/")
+  private HttpClient client;
 
   @Inject
   private CatalogContentRepository repository;
@@ -53,25 +55,6 @@ public class ViewTest {
 //    return Mockito.mock(CatalogServiceQueries.class);
 //  }
 
-
-  @BeforeAll
-  public static void setupServer() {
-    server = ApplicationContext.run(EmbeddedServer.class);
-
-    client = server
-            .getApplicationContext()
-            .createBean(HttpClient.class, server.getURL());
-  }
-
-  @AfterAll
-  public static void stopServer() {
-    if (server != null) {
-      server.stop();
-    }
-    if (client != null) {
-      client.stop();
-    }
-  }
 
   @Test
   public void testFindAll() throws Exception {
