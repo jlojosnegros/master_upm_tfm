@@ -22,9 +22,9 @@ public class CatalogRestServer implements CatalogQueryInterface {
 
   private static final Logger LOG = LoggerFactory.getLogger(CatalogRestServer.class);
 
-  private CatalogContentService service;
+  private CatalogServiceQueries service;
 
-  public CatalogRestServer(CatalogContentService service) {
+  public CatalogRestServer(CatalogServiceQueries service) {
     this.service = service;
   }
 

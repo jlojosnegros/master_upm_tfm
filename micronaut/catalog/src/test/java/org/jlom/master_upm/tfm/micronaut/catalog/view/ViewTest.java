@@ -7,7 +7,9 @@ import io.micronaut.http.client.annotation.Client;
 import io.micronaut.runtime.server.EmbeddedServer;
 import io.micronaut.test.annotation.MicronautTest;
 
+import io.micronaut.test.annotation.MockBean;
 import org.jlom.master_upm.tfm.micronaut.catalog.controller.CatalogContentService;
+import org.jlom.master_upm.tfm.micronaut.catalog.controller.api.CatalogServiceQueries;
 import org.jlom.master_upm.tfm.micronaut.catalog.model.CatalogContent;
 import org.jlom.master_upm.tfm.micronaut.catalog.model.CatalogContentRepository;
 import org.jlom.master_upm.tfm.micronaut.catalog.model.ContentStatus;
@@ -15,6 +17,7 @@ import org.jlom.master_upm.tfm.micronaut.catalog.view.api.dtos.InputCatalogConte
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -29,7 +32,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.jlom.master_upm.tfm.micronaut.catalog.utils.DtosTransformations.serviceToViewContent;
 import static org.jlom.master_upm.tfm.micronaut.catalog.utils.JsonUtils.jsonToList;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
-
+import static org.mockito.Mockito.when;
 
 
 @MicronautTest
@@ -46,14 +49,13 @@ public class ViewTest {
 
 
   @Inject
-  private CatalogContentService service;
+  private CatalogServiceQueries service;
 
 
-//  @MockBean
-//  @Primary
-//  public CatalogServiceQueries mockService() {
-//    return Mockito.mock(CatalogServiceQueries.class);
-//  }
+  @MockBean(CatalogContentService.class)
+  public CatalogServiceQueries mockService() {
+    return Mockito.spy(new CatalogContentService(repository));
+  }
 
 
   @Test
@@ -107,7 +109,6 @@ public class ViewTest {
             .available(now)
             .tags(Set.of("tag1", "tag2"))
             .build();
-    repository.save(expectedContentOne);
 
     CatalogContent expectedContentTwo = CatalogContent.builder()
             .contentId(2)
@@ -117,9 +118,8 @@ public class ViewTest {
             .available(now)
             .tags(Set.of("tag1", "tag2"))
             .build();
-    repository.save(expectedContentTwo);
 
-    //when(service.getContent(1)).thenReturn(expectedContentOne);
+    when(service.getContent(1)).thenReturn(expectedContentOne);
 
     InputCatalogContent catalogContent = client.toBlocking()
             .retrieve(HttpRequest.GET("/catalog/content/1"), InputCatalogContent.class);
