@@ -13,10 +13,13 @@ import org.jlom.master_upm.tfm.micronaut.catalog.view.api.CatalogCommandInterfac
 import org.jlom.master_upm.tfm.micronaut.catalog.view.api.CatalogQueryInterface;
 import org.jlom.master_upm.tfm.micronaut.catalog.view.api.dtos.InputCatalogContent;
 import org.jlom.master_upm.tfm.micronaut.catalog.view.serivceresponsehandlers.CreateServiceResponseHandler;
+import org.jlom.master_upm.tfm.micronaut.catalog.view.serivceresponsehandlers.DeleteServiceResponseHandler;
+import org.jlom.master_upm.tfm.micronaut.catalog.view.serivceresponsehandlers.UpdateServiceResponseHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.validation.Valid;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.Set;
@@ -103,7 +106,8 @@ public class CatalogRestServer implements CatalogQueryInterface, CatalogCommandI
     ContentServiceResponse response = service.createContent(streamId,
             content.getTitle(),
             status,
-            content.getTags()
+            content.getTags(),
+            content.getAvailable()
     );
 
     CreateServiceResponseHandler handler = new CreateServiceResponseHandler(request);
@@ -112,16 +116,29 @@ public class CatalogRestServer implements CatalogQueryInterface, CatalogCommandI
 
   @Override
   public HttpResponse<?> deleteContent(HttpRequest<?> request, @Valid long contentId) {
-    return null;
+    LOG.info("Rest: deleteContent contentId: " + contentId);
+    ContentServiceResponse response = service.deleteContent(contentId);
+    DeleteServiceResponseHandler deleteServiceResponseHandler = new DeleteServiceResponseHandler(request);
+    return response.accept(deleteServiceResponseHandler);
   }
 
   @Override
-  public HttpResponse<?> changeStatus(HttpRequest<?> request, @Valid long contentId, @Valid ContentStatus status) {
-    return null;
+  public HttpResponse<?> changeStatus(HttpRequest<?> request, @Valid long contentId, @Valid ContentStatus newStatus) {
+    LOG.info("Rest: changeStatus contentId: " + contentId + ";newStatus:" + newStatus);
+    ContentStatus status = newStatus;
+    var response = service.changeStatus(contentId, status);
+    var handler = new UpdateServiceResponseHandler(request);
+    return response.accept(handler);
   }
 
   @Override
-  public HttpResponse<?> addTags(HttpRequest<?> request, @Valid long contentId, @Valid String tags) {
-    return null;
+  public HttpResponse<?> addTags(HttpRequest<?> request, @Valid long contentId, @Valid String newTags) {
+    LOG.info("Rest: addTags contentId: " + contentId + ";newTags:" + newTags);
+    Set<String> tags = Set.of(newTags.split(","));
+
+    LOG.info("Rest: addTags contentId: " + contentId + ";newTags:" + tags);
+    var response = service.addTags(contentId, tags);
+    var handler = new UpdateServiceResponseHandler(request);
+    return response.accept(handler);
   }
 }

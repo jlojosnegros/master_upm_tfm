@@ -1,6 +1,11 @@
 package org.jlom.master_upm.tfm.micronaut.catalog.controller;
 
 import org.jlom.master_upm.tfm.micronaut.catalog.controller.api.dtos.ContentServiceResponse;
+import org.jlom.master_upm.tfm.micronaut.catalog.controller.api.dtos.ContentServiceResponseFailureException;
+import org.jlom.master_upm.tfm.micronaut.catalog.controller.api.dtos.ContentServiceResponseFailureInternalError;
+import org.jlom.master_upm.tfm.micronaut.catalog.controller.api.dtos.ContentServiceResponseFailureInvalidInputParameter;
+import org.jlom.master_upm.tfm.micronaut.catalog.controller.api.dtos.ContentServiceResponseFailureNotFound;
+import org.jlom.master_upm.tfm.micronaut.catalog.controller.api.dtos.ContentServiceResponseOk;
 import org.jlom.master_upm.tfm.micronaut.catalog.controller.api.dtos.ICatalogService;
 import org.jlom.master_upm.tfm.micronaut.catalog.model.CatalogContent;
 import org.jlom.master_upm.tfm.micronaut.catalog.model.CatalogContentRepository;
@@ -59,22 +64,91 @@ public class CatalogContentService implements ICatalogService {
   }
 
   @Override
-  public ContentServiceResponse createContent(long streamId, String title, ContentStatus status, Set<String> tags) {
-    return null;
+  public ContentServiceResponse createContent(long streamId,
+                                              String title,
+                                              ContentStatus status,
+                                              Set<String> tags,
+                                              Date available) {
+    try {
+      if (null != repository.findByStreamId(streamId)) {
+        return new ContentServiceResponseFailureInvalidInputParameter("Content with streamId already exists",
+                "streamId", streamId);
+      }
+
+      CatalogContent toInsert = CatalogContent.builder()
+              .streamId(streamId)
+              .contentId(streamId)
+              .status(status)
+              .title(title)
+              .tags(tags)
+              .available(available)
+              .build();
+      LOG.info("toInsert: " + toInsert);
+      repository.save(toInsert);
+
+      CatalogContent insertedContent = repository.findByStreamId(streamId);
+      LOG.info("inserted: " + insertedContent);
+      if (null == insertedContent) {
+        return new ContentServiceResponseFailureInternalError("Unable to insert new content: " + toInsert);
+      }
+      return new ContentServiceResponseOk(insertedContent);
+    } catch (Exception ex) {
+      return  new ContentServiceResponseFailureException(ex);
+    }
   }
 
   @Override
   public ContentServiceResponse deleteContent(long contentId) {
-    return null;
+    try {
+      CatalogContent content = repository.findById(contentId);
+      if (null == content) {
+        return new ContentServiceResponseFailureInvalidInputParameter("Element with id already exists",
+                "contentId", contentId);
+      }
+
+      Long deleted = repository.delete(contentId);
+      if ( (deleted == null ) || ( deleted == 0) ) {
+        return new ContentServiceResponseFailureInternalError("error: Unknown error. Could not delete " + content );
+      }
+      return new ContentServiceResponseOk(content);
+
+    } catch (Exception ex) {
+      return new ContentServiceResponseFailureException(ex);
+    }
+
   }
 
   @Override
   public ContentServiceResponse changeStatus(long contentId, ContentStatus status) {
-    return null;
+    try {
+      CatalogContent content = repository.findById(contentId);
+      if (null == content) {
+        return new ContentServiceResponseFailureNotFound("contentId", contentId);
+      }
+
+      content.setStatus(status);
+      repository.save(content);
+      return new ContentServiceResponseOk(content);
+
+    } catch (Exception ex) {
+      return new ContentServiceResponseFailureException(ex);
+    }
   }
 
   @Override
   public ContentServiceResponse addTags(long contentId, Set<String> tags) {
-    return null;
+    try {
+      CatalogContent content = repository.findById(contentId);
+      if (null == content) {
+        return new ContentServiceResponseFailureNotFound("contentId", contentId);
+      }
+
+      content.getTags().addAll(tags);
+      repository.save(content);
+      return new ContentServiceResponseOk(content);
+
+    } catch (Exception ex) {
+      return new ContentServiceResponseFailureException(ex);
+    }
   }
 }

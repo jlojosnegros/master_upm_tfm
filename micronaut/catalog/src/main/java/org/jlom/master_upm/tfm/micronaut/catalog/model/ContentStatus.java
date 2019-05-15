@@ -1,7 +1,12 @@
 package org.jlom.master_upm.tfm.micronaut.catalog.model;
 
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+
 import java.io.Serializable;
 
+@JsonSerialize(using = ContentStatusJsonSerializer.class)
+@JsonDeserialize(using = ContentStatusJsonDeserializer.class)
 public enum ContentStatus implements Serializable {
   AVAILABLE,
   UNAVAILABLE,

@@ -114,4 +114,10 @@ public class CatalogContentRepository implements CatalogQueriesRepository , Cata
     }
 
   }
+
+  @Override
+  public Long delete(long contentId) {
+    RedisCommands<String, String> redisApi = connection.sync();
+    return redisApi.del(String.valueOf(contentId));
+  }
 }

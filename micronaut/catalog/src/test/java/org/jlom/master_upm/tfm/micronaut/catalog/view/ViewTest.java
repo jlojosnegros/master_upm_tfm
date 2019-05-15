@@ -3,6 +3,7 @@ package org.jlom.master_upm.tfm.micronaut.catalog.view;
 import io.micronaut.http.HttpRequest;
 import io.micronaut.http.client.HttpClient;
 import io.micronaut.http.client.annotation.Client;
+import io.micronaut.http.client.exceptions.HttpClientResponseException;
 import io.micronaut.test.annotation.MicronautTest;
 import io.micronaut.test.annotation.MockBean;
 import org.assertj.core.api.Assertions;
@@ -29,6 +30,7 @@ import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.jlom.master_upm.tfm.micronaut.catalog.utils.DtosTransformations.serviceToViewContent;
+import static org.jlom.master_upm.tfm.micronaut.catalog.utils.JsonUtils.ObjectToJson;
 import static org.jlom.master_upm.tfm.micronaut.catalog.utils.JsonUtils.jsonToList;
 import static org.jlom.master_upm.tfm.micronaut.catalog.utils.JsonUtils.jsonToObject;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -414,12 +416,349 @@ public class ViewTest {
 
     Mockito.doReturn(new ContentServiceResponseOk(expectedContentOne))
             .when(service)
-            .createContent(streamId,title, status, tags);
+            .createContent(streamId,title, status, tags,available);
 
 
     //when
     String body = client.toBlocking()
             .retrieve(HttpRequest.POST("/catalog/content/newContent/", inputContent));
+
+    //then
+    InputCatalogContent catalogContents = jsonToObject(body, InputCatalogContent.class);
+
+    LOG.debug("sent    :" + inputContent);
+    LOG.debug("received: " + catalogContents);
+
+    Assertions.assertThat(catalogContents).isEqualTo(serviceToViewContent(expectedContentOne));
+
+  }
+  @Test
+  public void FULL_when_createNewContent_allIsOk() throws IOException {
+    //given
+
+
+    final long contentId = 1;
+    final long streamId = 1;
+    final Date available = Date.from(Instant.now());
+    final ContentStatus status = ContentStatus.AVAILABLE;
+    final String title = "uno";
+    final Set<String> tags = Set.of("tag1", "tag2");
+
+
+    var inputContent = InputCatalogContent.builder()
+            .title(title)
+            .contentStatus(status.name())
+            .streamId(String.valueOf(streamId))
+            .available(available)
+            .tags(tags)
+            .build();
+
+    CatalogContent expectedContentOne = CatalogContent.builder()
+            .title(title)
+            .status(status)
+            .streamId(streamId)
+            .available(available)
+            .tags(tags)
+            .contentId(contentId)
+            .build();
+
+
+    //when
+    String body = client.toBlocking()
+            .retrieve(HttpRequest.POST("/catalog/content/newContent/", inputContent));
+
+    //then
+    InputCatalogContent catalogContents = jsonToObject(body, InputCatalogContent.class);
+
+    LOG.debug("sent    :" + inputContent);
+    LOG.debug("received: " + catalogContents);
+
+    Assertions.assertThat(catalogContents).isEqualTo(serviceToViewContent(expectedContentOne));
+
+  }
+
+  @Test
+  public void when_deleteAnExistingContent_allIsOk() throws IOException {
+    //given
+
+
+    final long contentId = 1;
+    final long streamId = 1;
+    final Date available = Date.from(Instant.now());
+    final ContentStatus status = ContentStatus.AVAILABLE;
+    final String title = "uno";
+    final Set<String> tags = Set.of("tag1", "tag2");
+
+
+    var inputContent = InputCatalogContent.builder()
+            .title(title)
+            .contentStatus(status.name())
+            .streamId(String.valueOf(streamId))
+            .available(available)
+            .tags(tags)
+            .build();
+
+    CatalogContent expectedContentOne = CatalogContent.builder()
+            .title(title)
+            .status(status)
+            .streamId(streamId)
+            .available(available)
+            .tags(tags)
+            .contentId(contentId)
+            .build();
+
+    Mockito.doReturn(new ContentServiceResponseOk(expectedContentOne))
+            .when(service)
+            .deleteContent(contentId);
+
+
+    //when
+    String body = client.toBlocking()
+            .retrieve(HttpRequest.DELETE("/catalog/content/delete/" + contentId));
+
+
+    //then
+    InputCatalogContent catalogContents = jsonToObject(body, InputCatalogContent.class);
+
+    LOG.debug("sent    :" + inputContent);
+    LOG.debug("received: " + catalogContents);
+
+    Assertions.assertThat(catalogContents).isEqualTo(serviceToViewContent(expectedContentOne));
+
+  }
+
+  @Test
+  public void FULL_when_deleteAnExistingContent_allIsOk() throws IOException {
+    //given
+
+
+    final long contentId = 1;
+    final long streamId = 1;
+    final Date available = Date.from(Instant.now());
+    final ContentStatus status = ContentStatus.AVAILABLE;
+    final String title = "uno";
+    final Set<String> tags = Set.of("tag1", "tag2");
+
+
+    var inputContent = InputCatalogContent.builder()
+            .title(title)
+            .contentStatus(status.name())
+            .streamId(String.valueOf(streamId))
+            .available(available)
+            .tags(tags)
+            .build();
+
+    CatalogContent expectedContentOne = CatalogContent.builder()
+            .title(title)
+            .status(status)
+            .streamId(streamId)
+            .available(available)
+            .tags(tags)
+            .contentId(contentId)
+            .build();
+    repository.save(expectedContentOne);
+
+    //when
+    String body = client.toBlocking()
+            .retrieve(HttpRequest.DELETE("/catalog/content/delete/" + contentId));
+
+
+    //then
+    InputCatalogContent catalogContents = jsonToObject(body, InputCatalogContent.class);
+
+    LOG.debug("sent    :" + inputContent);
+    LOG.debug("received: " + catalogContents);
+
+    Assertions.assertThat(catalogContents).isEqualTo(serviceToViewContent(expectedContentOne));
+
+  }
+
+  @Test
+  public void when_changeStatus_allIsOk() throws IOException {
+    //given
+
+
+    final long contentId = 1;
+    final long streamId = 1;
+    final Date available = Date.from(Instant.now());
+    final ContentStatus status = ContentStatus.SOON;
+    final ContentStatus newStatus = ContentStatus.AVAILABLE;
+    final String title = "uno";
+    final Set<String> tags = Set.of("tag1", "tag2");
+
+
+    var inputContent = InputCatalogContent.builder()
+            .title(title)
+            .contentStatus(status.name())
+            .streamId(String.valueOf(streamId))
+            .available(available)
+            .tags(tags)
+            .build();
+
+    CatalogContent expectedContentOne = CatalogContent.builder()
+            .title(title)
+            .status(newStatus)
+            .streamId(streamId)
+            .available(available)
+            .tags(tags)
+            .contentId(contentId)
+            .build();
+
+    Mockito.doReturn(new ContentServiceResponseOk(expectedContentOne))
+            .when(service)
+            .changeStatus(contentId,newStatus);
+
+
+    //when
+    String body = client.toBlocking()
+            .retrieve(HttpRequest.POST("/catalog/content/changeStatus/" + contentId,
+                    newStatus));
+
+    //then
+    InputCatalogContent catalogContents = jsonToObject(body, InputCatalogContent.class);
+
+    LOG.debug("sent    :" + inputContent);
+    LOG.debug("received: " + catalogContents);
+
+    Assertions.assertThat(catalogContents).isEqualTo(serviceToViewContent(expectedContentOne));
+
+  }
+
+  @Test
+  public void FULL_when_changeStatus_allIsOk() throws IOException {
+    //given
+
+
+    final long contentId = 1;
+    final long streamId = 1;
+    final Date available = Date.from(Instant.now());
+    final ContentStatus status = ContentStatus.SOON;
+    final ContentStatus newStatus = ContentStatus.AVAILABLE;
+    final String title = "uno";
+    final Set<String> tags = Set.of("tag1", "tag2");
+
+
+    var inputContent = InputCatalogContent.builder()
+            .title(title)
+            .contentStatus(status.name())
+            .streamId(String.valueOf(streamId))
+            .available(available)
+            .tags(tags)
+            .build();
+
+    CatalogContent expectedContentOne = CatalogContent.builder()
+            .title(title)
+            .status(newStatus)
+            .streamId(streamId)
+            .available(available)
+            .tags(tags)
+            .contentId(contentId)
+            .build();
+    repository.save(expectedContentOne);
+
+
+    //when
+    String body = client.toBlocking()
+            .retrieve(HttpRequest.POST("/catalog/content/changeStatus/" + contentId,
+                    newStatus));
+
+    //then
+    InputCatalogContent catalogContents = jsonToObject(body, InputCatalogContent.class);
+
+    LOG.debug("sent    :" + inputContent);
+    LOG.debug("received: " + catalogContents);
+
+    Assertions.assertThat(catalogContents).isEqualTo(serviceToViewContent(expectedContentOne));
+
+  }
+
+  @Test
+  public void when_addTags_allIsOk() throws IOException {
+    //given
+    final long contentId = 1;
+    final long streamId = 1;
+    final Date available = Date.from(Instant.now());
+    final ContentStatus status = ContentStatus.AVAILABLE;
+    final String title = "uno";
+    final Set<String> tags = Set.of("tag1", "tag2");
+    final Set<String> newtags = Set.of("tag3", "tag2");
+    final Set<String> expectedTags = Set.of("tag1","tag3", "tag2");
+
+
+    var inputContent = InputCatalogContent.builder()
+            .title(title)
+            .contentStatus(status.name())
+            .streamId(String.valueOf(streamId))
+            .available(available)
+            .tags(tags)
+            .build();
+
+    CatalogContent expectedContentOne = CatalogContent.builder()
+            .title(title)
+            .status(status)
+            .streamId(streamId)
+            .available(available)
+            .tags(expectedTags)
+            .contentId(contentId)
+            .build();
+
+    Mockito.doReturn(new ContentServiceResponseOk(expectedContentOne))
+            .when(service)
+            .addTags(contentId,newtags);
+
+
+
+    //when
+    String body = client.toBlocking()
+            .retrieve(HttpRequest.POST("/catalog/content/addTags/" + contentId
+                    +"?newTags="+ String.join(",", newtags),""));
+
+    //then
+    InputCatalogContent catalogContents = jsonToObject(body, InputCatalogContent.class);
+
+    LOG.debug("sent    :" + inputContent);
+    LOG.debug("received: " + catalogContents);
+
+    Assertions.assertThat(catalogContents).isEqualTo(serviceToViewContent(expectedContentOne));
+
+  }
+
+  @Test
+  public void FULL_when_addTags_allIsOk() throws IOException {
+    //given
+    final long contentId = 1;
+    final long streamId = 1;
+    final Date available = Date.from(Instant.now());
+    final ContentStatus status = ContentStatus.AVAILABLE;
+    final String title = "uno";
+    final Set<String> tags = Set.of("tag1", "tag2");
+    final Set<String> newtags = Set.of("tag3", "tag2");
+    final Set<String> expectedTags = Set.of("tag1","tag3", "tag2");
+
+
+    var inputContent = InputCatalogContent.builder()
+            .title(title)
+            .contentStatus(status.name())
+            .streamId(String.valueOf(streamId))
+            .available(available)
+            .tags(tags)
+            .build();
+
+    CatalogContent expectedContentOne = CatalogContent.builder()
+            .title(title)
+            .status(status)
+            .streamId(streamId)
+            .available(available)
+            .tags(expectedTags)
+            .contentId(contentId)
+            .build();
+    repository.save(expectedContentOne);
+
+
+    //when
+    String body = client.toBlocking()
+            .retrieve(HttpRequest.POST("/catalog/content/addTags/" + contentId
+                    +"?newTags="+ String.join(",", newtags),""));
 
     //then
     InputCatalogContent catalogContents = jsonToObject(body, InputCatalogContent.class);

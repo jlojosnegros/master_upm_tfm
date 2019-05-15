@@ -5,6 +5,7 @@ import io.micronaut.http.HttpRequest;
 import io.micronaut.http.HttpResponse;
 import io.micronaut.http.MediaType;
 import io.micronaut.http.annotation.Body;
+import io.micronaut.http.annotation.Delete;
 import io.micronaut.http.annotation.PathVariable;
 import io.micronaut.http.annotation.Post;
 import io.micronaut.http.annotation.Produces;
@@ -22,7 +23,7 @@ public interface CatalogCommandInterface {
   @Produces({MediaType.APPLICATION_JSON, APPLICATION_JSON_PROBLEM_VALUE})
   HttpResponse<?> createNewContent(HttpRequest<?> request, @Valid @Body InputCatalogContent content);
 
-  @Post("/content/delete/{contentId}")
+  @Delete("/content/delete/{contentId}")
   @Produces({MediaType.APPLICATION_JSON, APPLICATION_JSON_PROBLEM_VALUE})
   HttpResponse<?> deleteContent(HttpRequest<?> request, @Valid @PathVariable(value = "contentId") long contentId);
 
