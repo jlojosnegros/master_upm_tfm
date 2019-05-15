@@ -17,6 +17,7 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.Mockito;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,7 +32,9 @@ import redis.embedded.RedisServer;
 
 import java.io.IOException;
 import java.time.Instant;
+import java.util.Calendar;
 import java.util.Date;
+import java.util.GregorianCalendar;
 import java.util.List;
 import java.util.Set;
 
@@ -154,6 +157,59 @@ public class CompleteTests {
     LOG.debug("received: " + catalogContents);
 
     Assertions.assertThat(catalogContents).containsExactly(serviceToViewContent(expectedContentTwo));
+
+  }
+  @Test
+  public void when_AskingForContentWithSpecificDate_then_OnlyThoseAvailableAfterThatDateAreReturned() throws IOException {
+    //given
+
+    Date now = Date.from(Instant.now());
+
+    GregorianCalendar cal = new GregorianCalendar();
+    cal.setTime(now);
+    cal.add(Calendar.DATE,-15); // add one day
+    Date halfMonthAgo = cal.getTime();
+
+    cal.setTime(now);
+    cal.add(Calendar.DATE, -30);
+    Date aMonthAgo = cal.getTime();
+
+    CatalogContent expectedContentOne = CatalogContent.builder()
+            .contentId(1)
+            .status(ContentStatus.AVAILABLE)
+            .title("uno")
+            .streamId(1)
+            .available(now)
+            .tags(Set.of("tag1", "tag2"))
+            .build();
+    repository.save(expectedContentOne);
+
+    CatalogContent expectedContentTwo = CatalogContent.builder()
+            .contentId(2)
+            .status(ContentStatus.SOON)
+            .title("dos")
+            .streamId(2)
+            .available(aMonthAgo)
+            .tags(Set.of("tag1", "tag2"))
+            .build();
+    repository.save(expectedContentTwo);
+
+    List<CatalogContent> expectedContents = List.of(expectedContentOne, expectedContentTwo);
+
+    //when
+    HttpResponse response = getRestResponseTo("/catalog/content/after?date=" + halfMonthAgo.getTime());
+
+
+    //then
+    int statusCode = response.getStatusLine().getStatusCode();
+    Assertions.assertThat(statusCode).isEqualTo(200);
+
+    List<InputCatalogContent> catalogContents = retrieveListOfResourcesFromResponse(response, InputCatalogContent.class);
+
+    LOG.debug("sent    :" + expectedContents);
+    LOG.debug("received: " + catalogContents);
+
+    Assertions.assertThat(catalogContents).containsOnly(serviceToViewContent(expectedContentOne));
 
   }
 }

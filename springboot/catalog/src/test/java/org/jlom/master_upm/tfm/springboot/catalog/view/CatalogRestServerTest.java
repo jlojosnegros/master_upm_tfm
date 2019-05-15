@@ -250,7 +250,7 @@ public class CatalogRestServerTest {
             .status(ContentStatus.SOON)
             .title("dos")
             .streamId(2)
-            .available(halfMonthAgo)
+            .available(aMonthAgo)
             .tags(Set.of("tag1", "tag2"))
             .build();
 
@@ -260,7 +260,7 @@ public class CatalogRestServerTest {
             .getAvailableAfter(aMonthAgo);
 
     //when
-    HttpResponse response = getRestResponseTo("/catalog/content/after?date=" + aMonthAgo.getTime());
+    HttpResponse response = getRestResponseTo("/catalog/content/after?date=" + halfMonthAgo.getTime());
 
 
     //then
