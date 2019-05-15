@@ -51,30 +51,10 @@ public class CatalogContentRepository implements CatalogQueriesRepository , Cata
   @Override
   public List<CatalogContent> findWithExactlyTags(Set<String> tags) {
     LOG.info("CatalogContentRepository::findWithExactlyTags : " + tags);
-    List<CatalogContent> all = findAll();
-    LOG.info("CatalogContentRepository::findWithExactlyTags all:" + all );
 
-    List<CatalogContent> result = new ArrayList<>();
-    for (var content : all) {
-      Set<String> contentTags = content.getTags();
-      LOG.info("content tags: " + contentTags);
-      if ( contentTags.containsAll(tags)) {
-        LOG.info(contentTags + " ContainsAll " + tags);
-        result.add(content);
-      } else {
-        LOG.info(contentTags + " NOT ContainsAll " + tags);
-      }
-    }
-    LOG.info("CatalogContentRepository::findWithExactlyTags filtered:" + result );
-    return result;
-//    List<CatalogContent> collect = all.stream()
-//            .filter(content -> content.getTags().containsAll(tags))
-//            .collect(Collectors.toList());
-//    LOG.info("CatalogContentRepository::findWithExactlyTags filtered:" + collect );
-
-//    return findAll().stream()
-//            .filter(content -> content.getTags().containsAll(tags))
-//            .collect(Collectors.toList());
+    return findAll().stream()
+            .filter(content -> content.getTags().containsAll(tags))
+            .collect(Collectors.toList());
   }
 
   @Override
