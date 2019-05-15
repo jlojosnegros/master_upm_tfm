@@ -1,10 +1,7 @@
-package catalog.model;
+package org.jlom.master_upm.tfm.micronaut.catalog.model;
 
 import io.micronaut.test.annotation.MicronautTest;
 import org.assertj.core.api.Assertions;
-import org.jlom.master_upm.tfm.micronaut.catalog.model.CatalogContent;
-import org.jlom.master_upm.tfm.micronaut.catalog.model.CatalogContentRepository;
-import org.jlom.master_upm.tfm.micronaut.catalog.model.ContentStatus;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
