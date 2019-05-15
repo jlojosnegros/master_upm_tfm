@@ -1,0 +1,5 @@
+profile: service
+defaultPackage: org.jlom.master_upm.tfm.micronaut.dynamic_data
+---
+testFramework: junit
+sourceLanguage: java
