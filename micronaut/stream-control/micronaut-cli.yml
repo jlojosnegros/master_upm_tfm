@@ -1,0 +1,5 @@
+profile: service
+defaultPackage: stream.control
+---
+testFramework: junit
+sourceLanguage: java
