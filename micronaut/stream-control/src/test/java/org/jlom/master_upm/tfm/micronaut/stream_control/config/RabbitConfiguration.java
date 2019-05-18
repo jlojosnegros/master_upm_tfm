@@ -11,7 +11,7 @@ import javax.inject.Singleton;
 import java.io.IOException;
 
 @Singleton
-@Requires(notEnv = Environment.TEST)
+@Requires(env = Environment.TEST)
 public class RabbitConfiguration extends ChannelInitializer {
 
   public static final String EXCHANGE = "micronaut";

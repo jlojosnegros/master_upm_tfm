@@ -60,7 +60,7 @@ dependencies {
     testAnnotationProcessor 'org.projectlombok:lombok:1.18.8'
 
 
-
+    testCompileOnly 'org.projectlombok:lombok:1.18.8'
     testCompile "org.junit.jupiter:junit-jupiter-api"
     testCompile "io.micronaut.test:micronaut-test-junit5"
     testRuntime "org.junit.jupiter:junit-jupiter-engine"
@@ -72,6 +72,9 @@ dependencies {
     testCompile group: 'org.hamcrest', name: 'hamcrest-library', version: '2.1'
     // https://mvnrepository.com/artifact/org.mockito/mockito-junit-jupiter
     testCompile group: 'org.mockito', name: 'mockito-junit-jupiter', version: '2.27.0'
+
+    testCompile "com.github.tomakehurst:wiremock-jre8:2.23.2"
+    testCompile "org.testcontainers:testcontainers:1.11.2"
 
 }
 
