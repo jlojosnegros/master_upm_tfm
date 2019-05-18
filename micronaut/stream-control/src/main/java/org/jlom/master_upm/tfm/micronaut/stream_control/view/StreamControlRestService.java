@@ -4,11 +4,16 @@ package org.jlom.master_upm.tfm.micronaut.stream_control.view;
 
 
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import io.micronaut.http.HttpRequest;
 import io.micronaut.http.HttpResponse;
+import io.micronaut.http.MediaType;
 import io.micronaut.http.annotation.Controller;
+import io.micronaut.http.annotation.Get;
+import io.micronaut.http.annotation.Produces;
 import io.micronaut.validation.Validated;
 import org.jlom.master_upm.tfm.micronaut.stream_control.controller.StreamControlService;
+import org.jlom.master_upm.tfm.micronaut.stream_control.utils.JsonUtils;
 import org.jlom.master_upm.tfm.micronaut.stream_control.view.api.StreamControlCommandInterface;
 import org.jlom.master_upm.tfm.micronaut.stream_control.view.api.StreamControlQueryInterface;
 import org.jlom.master_upm.tfm.micronaut.stream_control.view.api.dtos.InputStreamData;
@@ -46,6 +51,12 @@ public class StreamControlRestService implements StreamControlQueryInterface, St
     return null;
   }
 
+
+  @Get("/startdate")
+  @Produces(MediaType.APPLICATION_JSON)
+  public HttpResponse<?> startDate() throws JsonProcessingException {
+    return HttpResponse.ok(JsonUtils.ObjectToJson(StartTime.getInstance().getStartTime()));
+  }
   // @Override
   // public ResponseEntity<?> addDeviceToUser(HttpServletRequest request, @Valid InputStreamData userDevice) {
   //   LOG.info("addDeviceToUser: userDevice=" + userDevice);
