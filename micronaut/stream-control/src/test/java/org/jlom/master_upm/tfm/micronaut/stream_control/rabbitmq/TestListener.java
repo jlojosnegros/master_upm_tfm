@@ -9,6 +9,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.jlom.master_upm.tfm.micronaut.stream_control.config.RabbitConfiguration;
 import org.jlom.master_upm.tfm.micronaut.stream_control.controller.api.out.StreamControlStreamingNotification;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @RabbitListener
@@ -17,7 +18,7 @@ import java.util.List;
 @Slf4j
 public class TestListener {
 
-  List<StreamControlStreamingNotification> notifications;
+  List<StreamControlStreamingNotification> notifications = new ArrayList<>();
 
   @Queue(RabbitConfiguration.PUBLISH_QUEUE)
   public void notification(StreamControlStreamingNotification notification) {

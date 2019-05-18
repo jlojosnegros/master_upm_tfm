@@ -1,7 +1,6 @@
 package org.jlom.master_upm.tfm.micronaut.stream_control.model;
 
 
-
 import com.fasterxml.jackson.core.JsonProcessingException;
 import io.lettuce.core.api.StatefulRedisConnection;
 import io.lettuce.core.api.sync.RedisCommands;
@@ -11,17 +10,16 @@ import org.jlom.master_upm.tfm.micronaut.stream_control.model.daos.StreamStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-
-import javax.annotation.Resource;
+import javax.inject.Singleton;
 import java.io.IOException;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 import static org.jlom.master_upm.tfm.micronaut.stream_control.utils.JsonUtils.ObjectToJson;
-import static org.jlom.master_upm.tfm.micronaut.stream_control.utils.JsonUtils.jsonToList;
 import static org.jlom.master_upm.tfm.micronaut.stream_control.utils.JsonUtils.jsonToObject;
 
-
+@Singleton
 public class StreamControlRepository implements IStreamControlRepository {
 
   private static final Logger LOG = LoggerFactory.getLogger(StreamControlRepository.class);
@@ -84,6 +82,9 @@ public class StreamControlRepository implements IStreamControlRepository {
     final String userCollectionKey = buildUserCollectionKey(userId,deviceId);
     // and deviceId as key inside each collection.
     String jsonData = redisApi.get(userCollectionKey);
+    if (jsonData == null ) {
+      return null;
+    }
     try {
       StreamControlData streamControlData = jsonToObject(jsonData, StreamControlData.class);
       if ( (null == streamControlData) || (streamControlData.getStatus() == StreamStatus.DONE)) {
@@ -104,10 +105,36 @@ public class StreamControlRepository implements IStreamControlRepository {
 
     final String userCollectionKey = buildUserCollectionKey(userId);
 
-    String jsonData = redisApi.get(userCollectionKey);
 
-    try {
-      List<StreamControlData> values = jsonToList(jsonData, StreamControlData.class);
+    List<String> keys = redisApi.keys(userCollectionKey);
+//    List<StreamControlData> values = new ArrayList<>();
+//    for(var key : keys) {
+//      String jsonData = redisApi.get(key);
+//      if ( null != jsonData) {
+//        try {
+//          StreamControlData streamControlData = jsonToObject(jsonData, StreamControlData.class);
+//          if (null != streamControlData) {
+//            values.add(streamControlData);
+//          }
+//        } catch (IOException e) {
+//          e.printStackTrace();
+//        }
+//      }
+//    }
+    List<StreamControlData> values = keys.stream()
+            .map(redisApi::get)
+            .filter(Objects::nonNull)
+            .map(value -> {
+              try {
+                return jsonToObject(value, StreamControlData.class);
+              } catch (IOException e) {
+                e.printStackTrace();
+                return null;
+              }
+            })
+            .filter(Objects::nonNull)
+            .collect(Collectors.toList());
+
       List<StreamControlData> running = values.stream()
               .filter(data -> data.getStatus() == StreamStatus.RUNNING)
               .collect(Collectors.toList());
@@ -120,12 +147,6 @@ public class StreamControlRepository implements IStreamControlRepository {
       } else {
         return running.get(0);
       }
-
-    } catch (IOException e) {
-      e.printStackTrace();
-      LOG.error("StreamControlRepository::isUserRunning Problem while looking in database: " + e.getMessage());
-      return null;
-    }
   }
 
   @Override
@@ -134,26 +155,35 @@ public class StreamControlRepository implements IStreamControlRepository {
     RedisCommands<String, String> redisApi = connection.sync();
 
     final String deviceCollectionKey = buildDeviceCollectionKey(deviceId);
-    try {
-      String jsonData = redisApi.get(deviceCollectionKey);
-      List<StreamControlData> values = jsonToList(jsonData, StreamControlData.class);
-      List<StreamControlData> running = values.stream()
-              .filter(data -> data.getStatus() == StreamStatus.RUNNING)
-              .collect(Collectors.toList());
 
-      if (running.isEmpty()) {
-        return null;
-      } else if (running.size() > 1) {
-        LOG.error("ERROR!!! Should NOT be more than one user running for each device:" + running);
-        return null;
-      } else {
-        return running.get(0);
-      }
-    } catch (IOException e) {
-    e.printStackTrace();
-    LOG.error("StreamControlRepository::isDeviceRunning Problem while looking in database: " + e.getMessage());
-    return null;
-  }
+    List<String> keys = redisApi.keys(deviceCollectionKey);
+    List<StreamControlData> values = keys.stream()
+            .map(redisApi::get)
+            .filter(Objects::nonNull)
+            .map(value -> {
+              try {
+                return jsonToObject(value, StreamControlData.class);
+              } catch (IOException e) {
+                e.printStackTrace();
+                return null;
+              }
+            })
+            .filter(Objects::nonNull)
+            .collect(Collectors.toList());
+
+    List<StreamControlData> running = values.stream()
+            .filter(data -> data.getStatus() == StreamStatus.RUNNING)
+            .collect(Collectors.toList());
+
+    if (running.isEmpty()) {
+      return null;
+    } else if (running.size() > 1) {
+      LOG.error("ERROR!!! Should NOT be more than one user running for each device:" + running);
+      return null;
+    } else {
+      return running.get(0);
+    }
+
   }
 
   @Override

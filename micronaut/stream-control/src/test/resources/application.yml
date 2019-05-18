@@ -6,7 +6,7 @@ micronaut:
 ---
 tracing:
   zipkin:
-    enabled: true
+    enabled: false
     http:
       url: http://localhost:9411
     sampler:
@@ -14,7 +14,7 @@ tracing:
 ---
 micronaut:
   security:
-    enabled: true
+    enabled: false
     endpoints:
       login:
         enabled: true
@@ -52,7 +52,7 @@ micronaut:
 consul:
   client:
     registration:
-      enabled: true
+      enabled: false
     defaultZone: "${CONSUL_HOST:localhost}:${CONSUL_PORT:8500}"
 
 ---

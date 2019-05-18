@@ -6,14 +6,13 @@ import org.jlom.master_upm.tfm.micronaut.stream_control.model.api.IStreamControl
 import org.jlom.master_upm.tfm.micronaut.stream_control.model.daos.StreamControlData;
 import org.jlom.master_upm.tfm.micronaut.stream_control.model.daos.StreamStatus;
 import org.jlom.master_upm.tfm.micronaut.stream_control.utils.EmbeddedRedisServer;
-import org.junit.Rule;
-import org.junit.Test;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.testcontainers.containers.GenericContainer;
-import org.testcontainers.containers.wait.strategy.LogMessageWaitStrategy;
+
+
 
 import javax.inject.Inject;
 

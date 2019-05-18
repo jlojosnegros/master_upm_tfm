@@ -2,6 +2,7 @@ package org.jlom.master_upm.tfm.micronaut.stream_control.view;
 
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.github.tomakehurst.wiremock.WireMockServer;
 import com.github.tomakehurst.wiremock.junit.WireMockRule;
 import io.micronaut.http.HttpStatus;
 import io.micronaut.http.MediaType;
@@ -16,9 +17,12 @@ import org.jlom.master_upm.tfm.micronaut.stream_control.view.api.dtos.StreamCont
 import org.jlom.master_upm.tfm.micronaut.stream_control.view.api.dtos.StreamControlReturnValueError;
 import org.jlom.master_upm.tfm.micronaut.stream_control.view.api.dtos.StreamControlReturnValueOk;
 import org.junit.Rule;
-import org.junit.Test;
+
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -29,6 +33,7 @@ import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
 import static com.github.tomakehurst.wiremock.client.WireMock.get;
 import static com.github.tomakehurst.wiremock.client.WireMock.stubFor;
 import static com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo;
+import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.jlom.master_upm.tfm.micronaut.stream_control.utils.JsonUtils.ObjectToJson;
 
@@ -38,8 +43,6 @@ public class ViewTest {
 
   private static final Logger LOG = LoggerFactory.getLogger(ViewTest.class);
 
-  @Rule
-  public WireMockRule dynamicServerMock = new WireMockRule();
 
 //  @Rule
 //  public GenericContainer rabbitmq = new GenericContainer<>("library/rabbitmq:3.7")
@@ -56,12 +59,28 @@ public class ViewTest {
   @Inject
   EmbeddedRedisServer embeddedRedisServer;
 
+  static WireMockServer wireMockServer = new WireMockServer(wireMockConfig().port(8080));
+
+  @BeforeAll
+  public static void init() {
+    wireMockServer.start();
+  }
+
+  @AfterAll
+  public  static void shudown() {
+    wireMockServer.stop();
+  }
+
   @BeforeEach
   public void setup() {
     embeddedRedisServer.start();
+    //notificationListener.cleanNotifications();
+    wireMockServer.resetAll();
   }
+
   @AfterEach
   public void tearDown() {
+    //notificationListener.cleanNotifications();
     embeddedRedisServer.stop();
   }
 
