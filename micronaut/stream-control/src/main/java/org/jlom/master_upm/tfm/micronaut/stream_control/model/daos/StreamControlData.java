@@ -5,10 +5,8 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import lombok.ToString;
 
 import java.io.Serializable;
-import java.util.Objects;
 
 
 
@@ -29,20 +27,5 @@ public class StreamControlData implements Serializable {
   @Builder.Default
   private boolean tillTheEnd = false;
 
-//  @Override
-//  public boolean equals(Object o) {
-//    if (this == o) return true;
-//    if (o == null || getClass() != o.getClass()) return false;
-//    StreamControlData that = (StreamControlData) o;
-//    return userId == that.userId &&
-//            deviceId == that.deviceId &&
-//            streamId == that.streamId &&
-//            tillTheEnd == that.tillTheEnd &&
-//            status == that.status;
-//  }
-//
-//  @Override
-//  public int hashCode() {
-//    return Objects.hash(userId, deviceId, streamId);
-//  }
+
 }
