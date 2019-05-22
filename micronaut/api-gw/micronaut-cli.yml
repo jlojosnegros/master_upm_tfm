@@ -1,0 +1,5 @@
+profile: service
+defaultPackage: apigw
+---
+testFramework: junit
+sourceLanguage: java
