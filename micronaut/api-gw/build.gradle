@@ -38,7 +38,7 @@ dependencies {
     compile "io.micronaut:micronaut-management"
     compile "io.opentracing.brave:brave-opentracing"
     compile "io.micronaut:micronaut-tracing"
-    //compile "io.micronaut:micronaut-security-jwt"
+    compile "io.micronaut:micronaut-security-jwt"
     //compile "io.micronaut:micronaut-discovery-client"
     compile "javax.annotation:javax.annotation-api"
     compile "io.micronaut.configuration:micronaut-rabbitmq"
@@ -50,6 +50,9 @@ dependencies {
     compile "io.micronaut:micronaut-runtime"
     compile "io.micronaut.configuration:micronaut-redis-lettuce"
     compile "io.micronaut:micronaut-http-server-netty"
+    // https://mvnrepository.com/artifact/com.google.guava/guava
+    compile group: 'com.google.guava', name: 'guava', version: '27.1-jre'
+
     runtime "io.zipkin.brave:brave-instrumentation-http"
     runtime "io.zipkin.reporter2:zipkin-reporter"
     runtime "ch.qos.logback:logback-classic:1.2.3"
