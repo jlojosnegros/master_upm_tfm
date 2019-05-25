@@ -1,3 +1,13 @@
+application:
+  name: apigw-service
+
+spring:
+  metrics:
+    prometheus:
+      enabled: true
+server:
+  port: 8080
+
 management:
   endpoints:
     web:

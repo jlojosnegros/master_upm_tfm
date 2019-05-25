@@ -6,8 +6,10 @@ import org.jlom.master_upm.tfm.springboot.stream_control.view.StartTime;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.cloud.stream.annotation.EnableBinding;
+import org.springframework.scheduling.annotation.EnableAsync;
 
 @SpringBootApplication
+@EnableAsync
 @EnableBinding(OutBoundNotifications.class)
 public class StreamControlApplication {
 	public static void main(String[] args) {

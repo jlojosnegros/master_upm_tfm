@@ -1,4 +1,13 @@
+application:
+  name: stream-control-service
+
+server:
+  port: 8080
+
 spring:
+  metrics:
+    prometheus:
+      enabled: true
   cloud:
     stream:
       bindings:

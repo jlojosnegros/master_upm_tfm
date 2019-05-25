@@ -44,6 +44,7 @@ public class WebSecurityConfiguration extends WebSecurityConfigurerAdapter {
   @Override
   protected void configure(HttpSecurity http) throws Exception {
     List<String> permitAllEndpointList = Arrays.asList(
+            "/custom_metrics/**",
             AUTHENTICATION_URL,
             ACTUATOR_URL,
             CONTENT_ROOT_URI + "/content/soon",

@@ -1,6 +1,10 @@
 application:
-  name: user-categories-service
+  name: catalog-service
 
+spring:
+  metrics:
+    prometheus:
+      enabled: true
 server:
   port: 8080
 
@@ -12,7 +16,3 @@ management:
     jmx:
       exposure:
         include: '*'
-spring:
-  metrics:
-    prometheus:
-      enabled: true
