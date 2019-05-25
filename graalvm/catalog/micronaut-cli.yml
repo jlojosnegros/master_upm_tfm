@@ -1,0 +1,5 @@
+profile: service
+defaultPackage: org.jlom.master_upm.tfm.graalvm.catalog
+---
+testFramework: junit
+sourceLanguage: java
