@@ -1,0 +1,5 @@
+profile: service
+defaultPackage: api.gw
+---
+testFramework: junit
+sourceLanguage: java
