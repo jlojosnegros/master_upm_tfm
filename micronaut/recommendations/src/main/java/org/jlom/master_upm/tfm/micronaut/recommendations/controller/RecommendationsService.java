@@ -35,11 +35,11 @@ public class RecommendationsService implements IRecommendationsService {
 
   @Inject
   @Client("http://catalog-service:8080")
-  private HttpClient httpClient;
+  private HttpClient catalogHttpClient;
 
   @Inject
   @Client("http://categories-service:8080")
-  private HttpClient catalogServiceClient;
+  private HttpClient categoriesHttpClient;
 
   private static final Logger LOG = LoggerFactory.getLogger(RecommendationsService.class);
 
@@ -153,7 +153,7 @@ public class RecommendationsService implements IRecommendationsService {
     );
 
     try {
-      InputCatalogContent body = httpClient.toBlocking()
+      InputCatalogContent body = catalogHttpClient.toBlocking()
               .retrieve(HttpRequest.GET(completeURL), InputCatalogContent.class);
       LOG.info(" body:" + body);
       return body;
@@ -174,7 +174,7 @@ public class RecommendationsService implements IRecommendationsService {
     );
 
     try {
-      InputCatalogContent[] body = httpClient.toBlocking()
+      InputCatalogContent[] body = catalogHttpClient.toBlocking()
               .retrieve(HttpRequest.GET(completeURL)
                       , InputCatalogContent[].class);
       LOG.info("jlom: body:" + Arrays.toString(body));
@@ -201,7 +201,7 @@ public class RecommendationsService implements IRecommendationsService {
             .build();
 
     try {
-      InputUserContentFiltered output = catalogServiceClient
+      InputUserContentFiltered output = categoriesHttpClient
               .toBlocking()
               .retrieve(HttpRequest.POST(userCategoryFilterURI
                       , userCategoryFilterInput), InputUserContentFiltered.class);
